@@ -175,3 +175,78 @@ class DoPublishOperation {
   factory DoPublishOperation.fromJson(Map<String, dynamic> json) => _$DoPublishOperationFromJson(json);
   Map<String, dynamic> toJson() => _$DoPublishOperationToJson(this);
 }
+
+class OperationResult {
+  final dynamic value;
+
+  OperationResult(this.value);
+
+  factory OperationResult.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('survey')) {
+      return OperationResult(SurveyOperationResult(json['survey']));
+    } else if (json.containsKey('target')) {
+      return OperationResult(TargetOperationResult(json['target']));
+    } else if (json.containsKey('research')) {
+      return OperationResult(ResearchOperationResult(json['research']));
+    } else if (json.containsKey('locate')) {
+      return OperationResult(LocateOperationResult(json['locate']));
+    } else if (json.containsKey('ready_publish')) {
+      return OperationResult(ReadyPublishOperationResult(json['ready_publish']));
+    } else if (json.containsKey('do_publish')) {
+      return OperationResult(DoPublishOperationResult(json['do_publish'][0], json['do_publish'][1]));
+    } else {
+      throw Exception('unknown OperationResult type');
+    }
+  }
+
+  // Map<String, dynamic> toJson() {
+  //   if (value is SurveyOperationResult) {
+  //     return {'survey': (value as SurveyOperationResult).index};
+  //   } else if (value is TargetOperationResult) {
+  //     return {'target': (value as TargetOperationResult).sectorType};
+  //   } else if (value is ResearchOperationResult) {
+  //     return {'research': (value as ResearchOperationResult).content};
+  //   } else if (value is LocateOperationResult) {
+  //     return {'locate': (value as LocateOperationResult).success};
+  //   } else if (value is ReadyPublishOperationResult) {
+  //     return {'ready_publish': (value as ReadyPublishOperationResult).indexes};
+  //   } else if (value is DoPublishOperationResult) {
+  //     return {
+  //       'do_publish': [value.index, value.sectorType]
+  //     };
+  //   } else {
+  //     throw Exception('unknown OperationResult type');
+  //   }
+  // }
+}
+
+class SurveyOperationResult {
+  final int index;
+  SurveyOperationResult(this.index);
+}
+
+class TargetOperationResult {
+  final SectorType sectorType;
+  TargetOperationResult(this.sectorType);
+}
+
+class ResearchOperationResult {
+  final String content;
+  ResearchOperationResult(this.content);
+}
+
+class LocateOperationResult {
+  final bool success;
+  LocateOperationResult(this.success);
+}
+
+class ReadyPublishOperationResult {
+  final List<int> indexes;
+  ReadyPublishOperationResult(this.indexes);
+}
+
+class DoPublishOperationResult {
+  final int index;
+  final SectorType sectorType;
+  DoPublishOperationResult(this.index, this.sectorType);
+}
