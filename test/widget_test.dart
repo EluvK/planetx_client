@@ -1,30 +1,166 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:planetx_client/main.dart';
+import 'package:planetx_client/model/op.dart';
+import 'package:planetx_client/model/room.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  serdeOperation();
+  serdeRoomOperation();
+}
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+void serdeRoomOperation() {
+  return group('serde room Operation', () {
+    test('room op create', () {
+      final op = RoomUserOperation.create();
+      final json = op.toJson();
+      expect(json, "create");
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('room op join', () {
+      final op = RoomUserOperation.join("1");
+      final json = op.toJson();
+      expect(json, {'join': "1"});
+    });
+  });
+}
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+void serdeOperation() {
+  return group('serde Operation', () {
+    test('op survey', () {
+      final op = Operation.survey(SectorType.Comet, 1, 2);
+      final json = op.toJson();
+      expect(json, {
+        'survey': {
+          'sector_type': 'comet',
+          'start': 1,
+          'end': 2,
+        }
+      });
+    });
+    test('op target', () {
+      final op = Operation.target(1);
+      final json = op.toJson();
+      expect(json, {
+        'target': {
+          'index': 1,
+        }
+      });
+    });
+
+    test('op research', () {
+      final op = Operation.research(1);
+      final json = op.toJson();
+      expect(json, {
+        'research': {
+          'index': 1,
+        }
+      });
+    });
+
+    test('op locate', () {
+      final op = Operation.locate(1, SectorType.Comet, SectorType.Asteroid);
+      final json = op.toJson();
+      expect(json, {
+        'locate': {
+          'index': 1,
+          'pre_sector_type': 'comet',
+          'next_sector_type': 'asteroid',
+        }
+      });
+    });
+
+    test('op ready publish', () {
+      final op = Operation.readyPublish([SectorType.Comet, SectorType.Asteroid]);
+      final json = op.toJson();
+      expect(json, {
+        'ready_publish': {
+          'sectors': ['comet', 'asteroid'],
+        }
+      });
+    });
+
+    test('op do publish', () {
+      final op = Operation.doPublish(1, SectorType.Comet);
+      final json = op.toJson();
+      expect(json, {
+        'do_publish': {
+          'index': 1,
+          'sector_type': 'comet',
+        }
+      });
+    });
+
+    test('op from json', () {
+      final json = {
+        'survey': {
+          'sector_type': 'comet',
+          'start': 1,
+          'end': 2,
+        }
+      };
+      final op = Operation.fromJson(json);
+      expect(op.value, SurveyOperation(SectorType.Comet, 1, 2));
+    });
+
+    test('op from json', () {
+      final json = {
+        'target': {
+          'index': 1,
+        }
+      };
+      final op = Operation.fromJson(json);
+      expect(op.value, TargetOperation(1));
+    });
+
+    test('op from json', () {
+      final json = {
+        'research': {
+          'index': 1,
+        }
+      };
+      final op = Operation.fromJson(json);
+      expect(op.value, ResearchOperation(1));
+    });
+
+    test('op from json', () {
+      final json = {
+        'locate': {
+          'index': 1,
+          'pre_sector_type': 'comet',
+          'next_sector_type': 'dwarf_planet',
+        }
+      };
+      final op = Operation.fromJson(json);
+      expect(op.value, LocateOperation(1, SectorType.Comet, SectorType.DwarfPlanet));
+    });
+
+    test('op from json', () {
+      final json = {
+        'ready_publish': {
+          'sectors': ['comet', 'asteroid'],
+        }
+      };
+      final op = Operation.fromJson(json);
+      expect(op.value, ReadyPublishOperation([SectorType.Comet, SectorType.Asteroid]));
+    });
+
+    test('op from json', () {
+      final json = {
+        'do_publish': {
+          'index': 1,
+          'sector_type': 'comet',
+        }
+      };
+      final op = Operation.fromJson(json);
+      expect(op.value, DoPublishOperation(1, SectorType.Comet));
+    });
+
+    test('op from json unknown', () {
+      final json = {
+        'unknown': {
+          'index': 1,
+        }
+      };
+      expect(() => Operation.fromJson(json), throwsException);
+    });
   });
 }
