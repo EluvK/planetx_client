@@ -6,9 +6,11 @@ class GamePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: const GameBody(),
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: const GameBody(),
+      ),
     );
   }
 }
@@ -21,53 +23,85 @@ class GameBody extends StatefulWidget {
 }
 
 class _GameBodyState extends State<GameBody> {
+  List<Map<String, double>> activePoints = [
+    {'sectorIndex': 1, 'sequenceIndex': 0.5},
+    {'sectorIndex': 1, 'sequenceIndex': 1},
+    {'sectorIndex': 1, 'sequenceIndex': 2},
+    {'sectorIndex': 1, 'sequenceIndex': 3},
+    {'sectorIndex': 1, 'sequenceIndex': 4},
+    {'sectorIndex': 1, 'sequenceIndex': 4.5},
+    {'sectorIndex': 3, 'sequenceIndex': 3},
+    {'sectorIndex': 11, 'sequenceIndex': 3},
+    {'sectorIndex': 6, 'sequenceIndex': 2},
+    {'sectorIndex': 6, 'sequenceIndex': 4},
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return CircleSectors();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 获取父容器的宽度和高度
+        double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
+        // 设置最小值为 440
+        double size = math.max(parentSize, 440);
+        return CircleSectors(
+          containerSize: size,
+          activePoints: activePoints,
+        );
+      },
+    );
   }
 }
 
 class CircleSectors extends StatelessWidget {
-  const CircleSectors({super.key});
+  const CircleSectors({
+    super.key,
+    required this.containerSize,
+    required this.activePoints,
+  });
+  final double containerSize;
+  final List<Map<String, double>> activePoints;
 
   @override
   Widget build(BuildContext context) {
-    const double size = 600; // 容器大小
-    const double radius = (size - 30) / 2; // 圆半径
+    // const double size = 1200; // 容器大小
+    double radius = (containerSize - 30) / 2; // 圆半径
+    double buttonSize = containerSize / 17; // 按钮大小
     const double baseRadius = 50; // 基础半径
-    const double buttonSize = size / 20; // 按钮大小
     const int sectorCount = 18; // 等分数
-    const int buttonsPerSector = 5; // 每个扇区的按钮数
+    const int buttonsPerSector = 6; // 每个扇区的按钮数
 
     const double eachSectorDegree = 360 / sectorCount;
     const double startDegree = 180; // 0/80/180/260
 
-    final List<Map<String, int>> activePoints = [
-      {'sectorIndex': 1, 'sequenceIndex': 1}, // 扇区 1，序列 1
-      {'sectorIndex': 1, 'sequenceIndex': 2}, // 扇区 1，序列 1
-      {'sectorIndex': 1, 'sequenceIndex': 3}, // 扇区 1，序列 1
-      {'sectorIndex': 1, 'sequenceIndex': 4}, // 扇区 1，序列 1
-      {'sectorIndex': 3, 'sequenceIndex': 3}, // 扇区 3，序列 3
-      {'sectorIndex': 6, 'sequenceIndex': 2}, // 扇区 6，序列 2
-      {'sectorIndex': 6, 'sequenceIndex': 4}, // 扇区 6，序列 2
-      // 添加更多点...
-    ];
-
     return Center(
       child: SizedBox(
-        width: size,
-        height: size,
+        width: containerSize,
+        height: containerSize,
         child: Stack(
           alignment: Alignment.center,
           children: [
             // 绘制扇区边界线和最外层圆形边框
             CustomPaint(
-              size: Size(size, size),
+              size: Size(containerSize, containerSize),
               painter: SectorBorderPainter(
                 sectorCount: sectorCount,
                 radius: radius,
               ),
             ),
+
+            // 添加同心圆形边框
+            ...List.generate(buttonsPerSector, (buttonIndex) {
+              double circleRadius =
+                  baseRadius + (radius - baseRadius) * (buttonIndex + 1) / (buttonsPerSector + 0.6) - buttonSize / 1.6;
+              return CustomPaint(
+                size: Size(containerSize, containerSize),
+                painter: CircleBorderPainter(
+                  radius: circleRadius,
+                  color: Colors.grey.withOpacity(0.3), // 更浅的颜色
+                ),
+              );
+            }),
 
             // 生成扇区和按钮
             ...List.generate(sectorCount, (sectorIndex) {
@@ -91,8 +125,8 @@ class CircleSectors extends StatelessWidget {
                     double y = buttonRadius * math.sin(radians);
 
                     return Positioned(
-                      left: size / 2 + x - buttonSize / 2,
-                      top: size / 2 + y - buttonSize / 2,
+                      left: containerSize / 2 + x - buttonSize / 2,
+                      top: containerSize / 2 + y - buttonSize / 2,
                       child: Transform.rotate(
                         angle: rotation,
                         child: GestureDetector(
@@ -102,7 +136,7 @@ class CircleSectors extends StatelessWidget {
                                   width: buttonSize,
                                   height: buttonSize,
                                   decoration: BoxDecoration(
-                                    color: Colors.blue.withOpacity(0.6),
+                                    color: Colors.grey.withOpacity(0.3), // 更浅的颜色
                                     shape: BoxShape.circle,
                                     border: Border.all(color: Colors.white),
                                   ),
@@ -110,10 +144,12 @@ class CircleSectors extends StatelessWidget {
                                     // 调整文本旋转以保持正向
                                     child: Transform.rotate(
                                       angle: -rotation,
-                                      child: Text(
-                                        '${sectorIndex + 1}-${buttonIndex + 1}',
-                                        style: TextStyle(color: Colors.white, fontSize: 10),
-                                      ),
+                                      child: xplanetIcon(buttonIndex, size: buttonSize - 2),
+                                      // child: Icon(Icons.bra, color: Colors.blue, size: buttonSize - 2),
+                                      // Text(
+                                      //   '${sectorIndex + 1}-${buttonIndex + 1}',
+                                      //   style: TextStyle(color: Colors.white, fontSize: 10),
+                                      // ),
                                     ),
                                   ),
                                 )
@@ -125,8 +161,8 @@ class CircleSectors extends StatelessWidget {
 
                   // 在最外层显示序号
                   Positioned(
-                    left: size / 2 + (radius + 10) * math.cos(radians) - 5, // 调整位置
-                    top: size / 2 + (radius + 10) * math.sin(radians) - 10, // 调整位置
+                    left: containerSize / 2 + (radius + 10) * math.cos(radians) - 5, // 调整位置
+                    top: containerSize / 2 + (radius + 10) * math.sin(radians) - 10, // 调整位置
                     child: Transform.rotate(
                       angle: -rotation,
                       child: Text(
@@ -161,8 +197,8 @@ class CircleSectors extends StatelessWidget {
 
             // 生成最外层的小点（根据传入的列表）
             ...activePoints.map((point) {
-              int sectorIndex = point['sectorIndex']!;
-              int sequenceIndex = point['sequenceIndex']!;
+              double sectorIndex = point['sectorIndex']!;
+              double sequenceIndex = point['sequenceIndex']!;
 
               // 计算小点的角度（扇区起始角度 + 序列偏移）
               // 计算扇区起点角度（从顶部开始顺时针）
@@ -177,8 +213,8 @@ class CircleSectors extends StatelessWidget {
               double y = radius * math.sin(radians);
 
               return Positioned(
-                left: size / 2 + x - 5, // 调整位置
-                top: size / 2 + y - 5, // 调整位置
+                left: containerSize / 2 + x - 5, // 调整位置
+                top: containerSize / 2 + y - 5, // 调整位置
                 child: Container(
                   width: 10,
                   height: 10,
@@ -194,6 +230,48 @@ class CircleSectors extends StatelessWidget {
       ),
     );
   }
+
+  xplanetIcon(int buttonIndex, {double size = 30}) {
+    switch (buttonIndex) {
+      case 0:
+        return Image.asset('assets/icons/comet.png', width: size, height: size);
+      case 1:
+        return Image.asset('assets/icons/asteroid.png', width: size, height: size);
+      case 2:
+        return Image.asset('assets/icons/dwarf_planet.png', width: size, height: size);
+      case 3:
+        return Image.asset('assets/icons/nebula.png', width: size, height: size);
+      case 4:
+        return Image.asset('assets/icons/bracket.png', width: size, height: size);
+      case 5:
+        return Image.asset('assets/icons/x.png', width: size, height: size);
+      default:
+        return SizedBox();
+    }
+  }
+}
+
+class CircleBorderPainter extends CustomPainter {
+  final double radius;
+  final Color color;
+
+  CircleBorderPainter({required this.radius, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // 绘制圆形边框
+    canvas.drawCircle(center, radius, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class SectorBorderPainter extends CustomPainter {

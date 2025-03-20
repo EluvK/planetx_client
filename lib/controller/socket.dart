@@ -29,7 +29,7 @@ class SocketController extends GetxController {
     });
     socket.onConnectError((data) {
       print('connect_error $data');
-      Get.snackbar("连接错误", data.toString());
+      // Get.snackbar("连接错误", data.toString());
     });
     socket.on("server_resp", (data) {
       print(data);
