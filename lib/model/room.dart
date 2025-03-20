@@ -79,13 +79,13 @@ class RoomUnprepareOperation {
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class RoomResp {
+class RoomResult {
   final String roomId;
   final List<RoomUser> users;
 
-  RoomResp(this.roomId, this.users);
+  RoomResult(this.roomId, this.users);
 
-  factory RoomResp.fromJson(Map<String, dynamic> json) => _$RoomRespFromJson(json);
+  factory RoomResult.fromJson(Map<String, dynamic> json) => _$RoomRespFromJson(json);
   Map<String, dynamic> toJson() => _$RoomRespToJson(this);
 }
 

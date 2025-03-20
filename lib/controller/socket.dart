@@ -9,7 +9,7 @@ class SocketController extends GetxController {
   late Socket socket;
   final settingController = Get.find<SettingController>();
 
-  final currentRoom = RoomResp("", []).obs;
+  final currentRoom = RoomResult("", []).obs;
 
   @override
   Future<void> onInit() async {
@@ -35,9 +35,9 @@ class SocketController extends GetxController {
       print(data);
       Get.snackbar("服务端", data.toString());
     });
-    socket.on("room_resp", (data) {
-      print("room_resp: $data");
-      final room = RoomResp.fromJson(data);
+    socket.on("room_result", (data) {
+      print("room_result: $data");
+      final room = RoomResult.fromJson(data);
       currentRoom.value = room;
       Get.snackbar("房间", data.toString());
     });
