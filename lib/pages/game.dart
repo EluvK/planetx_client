@@ -132,27 +132,7 @@ class CircleSectors extends StatelessWidget {
                         child: GestureDetector(
                           onTap: () => print('扇区 ${sectorIndex + 1} - 按钮 ${buttonIndex + 1} 被点击'),
                           child: (buttonIndex != 0 || isPrime(sectorIndex + 1))
-                              ? Container(
-                                  width: buttonSize,
-                                  height: buttonSize,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.withOpacity(0.3), // 更浅的颜色
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white),
-                                  ),
-                                  child: Center(
-                                    // 调整文本旋转以保持正向
-                                    child: Transform.rotate(
-                                      angle: -rotation,
-                                      child: xplanetIcon(buttonIndex, size: buttonSize - 2),
-                                      // child: Icon(Icons.bra, color: Colors.blue, size: buttonSize - 2),
-                                      // Text(
-                                      //   '${sectorIndex + 1}-${buttonIndex + 1}',
-                                      //   style: TextStyle(color: Colors.white, fontSize: 10),
-                                      // ),
-                                    ),
-                                  ),
-                                )
+                              ? xplanetIcon(buttonSize, rotation, buttonIndex, sectorIndex, type: 1)
                               : SizedBox(),
                         ),
                       ),
@@ -231,23 +211,68 @@ class CircleSectors extends StatelessWidget {
     );
   }
 
-  xplanetIcon(int buttonIndex, {double size = 30}) {
+  Container xplanetIcon(double buttonSize, double rotation, int buttonIndex, int sectorIndex, {int type = 0}) {
+    Color backgroudColor = Colors.transparent;
+    BlendMode blendMode = BlendMode.srcATop;
+    String iconName = '';
+    switch (type) {
+      case 0: // 确认
+        // color = Colors.transparent;
+        // blendMode = BlendMode.;
+        break;
+      case 1: // 存疑，初始
+        backgroudColor = Colors.grey.withAlpha(160);
+        blendMode = BlendMode.dstOut;
+        break;
+      case 2: // 非
+        backgroudColor = Colors.black.withAlpha(20);
+        blendMode = BlendMode.srcIn;
+        break;
+      default:
+        break;
+    }
     switch (buttonIndex) {
       case 0:
-        return Image.asset('assets/icons/comet.png', width: size, height: size);
+        iconName = 'assets/icons/comet.png';
+        break;
       case 1:
-        return Image.asset('assets/icons/asteroid.png', width: size, height: size);
+        iconName = 'assets/icons/asteroid.png';
+        break;
       case 2:
-        return Image.asset('assets/icons/dwarf_planet.png', width: size, height: size);
+        iconName = 'assets/icons/dwarf_planet.png';
+        break;
       case 3:
-        return Image.asset('assets/icons/nebula.png', width: size, height: size);
+        iconName = 'assets/icons/nebula.png';
+        break;
       case 4:
-        return Image.asset('assets/icons/bracket.png', width: size, height: size);
+        iconName = 'assets/icons/bracket.png';
+        break;
       case 5:
-        return Image.asset('assets/icons/x.png', width: size, height: size);
+        iconName = 'assets/icons/x.png';
+        break;
       default:
-        return SizedBox();
+        return Container();
     }
+
+    return Container(
+      width: buttonSize,
+      height: buttonSize,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.green.withAlpha(100)),
+      ),
+      child: Transform.rotate(
+        angle: -rotation,
+        child: Image.asset(
+          iconName,
+          width: buttonSize - 2,
+          height: buttonSize - 2,
+          color: backgroudColor,
+          colorBlendMode: blendMode,
+        ),
+      ),
+    );
   }
 }
 
