@@ -68,67 +68,71 @@ class _StarMapState extends State<StarMap> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // 操作按钮
-        Row(
-          children: [
-            Text('切换状态：'),
-            SegmentedButton(
-              segments: [for (var status in SectorStatus.values) ButtonSegment(value: status, label: status.label)],
-              selected: {targetSectorStatus},
-              onSelectionChanged: (Set<SectorStatus> newSelection) {
-                setState(() {
-                  targetSectorStatus = newSelection.first;
-                });
-              },
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [],
-        ),
-        // 星图
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // 获取父容器的宽度和高度
-              double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
-              // 设置最小值为 440
-              double size = math.max(parentSize, 440);
-              return CircleSectors(
-                containerSize: size,
-                activePoints: activePoints,
-                sectorStatus: sectorStatus,
-                onSectorTap: (sectorIndex, sequenceIndex) {
-                  print('扇区 $sectorIndex - 按钮 $sequenceIndex 被点击');
+    var starMap = LayoutBuilder(
+      builder: (context, constraints) {
+        // 获取父容器的宽度和高度
+        double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
+        // 设置最小值为 440
+        double size = math.max(parentSize, 440);
+        return CircleSectors(
+          containerSize: size,
+          activePoints: activePoints,
+          sectorStatus: sectorStatus,
+          onSectorTap: (sectorIndex, sequenceIndex) {
+            print('扇区 $sectorIndex - 按钮 $sequenceIndex 被点击');
+            setState(() {
+              switch (targetSectorStatus) {
+                case SectorStatus.confirm:
+                  if (sectorStatus[sectorIndex][sequenceIndex] == SectorStatus.confirm) {
+                    // 重置当前扇区的状态
+                    sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.doubt);
+                  } else {
+                    // 重置当前扇区的状态
+                    sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.deny);
+                    sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.confirm;
+                  }
+                  break;
+                case SectorStatus.doubt:
+                  sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.doubt;
+                  break;
+                case SectorStatus.deny:
+                  sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.deny;
+                  break;
+              }
+            });
+          },
+        );
+      },
+    );
+    return Container(
+      decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+      child: Column(
+        children: [
+          // 操作按钮
+          Row(
+            children: [
+              Text('切换状态：'),
+              SegmentedButton(
+                segments: [for (var status in SectorStatus.values) ButtonSegment(value: status, label: status.label)],
+                selected: {targetSectorStatus},
+                onSelectionChanged: (Set<SectorStatus> newSelection) {
                   setState(() {
-                    switch (targetSectorStatus) {
-                      case SectorStatus.confirm:
-                        if (sectorStatus[sectorIndex][sequenceIndex] == SectorStatus.confirm) {
-                          // 重置当前扇区的状态
-                          sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.doubt);
-                        } else {
-                          // 重置当前扇区的状态
-                          sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.deny);
-                          sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.confirm;
-                        }
-                        break;
-                      case SectorStatus.doubt:
-                        sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.doubt;
-                        break;
-                      case SectorStatus.deny:
-                        sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.deny;
-                        break;
-                    }
+                    targetSectorStatus = newSelection.first;
                   });
                 },
-              );
-            },
+              ),
+            ],
           ),
-        ),
-      ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [],
+          ),
+          // 星图
+          Expanded(
+            child: starMap,
+          ),
+        ],
+      ),
     );
   }
 }

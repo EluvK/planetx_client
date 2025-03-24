@@ -8,15 +8,19 @@ class RoomUserOperation {
   RoomUserOperation(this.value);
 
   factory RoomUserOperation.create() => RoomUserOperation(RoomCreateOperation());
-  factory RoomUserOperation.join(String name) => RoomUserOperation(RoomJoinOperation(name));
-  factory RoomUserOperation.leave(String name) => RoomUserOperation(RoomLeaveOperation(name));
-  factory RoomUserOperation.prepare(String name) => RoomUserOperation(RoomPrepareOperation(name));
-  factory RoomUserOperation.unprepare(String name) => RoomUserOperation(RoomUnprepareOperation(name));
+  factory RoomUserOperation.edit(String id, int seed, MapType mapType) =>
+      RoomUserOperation(RoomEditOperation(id, seed, mapType));
+  factory RoomUserOperation.join(String id) => RoomUserOperation(RoomJoinOperation(id));
+  factory RoomUserOperation.leave(String id) => RoomUserOperation(RoomLeaveOperation(id));
+  factory RoomUserOperation.prepare(String id) => RoomUserOperation(RoomPrepareOperation(id));
+  factory RoomUserOperation.unprepare(String id) => RoomUserOperation(RoomUnprepareOperation(id));
 
   factory RoomUserOperation.fromJson(dynamic json) {
     if (json is Map<String, dynamic>) {
       if (json.containsKey('join')) {
         return RoomUserOperation(RoomJoinOperation(json['join']));
+      } else if (json.containsKey('edit')) {
+        return RoomUserOperation(RoomEditOperation.fromJson(json['edit']));
       } else if (json.containsKey('leave')) {
         return RoomUserOperation(RoomLeaveOperation(json['leave']));
       } else if (json.containsKey('prepare')) {
@@ -40,6 +44,8 @@ class RoomUserOperation {
     switch (value) {
       case RoomCreateOperation _:
         return 'create';
+      case RoomEditOperation edit:
+        return {'edit': edit.toJson()};
       case RoomJoinOperation _:
         return {'join': (value as RoomJoinOperation).value};
       case RoomLeaveOperation _:
@@ -56,6 +62,17 @@ class RoomUserOperation {
 
 class RoomCreateOperation {
   RoomCreateOperation();
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class RoomEditOperation {
+  final String id;
+  final int seed;
+  final MapType mapType;
+  RoomEditOperation(this.id, this.seed, this.mapType);
+
+  factory RoomEditOperation.fromJson(Map<String, dynamic> json) => _$RoomEditOperationFromJson(json);
+  Map<String, dynamic> toJson() => _$RoomEditOperationToJson(this);
 }
 
 class RoomJoinOperation {
@@ -85,8 +102,8 @@ class RoomResult {
 
   RoomResult(this.roomId, this.users);
 
-  factory RoomResult.fromJson(Map<String, dynamic> json) => _$RoomRespFromJson(json);
-  Map<String, dynamic> toJson() => _$RoomRespToJson(this);
+  factory RoomResult.fromJson(Map<String, dynamic> json) => _$RoomResultFromJson(json);
+  Map<String, dynamic> toJson() => _$RoomResultToJson(this);
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
@@ -99,4 +116,10 @@ class RoomUser {
 
   factory RoomUser.fromJson(Map<String, dynamic> json) => _$RoomUserFromJson(json);
   Map<String, dynamic> toJson() => _$RoomUserToJson(this);
+}
+
+@JsonEnum(fieldRename: FieldRename.snake)
+enum MapType {
+  standard,
+  expert,
 }
