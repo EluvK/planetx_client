@@ -9,20 +9,46 @@ class GamePage extends StatelessWidget {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(4.0),
-        child: const GameBody(),
+        child: const StarMap(),
       ),
     );
   }
 }
 
-class GameBody extends StatefulWidget {
-  const GameBody({super.key});
+enum SectorStatus { confirm, doubt, deny }
 
-  @override
-  State<GameBody> createState() => _GameBodyState();
+extension SectorStatusExtension on SectorStatus {
+  (Color, BlendMode) get imageColor {
+    switch (this) {
+      case SectorStatus.confirm:
+        return (Colors.transparent, BlendMode.srcOver);
+      case SectorStatus.doubt:
+        return (Colors.grey.withAlpha(200), BlendMode.dstOut);
+      case SectorStatus.deny:
+        return (Colors.black.withAlpha(10), BlendMode.srcIn);
+    }
+  }
+
+  Text get label {
+    switch (this) {
+      case SectorStatus.confirm:
+        return Text('确认');
+      case SectorStatus.doubt:
+        return Text('怀疑');
+      case SectorStatus.deny:
+        return Text('否定');
+    }
+  }
 }
 
-class _GameBodyState extends State<GameBody> {
+class StarMap extends StatefulWidget {
+  const StarMap({super.key});
+
+  @override
+  State<StarMap> createState() => _StarMapState();
+}
+
+class _StarMapState extends State<StarMap> {
   List<Map<String, double>> activePoints = [
     {'sectorIndex': 1, 'sequenceIndex': 0.5},
     {'sectorIndex': 1, 'sequenceIndex': 1},
@@ -36,19 +62,73 @@ class _GameBodyState extends State<GameBody> {
     {'sectorIndex': 6, 'sequenceIndex': 4},
   ];
 
+  final sectorStatus = List.generate(18, (index) => List.generate(6, (index) => SectorStatus.doubt));
+
+  SectorStatus targetSectorStatus = SectorStatus.confirm;
+
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // 获取父容器的宽度和高度
-        double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
-        // 设置最小值为 440
-        double size = math.max(parentSize, 440);
-        return CircleSectors(
-          containerSize: size,
-          activePoints: activePoints,
-        );
-      },
+    return Column(
+      children: [
+        // 操作按钮
+        Row(
+          children: [
+            Text('切换状态：'),
+            SegmentedButton(
+              segments: [for (var status in SectorStatus.values) ButtonSegment(value: status, label: status.label)],
+              selected: {targetSectorStatus},
+              onSelectionChanged: (Set<SectorStatus> newSelection) {
+                setState(() {
+                  targetSectorStatus = newSelection.first;
+                });
+              },
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [],
+        ),
+        // 星图
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // 获取父容器的宽度和高度
+              double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
+              // 设置最小值为 440
+              double size = math.max(parentSize, 440);
+              return CircleSectors(
+                containerSize: size,
+                activePoints: activePoints,
+                sectorStatus: sectorStatus,
+                onSectorTap: (sectorIndex, sequenceIndex) {
+                  print('扇区 $sectorIndex - 按钮 $sequenceIndex 被点击');
+                  setState(() {
+                    switch (targetSectorStatus) {
+                      case SectorStatus.confirm:
+                        if (sectorStatus[sectorIndex][sequenceIndex] == SectorStatus.confirm) {
+                          // 重置当前扇区的状态
+                          sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.doubt);
+                        } else {
+                          // 重置当前扇区的状态
+                          sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.deny);
+                          sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.confirm;
+                        }
+                        break;
+                      case SectorStatus.doubt:
+                        sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.doubt;
+                        break;
+                      case SectorStatus.deny:
+                        sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.deny;
+                        break;
+                    }
+                  });
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -57,10 +137,14 @@ class CircleSectors extends StatelessWidget {
   const CircleSectors({
     super.key,
     required this.containerSize,
+    required this.sectorStatus,
     required this.activePoints,
+    required this.onSectorTap,
   });
   final double containerSize;
   final List<Map<String, double>> activePoints;
+  final List<List<SectorStatus>> sectorStatus;
+  final void Function(int, int) onSectorTap;
 
   @override
   Widget build(BuildContext context) {
@@ -130,9 +214,16 @@ class CircleSectors extends StatelessWidget {
                       child: Transform.rotate(
                         angle: rotation,
                         child: GestureDetector(
-                          onTap: () => print('扇区 ${sectorIndex + 1} - 按钮 ${buttonIndex + 1} 被点击'),
+                          onTap: () => onSectorTap(sectorIndex, buttonIndex),
+                          onSecondaryTap: () => onSectorTap(sectorIndex, buttonIndex),
                           child: (buttonIndex != 0 || isPrime(sectorIndex + 1))
-                              ? xplanetIcon(buttonSize, rotation, buttonIndex, sectorIndex, type: 1)
+                              ? xplanetIcon(
+                                  buttonSize,
+                                  rotation,
+                                  buttonIndex,
+                                  sectorIndex,
+                                  sectorStatus[sectorIndex][buttonIndex],
+                                )
                               : SizedBox(),
                         ),
                       ),
@@ -211,26 +302,8 @@ class CircleSectors extends StatelessWidget {
     );
   }
 
-  Container xplanetIcon(double buttonSize, double rotation, int buttonIndex, int sectorIndex, {int type = 0}) {
-    Color backgroudColor = Colors.transparent;
-    BlendMode blendMode = BlendMode.srcATop;
+  Container xplanetIcon(double buttonSize, double rotation, int buttonIndex, int sectorIndex, SectorStatus status) {
     String iconName = '';
-    switch (type) {
-      case 0: // 确认
-        // color = Colors.transparent;
-        // blendMode = BlendMode.;
-        break;
-      case 1: // 存疑，初始
-        backgroudColor = Colors.grey.withAlpha(160);
-        blendMode = BlendMode.dstOut;
-        break;
-      case 2: // 非
-        backgroudColor = Colors.black.withAlpha(20);
-        blendMode = BlendMode.srcIn;
-        break;
-      default:
-        break;
-    }
     switch (buttonIndex) {
       case 0:
         iconName = 'assets/icons/comet.png';
@@ -268,8 +341,8 @@ class CircleSectors extends StatelessWidget {
           iconName,
           width: buttonSize - 2,
           height: buttonSize - 2,
-          color: backgroudColor,
-          colorBlendMode: blendMode,
+          color: status.imageColor.$1,
+          colorBlendMode: status.imageColor.$2,
         ),
       ),
     );

@@ -1,5 +1,7 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:planetx_client/controller/setting.dart';
@@ -21,6 +23,11 @@ void main() async {
     return controller;
   });
   await Get.find<SocketController>().ensureInitialization();
+
+  WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) {
+    BrowserContextMenu.disableContextMenu();
+  }
 
   runApp(const MyApp());
 }
