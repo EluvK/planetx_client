@@ -95,6 +95,7 @@ class __SettingState extends State<_Setting> {
   final settingController = Get.find<SettingController>();
   final socketController = Get.find<SocketController>();
   final nameController = TextEditingController(text: Get.find<SettingController>().userName.value);
+  final addressController = TextEditingController(text: Get.find<SettingController>().serverAddress.value);
   final focus = FocusNode();
 
   @override
@@ -124,12 +125,11 @@ class __SettingState extends State<_Setting> {
                 SizedBox(height: 20),
                 TextField(
                   focusNode: focus,
-                  controller: TextEditingController(text: settingController.serverAddress.value),
+                  controller: addressController,
                   decoration: InputDecoration(labelText: '服务器地址', suffixIcon: status.icon),
-                  onChanged: (value) {
-                    settingController.setServerAddress(value);
-                  },
+                  onChanged: (value) {},
                   onTapOutside: (e) {
+                    settingController.setServerAddress(addressController.text);
                     print("onTapOutside: $e");
                     focus.unfocus();
                     socketController.reconnect();

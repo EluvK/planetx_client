@@ -4,14 +4,14 @@ import 'dart:math' as math;
 enum SectorStatus { confirm, doubt, deny }
 
 extension SectorStatusExtension on SectorStatus {
-  (Color, BlendMode) get imageColor {
+  (Border, Color, BlendMode) get imageColor {
     switch (this) {
       case SectorStatus.confirm:
-        return (Colors.transparent, BlendMode.srcOver);
+        return (Border.all(color: Colors.green), Colors.transparent, BlendMode.srcOver);
       case SectorStatus.doubt:
-        return (Colors.grey.withAlpha(200), BlendMode.dstOut);
+        return (Border.all(color: Colors.grey), Colors.grey.withAlpha(200), BlendMode.dstOut);
       case SectorStatus.deny:
-        return (Colors.black.withAlpha(10), BlendMode.srcIn);
+        return (Border.all(color: Colors.transparent), Colors.black.withAlpha(10), BlendMode.srcIn);
     }
   }
 
@@ -23,6 +23,23 @@ extension SectorStatusExtension on SectorStatus {
         return Text('怀疑');
       case SectorStatus.deny:
         return Text('否定');
+    }
+  }
+}
+
+enum Season { spring, summer, autumn, winter }
+
+extension SeasonExtension on Season {
+  double get degree {
+    switch (this) {
+      case Season.spring:
+        return 80;
+      case Season.summer:
+        return 0;
+      case Season.autumn:
+        return 260;
+      case Season.winter:
+        return 180;
     }
   }
 }
@@ -52,16 +69,19 @@ class _StarMapState extends State<StarMap> {
 
   SectorStatus targetSectorStatus = SectorStatus.confirm;
 
+  int seasonIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     var starMap = LayoutBuilder(
       builder: (context, constraints) {
         // 获取父容器的宽度和高度
         double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
-        // 设置最小值为 440
-        double size = math.max(parentSize, 440);
+        // 设置最小值
+        double size = math.max(parentSize, 360);
         return CircleSectors(
           containerSize: size,
+          season: Season.values[seasonIndex],
           activePoints: activePoints,
           sectorStatus: sectorStatus,
           onSectorTap: (sectorIndex, sequenceIndex) {
@@ -85,6 +105,11 @@ class _StarMapState extends State<StarMap> {
                   sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.deny;
                   break;
               }
+            });
+          },
+          onCenterTap: () {
+            setState(() {
+              seasonIndex = (seasonIndex + 1) % 4;
             });
           },
         );
@@ -128,26 +153,30 @@ class CircleSectors extends StatelessWidget {
   const CircleSectors({
     super.key,
     required this.containerSize,
+    required this.season,
     required this.sectorStatus,
     required this.activePoints,
     required this.onSectorTap,
+    required this.onCenterTap,
   });
   final double containerSize;
+  final Season season;
   final List<Map<String, double>> activePoints;
   final List<List<SectorStatus>> sectorStatus;
   final void Function(int, int) onSectorTap;
+  final void Function() onCenterTap;
 
   @override
   Widget build(BuildContext context) {
     // const double size = 1200; // 容器大小
     double radius = (containerSize - 30) / 2; // 圆半径
     double buttonSize = containerSize / 17; // 按钮大小
-    const double baseRadius = 50; // 基础半径
+    const double baseRadius = 40; // 基础半径
     const int sectorCount = 18; // 等分数
     const int buttonsPerSector = 6; // 每个扇区的按钮数
 
     const double eachSectorDegree = 360 / sectorCount;
-    const double startDegree = 180; // 0/80/180/260
+    double startDegree = season.degree;
 
     return Center(
       child: SizedBox(
@@ -221,10 +250,22 @@ class CircleSectors extends StatelessWidget {
                     );
                   }),
 
-                  // 在最外层显示序号
+                  // 在最里层显示序号
                   Positioned(
                     left: containerSize / 2 + (radius + 10) * math.cos(radians) - 5, // 调整位置
                     top: containerSize / 2 + (radius + 10) * math.sin(radians) - 10, // 调整位置
+                    child: Transform.rotate(
+                      angle: -rotation,
+                      child: Text(
+                        '${sectorIndex + 1}',
+                        style: TextStyle(color: Colors.black, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                  // 在最外层显示序号
+                  Positioned(
+                    left: containerSize / 2 + (baseRadius + 2) * math.cos(radians) - 5, // 调整位置
+                    top: containerSize / 2 + (baseRadius + 2) * math.sin(radians) - 10, // 调整位置
                     child: Transform.rotate(
                       angle: -rotation,
                       child: Text(
@@ -239,7 +280,7 @@ class CircleSectors extends StatelessWidget {
 
             // 中心按钮
             GestureDetector(
-              onTap: () => print('中心按钮被点击'),
+              onTap: () => onCenterTap(),
               child: Container(
                 width: 60,
                 height: 60,
@@ -250,7 +291,7 @@ class CircleSectors extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    '中心',
+                    season.name,
                     style: TextStyle(color: Colors.white, fontSize: 14),
                   ),
                 ),
@@ -324,7 +365,7 @@ class CircleSectors extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.transparent,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.green.withAlpha(100)),
+        border: status.imageColor.$1,
       ),
       child: Transform.rotate(
         angle: -rotation,
@@ -332,8 +373,8 @@ class CircleSectors extends StatelessWidget {
           iconName,
           width: buttonSize - 2,
           height: buttonSize - 2,
-          color: status.imageColor.$1,
-          colorBlendMode: status.imageColor.$2,
+          color: status.imageColor.$2,
+          colorBlendMode: status.imageColor.$3,
         ),
       ),
     );

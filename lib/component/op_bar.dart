@@ -1,6 +1,9 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:planetx_client/controller/socket.dart';
+import 'package:planetx_client/model/op.dart';
 import 'package:planetx_client/utils/number_picker.dart';
 
 class OpBar extends StatefulWidget {
@@ -44,17 +47,20 @@ class _OpBarState extends State<OpBar> {
   @override
   Widget build(BuildContext context) {
     if (_expandedOp == null) {
-      return Wrap(
-        spacing: 8.0,
-        runSpacing: 8.0,
-        alignment: WrapAlignment.center,
-        children: [
-          for (var op in OpEnum.values)
-            ElevatedButton(
-              onPressed: () => setState(() => _expandedOp = op),
-              child: Text(op.name),
-            ),
-        ],
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2.0),
+        child: Wrap(
+          spacing: 8.0,
+          runSpacing: 8.0,
+          alignment: WrapAlignment.center,
+          children: [
+            for (var op in OpEnum.values)
+              ElevatedButton(
+                onPressed: () => setState(() => _expandedOp = op),
+                child: Text(op.name),
+              ),
+          ],
+        ),
       );
     } else {
       return Row(
@@ -126,40 +132,31 @@ class TargetOpWidget extends StatefulWidget {
 }
 
 class _TargetOpWidgetState extends State<TargetOpWidget> {
-  var fromValue = 1;
-  var toValue = 10;
+  var target = 1;
+  final socket = Get.find<SocketController>();
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Text('Target'),
-        SizedBox(width: 8.0),
         NumberPicker(
-          value: fromValue,
+          value: target,
           onChanged: (value) {
             setState(() {
-              fromValue = value;
+              target = value;
             });
           },
           from: 1,
           to: 10,
           title: 'from',
         ),
-        Text(' to '),
-        NumberPicker(
-          value: toValue,
-          onChanged: (value) {
-            setState(() {
-              toValue = value;
-            });
-          },
-          from: 1,
-          to: 10,
-          title: 'to',
-        ),
+        Text('Price_4'),
+        SizedBox(width: 8),
         ElevatedButton(
-          onPressed: null,
+          onPressed: () {
+            socket.op(Operation.target(target));
+          },
           child: Text('submit'),
         ),
       ],
