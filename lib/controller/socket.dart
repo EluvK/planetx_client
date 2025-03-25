@@ -41,6 +41,14 @@ class SocketController extends GetxController {
       currentRoom.value = room;
       Get.snackbar("房间", data.toString());
     });
+    socket.on("op", (data) {
+      print("op: $data");
+      Get.snackbar("操作", data.toString());
+    });
+    socket.on("op_result", (data) {
+      print("op_result: $data");
+      Get.snackbar("操作结果", data.toString());
+    });
 
     super.onInit();
     _initialized = true;
