@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/model/op.dart';
@@ -5,11 +6,31 @@ import 'package:planetx_client/model/room.dart';
 
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+enum SocketStatus { connecting, connected, disconnected, error }
+
+extension SocketStatusExtension on SocketStatus {
+  Icon get icon {
+    switch (this) {
+      case SocketStatus.connecting:
+        return Icon(Icons.sync_outlined, color: Colors.blue);
+      case SocketStatus.connected:
+        return Icon(Icons.check_box, color: Colors.green);
+      case SocketStatus.disconnected:
+        return Icon(Icons.close_outlined, color: Colors.red);
+      case SocketStatus.error:
+        return Icon(Icons.error_outline, color: Colors.red);
+    }
+  }
+}
+
 class SocketController extends GetxController {
   IO.Socket? socket;
+  final socketStatus = SocketStatus.disconnected.obs;
   final settingController = Get.find<SettingController>();
 
   final currentRoom = RoomResult("", []).obs;
+
+  final messages = <String>[].obs; // Observable list to store messages
 
   @override
   Future<void> onInit() async {
@@ -31,42 +52,51 @@ class SocketController extends GetxController {
     return;
   }
 
-  void reconnect() {
+  void reconnect({bool force = false}) {
     final address = "${settingController.serverAddress.value}/xplanet";
     print("address: $address");
 
-    if (socket != null && socket!.connected && socket!.io.uri == address) return;
+    if (!force && socket != null && socket!.connected && socket!.io.uri == address) return;
 
-    if (socket != null && socket!.connected) {
+    socketStatus.value = SocketStatus.connecting;
+    if (socket != null) {
       socket!.disconnect();
     }
 
     socket = IO.io(address, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
+      'reconnectionAttempts': 5,
+      'reconnectionDelay': 1000,
+      'reconnectionDelayMax': 5000,
     });
     socket!.connect();
     socket!.onConnect((_) {
       print('connect');
+      socketStatus.value = SocketStatus.connected;
       socket!.emit("auth", settingController.user.toJson());
     });
     socket!.onDisconnect((data) {
+      socketStatus.value = SocketStatus.disconnected;
       print('disconnect $data');
       Get.snackbar("断开连接", data.toString());
     });
     socket!.onConnectError((data) {
+      socketStatus.value = SocketStatus.error;
       print('connect_error $data');
       // Get.snackbar("连接错误", data.toString());
     });
     socket!.on("server_resp", (data) {
       print(data);
-      Get.snackbar("服务端", data.toString());
+      // Get.snackbar("服务端", data.toString());
     });
     socket!.on("room_result", (data) {
       print("room_result: $data");
       final room = RoomResult.fromJson(data);
       currentRoom.value = room;
-      Get.snackbar("房间", data.toString());
+      if (Get.currentRoute != "/game") Get.toNamed("/game");
+      addMessage("加入房间: ${room.roomId}");
+      // Get.snackbar("房间", data.toString());
     });
     socket!.on("op", (data) {
       print("op: $data");
@@ -79,12 +109,29 @@ class SocketController extends GetxController {
   }
 
   void op(Operation operation) {
-    if (socket == null) return;
+    if (socket == null) {
+      Get.snackbar("未连接", "请先连接服务器");
+      return;
+    }
     socket!.emit('op', operation.toJson());
   }
 
-  void room(RoomUserOperation operation) {
-    if (socket == null) return;
+  void room(RoomUserOperation operation) async {
+    if (socket == null) {
+      reconnect();
+    }
+
+    for (var i = 0; i < 10; i++) {
+      await Future.delayed(Duration(milliseconds: 300));
+      if (socket != null && socket!.connected) break;
+    }
     socket!.emit('room', operation.toJson());
+  }
+
+  void addMessage(String message) {
+    messages.add(message);
+    Future.delayed(const Duration(seconds: 10), () {
+      messages.remove(message);
+    });
   }
 }

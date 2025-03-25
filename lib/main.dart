@@ -41,10 +41,11 @@ class MyApp extends StatelessWidget {
     var app = GetMaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/game',
+      initialRoute: '/',
       getPages: [
         GetPage(name: '/', page: () => HomePage()),
         GetPage(name: '/game', page: () => GamePage()),
+        GetPage(name: '/setting', page: () => SettingPage()),
       ],
       themeMode: ThemeMode.light,
       theme: FlexThemeData.light(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:planetx_client/component/clue_log.dart';
+import 'package:planetx_client/component/message_bar.dart';
 import 'package:planetx_client/component/op_bar.dart';
 import 'package:planetx_client/component/op_log.dart';
 import 'package:planetx_client/component/star_map.dart';
@@ -15,9 +16,7 @@ class GamePage extends StatelessWidget {
         child: ListView(
           shrinkWrap: true,
           children: [
-            Placeholder(
-              fallbackHeight: 50,
-            ),
+            MessageBar(),
             OpBar(),
             LayoutBuilder(builder: (context, constraints) {
               if (constraints.maxWidth > 1000) {

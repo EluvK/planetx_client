@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              Get.toNamed('/settings');
+              Get.toNamed('/setting');
             },
           ),
         ],

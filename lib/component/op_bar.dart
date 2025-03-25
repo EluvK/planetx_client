@@ -1,6 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:planetx_client/utils/number_picker.dart';
 
 class OpBar extends StatefulWidget {
   const OpBar({super.key});
@@ -73,17 +74,95 @@ class _OpBarState extends State<OpBar> {
   Widget _buildExpandedContent(OpEnum op) {
     switch (op) {
       case OpEnum.Survey:
-        return const Text('Survey');
+        return _buildSurvey();
       case OpEnum.Target:
-        return const Text('Target');
+        return TargetOpWidget();
       case OpEnum.Research:
-        return const Text('Research');
+        return _buildResearch();
       case OpEnum.Locate:
-        return const Text('Locate');
+        return _buildLocate();
       case OpEnum.ReadyPublish:
-        return const Text('ReadyPublish');
+        return _buildReadyPublish();
       case OpEnum.DoPublish:
-        return const Text('DoPublish');
+        return _buildDoPublish();
     }
+  }
+
+  Widget _buildSurvey() {
+    return Row(
+      children: [
+        Text('Survey'),
+        SizedBox(width: 8.0),
+        ElevatedButton(
+          onPressed: null,
+          child: Text('submit'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResearch() {
+    return const Text('Research');
+  }
+
+  Widget _buildLocate() {
+    return const Text('Locate');
+  }
+
+  Widget _buildReadyPublish() {
+    return const Text('ReadyPublish');
+  }
+
+  Widget _buildDoPublish() {
+    return const Text('DoPublish');
+  }
+}
+
+class TargetOpWidget extends StatefulWidget {
+  const TargetOpWidget({super.key});
+
+  @override
+  State<TargetOpWidget> createState() => _TargetOpWidgetState();
+}
+
+class _TargetOpWidgetState extends State<TargetOpWidget> {
+  var fromValue = 1;
+  var toValue = 10;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text('Target'),
+        SizedBox(width: 8.0),
+        NumberPicker(
+          value: fromValue,
+          onChanged: (value) {
+            setState(() {
+              fromValue = value;
+            });
+          },
+          from: 1,
+          to: 10,
+          title: 'from',
+        ),
+        Text(' to '),
+        NumberPicker(
+          value: toValue,
+          onChanged: (value) {
+            setState(() {
+              toValue = value;
+            });
+          },
+          from: 1,
+          to: 10,
+          title: 'to',
+        ),
+        ElevatedButton(
+          onPressed: null,
+          child: Text('submit'),
+        ),
+      ],
+    );
   }
 }
