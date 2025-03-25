@@ -9,6 +9,8 @@ class SettingController extends GetxController {
   RxString userName = ''.obs;
   RxString userId = ''.obs;
 
+  RxString serverAddress = 'http://127.0.0.1:7878'.obs;
+
   @override
   Future<void> onInit() async {
     _beginInit = true;
@@ -26,6 +28,13 @@ class SettingController extends GetxController {
       box.write('userName', name);
     } else {
       userName.value = box.read('userName');
+    }
+
+    if (box.read('serverAddress') == null) {
+      serverAddress.value = 'http://127.0.0.1:7878';
+      box.write('serverAddress', serverAddress.value);
+    } else {
+      serverAddress.value = box.read('serverAddress');
     }
 
     super.onInit();
@@ -49,5 +58,12 @@ class SettingController extends GetxController {
   void setUserName(String name) {
     userName.value = name;
     box.write('userName', name);
+  }
+
+  String get serverUrl => serverAddress.value;
+
+  void setServerAddress(String address) {
+    serverAddress.value = address;
+    box.write('serverAddress', address);
   }
 }
