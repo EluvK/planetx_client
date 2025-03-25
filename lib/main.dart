@@ -65,7 +65,7 @@ class MyApp extends StatelessWidget {
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         useMaterial3: true,
         swapLegacyOnMaterial3: true,
-        // fontFamily: 'lxgw',
+        fontFamily: 'lxgw',
       ),
       darkTheme: FlexThemeData.dark(
         scheme: FlexScheme.blumineBlue,
@@ -84,7 +84,7 @@ class MyApp extends StatelessWidget {
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         useMaterial3: true,
         swapLegacyOnMaterial3: true,
-        // fontFamily: 'lxgw',
+        fontFamily: 'lxgw',
       ),
     );
     return app;
