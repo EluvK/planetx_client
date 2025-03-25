@@ -28,7 +28,7 @@ class SocketController extends GetxController {
   final socketStatus = SocketStatus.disconnected.obs;
   final settingController = Get.find<SettingController>();
 
-  final currentRoom = RoomResult("", []).obs;
+  final currentRoom = GameStateResp.placeholder().obs;
 
   final messages = <String>[].obs; // Observable list to store messages
 
@@ -90,12 +90,12 @@ class SocketController extends GetxController {
       print(data);
       // Get.snackbar("服务端", data.toString());
     });
-    socket!.on("room_result", (data) {
-      print("room_result: $data");
-      final room = RoomResult.fromJson(data);
-      currentRoom.value = room;
+    socket!.on("game_state", (data) {
+      print("game_state: $data");
+      final gs = GameStateResp.fromJson(data);
+      currentRoom.value = gs;
       if (Get.currentRoute != "/game") Get.toNamed("/game");
-      addMessage("加入房间: ${room.roomId}");
+      addMessage("加入房间: ${gs.id}");
       // Get.snackbar("房间", data.toString());
     });
     socket!.on("op", (data) {

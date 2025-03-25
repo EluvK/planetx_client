@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:planetx_client/model/op.dart';
 
 part 'room.g.dart';
 
@@ -96,30 +97,80 @@ class RoomUnprepareOperation {
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class RoomResult {
-  final String roomId;
-  final List<RoomUser> users;
+class GameStateResp {
+  final String id;
+  final GameState status;
+  final String? hint;
+  final List<UserState> users;
+  final int startIndex;
+  final int endIndex;
+  final int mapSeed;
+  final MapType mapType;
 
-  RoomResult(this.roomId, this.users);
+  GameStateResp(
+    this.id,
+    this.status,
+    this.hint,
+    this.users,
+    this.startIndex,
+    this.endIndex,
+    this.mapSeed,
+    this.mapType,
+  );
 
-  factory RoomResult.fromJson(Map<String, dynamic> json) => _$RoomResultFromJson(json);
-  Map<String, dynamic> toJson() => _$RoomResultToJson(this);
+  factory GameStateResp.placeholder() => GameStateResp(
+        '',
+        GameState.notStarted,
+        '',
+        [],
+        0,
+        0,
+        0,
+        MapType.standard,
+      );
+
+  factory GameStateResp.fromJson(Map<String, dynamic> json) => _$GameStateRespFromJson(json);
+  Map<String, dynamic> toJson() => _$GameStateRespToJson(this);
+}
+
+@JsonEnum(fieldRename: FieldRename.snake)
+enum GameState {
+  notStarted,
+  starting,
+  wait,
+  autoMove,
+  end,
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class RoomUser {
+class UserState {
   final String id;
   final String name;
   final bool ready;
+  final UserLocationSequence location;
+  final bool shouldMove;
+  final List<Operation> moves;
+  final List<OperationResult> movesResult;
 
-  RoomUser(this.id, this.name, this.ready);
+  UserState(this.id, this.name, this.ready, this.location, this.shouldMove, this.moves, this.movesResult);
 
-  factory RoomUser.fromJson(Map<String, dynamic> json) => _$RoomUserFromJson(json);
-  Map<String, dynamic> toJson() => _$RoomUserToJson(this);
+  factory UserState.fromJson(Map<String, dynamic> json) => _$UserStateFromJson(json);
+  Map<String, dynamic> toJson() => _$UserStateToJson(this);
 }
 
 @JsonEnum(fieldRename: FieldRename.snake)
 enum MapType {
   standard,
   expert,
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class UserLocationSequence {
+  final int index;
+  final int childIndex;
+
+  UserLocationSequence(this.index, this.childIndex);
+
+  factory UserLocationSequence.fromJson(Map<String, dynamic> json) => _$UserLocationSequenceFromJson(json);
+  Map<String, dynamic> toJson() => _$UserLocationSequenceToJson(this);
 }

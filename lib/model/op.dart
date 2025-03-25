@@ -199,25 +199,26 @@ class OperationResult {
     }
   }
 
-  // Map<String, dynamic> toJson() {
-  //   if (value is SurveyOperationResult) {
-  //     return {'survey': (value as SurveyOperationResult).index};
-  //   } else if (value is TargetOperationResult) {
-  //     return {'target': (value as TargetOperationResult).sectorType};
-  //   } else if (value is ResearchOperationResult) {
-  //     return {'research': (value as ResearchOperationResult).content};
-  //   } else if (value is LocateOperationResult) {
-  //     return {'locate': (value as LocateOperationResult).success};
-  //   } else if (value is ReadyPublishOperationResult) {
-  //     return {'ready_publish': (value as ReadyPublishOperationResult).indexes};
-  //   } else if (value is DoPublishOperationResult) {
-  //     return {
-  //       'do_publish': [value.index, value.sectorType]
-  //     };
-  //   } else {
-  //     throw Exception('unknown OperationResult type');
-  //   }
-  // }
+  Map<String, dynamic> toJson() {
+    assert(false, 'OperationResult.toJson should not be called');
+    if (value is SurveyOperationResult) {
+      return {'survey': (value as SurveyOperationResult).index};
+    } else if (value is TargetOperationResult) {
+      return {'target': (value as TargetOperationResult).sectorType};
+    } else if (value is ResearchOperationResult) {
+      return {'research': (value as ResearchOperationResult).content};
+    } else if (value is LocateOperationResult) {
+      return {'locate': (value as LocateOperationResult).success};
+    } else if (value is ReadyPublishOperationResult) {
+      return {'ready_publish': (value as ReadyPublishOperationResult).indexes};
+    } else if (value is DoPublishOperationResult) {
+      return {
+        'do_publish': [value.index, value.sectorType]
+      };
+    } else {
+      throw Exception('unknown OperationResult type');
+    }
+  }
 }
 
 class SurveyOperationResult {
