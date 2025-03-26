@@ -1,5 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'op.g.dart';
@@ -10,8 +11,46 @@ enum SectorType {
   Asteroid, // 小行星
   DwarfPlanet, // 矮行星
   Nebula, // 气体云
-  X,
   Space, // 空域
+  X;
+
+  factory SectorType.fromStarMapIndex(int index) {
+    switch (index) {
+      case 0:
+        return SectorType.Comet;
+      case 1:
+        return SectorType.Asteroid;
+      case 2:
+        return SectorType.DwarfPlanet;
+      case 3:
+        return SectorType.Nebula;
+      case 4:
+        return SectorType.Space;
+      case 5:
+        return SectorType.X;
+      default:
+        throw Exception('unknown SectorType index');
+    }
+  }
+}
+
+extension SectorTypeExtension on SectorType {
+  String get iconName {
+    switch (this) {
+      case SectorType.Comet:
+        return 'assets/icons/comet.png';
+      case SectorType.Asteroid:
+        return 'assets/icons/asteroid.png';
+      case SectorType.DwarfPlanet:
+        return 'assets/icons/dwarf_planet.png';
+      case SectorType.Nebula:
+        return 'assets/icons/nebula.png';
+      case SectorType.Space:
+        return 'assets/icons/bracket.png';
+      case SectorType.X:
+        return 'assets/icons/x.png';
+    }
+  }
 }
 
 class Operation {
@@ -25,7 +64,7 @@ class Operation {
   factory Operation.target(int index) {
     return Operation(TargetOperation(index));
   }
-  factory Operation.research(int index) {
+  factory Operation.research(ClueEnum index) {
     return Operation(ResearchOperation(index));
   }
   factory Operation.locate(int index, SectorType preSectorType, SectorType nextSectorType) {
@@ -110,7 +149,7 @@ class TargetOperation {
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class ResearchOperation {
-  final int index;
+  final ClueEnum index;
 
   ResearchOperation(this.index);
 
@@ -151,7 +190,7 @@ class ReadyPublishOperation {
   ReadyPublishOperation(this.sectors);
 
   @override
-  bool operator ==(Object other) => other is ReadyPublishOperation && other.sectors == sectors;
+  bool operator ==(Object other) => other is ReadyPublishOperation && listEquals(sectors, other.sectors);
   @override
   int get hashCode => sectors.hashCode;
 
@@ -250,4 +289,65 @@ class DoPublishOperationResult {
   final int index;
   final SectorType sectorType;
   DoPublishOperationResult(this.index, this.sectorType);
+}
+
+// -- clue
+
+@JsonEnum(fieldRename: FieldRename.pascal)
+enum ClueEnum {
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  // ignore: constant_identifier_names
+  X1,
+  // ignore: constant_identifier_names
+  X2,
+}
+
+extension ClueEnumExtension on ClueEnum {
+  int toIndex() {
+    switch (this) {
+      case ClueEnum.A:
+        return 0;
+      case ClueEnum.B:
+        return 1;
+      case ClueEnum.C:
+        return 2;
+      case ClueEnum.D:
+        return 3;
+      case ClueEnum.E:
+        return 4;
+      case ClueEnum.F:
+        return 5;
+      case ClueEnum.X1:
+        return 6;
+      case ClueEnum.X2:
+        return 7;
+    }
+  }
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class ClueSecret {
+  final ClueEnum index;
+  final String secret;
+
+  ClueSecret(this.index, this.secret);
+
+  factory ClueSecret.fromJson(Map<String, dynamic> json) => _$ClueSecretFromJson(json);
+  Map<String, dynamic> toJson() => _$ClueSecretToJson(this);
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class ClueDetail {
+  final ClueEnum index;
+  final String detail;
+
+  ClueDetail(this.index, this.detail);
+
+  factory ClueDetail.fromJson(Map<String, dynamic> json) => _$ClueDetailFromJson(json);
+  Map<String, dynamic> toJson() => _$ClueDetailToJson(this);
 }

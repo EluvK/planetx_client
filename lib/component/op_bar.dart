@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planetx_client/controller/socket.dart';
 import 'package:planetx_client/model/op.dart';
-import 'package:planetx_client/utils/number_picker.dart';
+import 'package:planetx_client/model/room.dart';
+import 'package:planetx_client/utils/picker.dart';
 
 class OpBar extends StatefulWidget {
   const OpBar({super.key});
@@ -80,11 +81,11 @@ class _OpBarState extends State<OpBar> {
   Widget _buildExpandedContent(OpEnum op) {
     switch (op) {
       case OpEnum.Survey:
-        return _buildSurvey();
+        return SurveyOpWidget();
       case OpEnum.Target:
         return TargetOpWidget();
       case OpEnum.Research:
-        return _buildResearch();
+        return ResearchOpWidget();
       case OpEnum.Locate:
         return _buildLocate();
       case OpEnum.ReadyPublish:
@@ -92,23 +93,6 @@ class _OpBarState extends State<OpBar> {
       case OpEnum.DoPublish:
         return _buildDoPublish();
     }
-  }
-
-  Widget _buildSurvey() {
-    return Row(
-      children: [
-        Text('Survey'),
-        SizedBox(width: 8.0),
-        ElevatedButton(
-          onPressed: null,
-          child: Text('submit'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildResearch() {
-    return const Text('Research');
   }
 
   Widget _buildLocate() {
@@ -124,6 +108,71 @@ class _OpBarState extends State<OpBar> {
   }
 }
 
+class SurveyOpWidget extends StatefulWidget {
+  const SurveyOpWidget({super.key});
+
+  @override
+  State<SurveyOpWidget> createState() => _SurveyOpWidgetState();
+}
+
+class _SurveyOpWidgetState extends State<SurveyOpWidget> {
+  int from = 1;
+  int to = 10;
+  late int st;
+  late int ed;
+  late int max;
+  SectorType type = SectorType.Comet;
+  final socket = Get.find<SocketController>();
+
+  @override
+  void initState() {
+    st = socket.currentGameState.value.startIndex;
+    ed = socket.currentGameState.value.endIndex;
+    max = socket.currentGameState.value.mapType.sectorCount;
+    from = st;
+    to = ed;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text('Survey'),
+        NumberPicker(
+          value: from,
+          onChanged: (value) => setState(() => from = value),
+          from: st,
+          to: ed,
+          max: max,
+          title: 'from',
+        ),
+        Text('-'),
+        NumberPicker(
+          value: to,
+          onChanged: (value) => setState(() => to = value),
+          from: from,
+          to: ed,
+          max: max,
+          title: 'to',
+        ),
+        SectorPicker(
+          value: type,
+          onChanged: (value) => setState(() => type = value),
+          includeX: false,
+        ),
+        Text('Price_3-4/2-4'),
+        ElevatedButton(
+          onPressed: () {
+            socket.op(Operation.survey(type, from, to));
+          },
+          child: Text('submit'),
+        ),
+      ],
+    );
+  }
+}
+
 class TargetOpWidget extends StatefulWidget {
   const TargetOpWidget({super.key});
 
@@ -132,8 +181,20 @@ class TargetOpWidget extends StatefulWidget {
 }
 
 class _TargetOpWidgetState extends State<TargetOpWidget> {
-  var target = 1;
+  var value = 1;
   final socket = Get.find<SocketController>();
+  late int st;
+  late int ed;
+  late int max;
+
+  @override
+  void initState() {
+    st = socket.currentGameState.value.startIndex;
+    ed = socket.currentGameState.value.endIndex;
+    max = socket.currentGameState.value.mapType.sectorCount;
+    value = st;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,21 +202,54 @@ class _TargetOpWidgetState extends State<TargetOpWidget> {
       children: [
         Text('Target'),
         NumberPicker(
-          value: target,
-          onChanged: (value) {
-            setState(() {
-              target = value;
-            });
-          },
-          from: 1,
-          to: 10,
+          value: value,
+          onChanged: (value) => setState(() => value = value),
           title: 'from',
+          from: st,
+          to: ed,
+          max: max,
         ),
         Text('Price_4'),
         SizedBox(width: 8),
         ElevatedButton(
           onPressed: () {
-            socket.op(Operation.target(target));
+            socket.op(Operation.target(value));
+          },
+          child: Text('submit'),
+        ),
+      ],
+    );
+  }
+}
+
+class ResearchOpWidget extends StatefulWidget {
+  const ResearchOpWidget({super.key});
+
+  @override
+  State<ResearchOpWidget> createState() => _ResearchOpWidgetState();
+}
+
+class _ResearchOpWidgetState extends State<ResearchOpWidget> {
+  final socket = Get.find<SocketController>();
+  ClueEnum value = ClueEnum.A;
+
+  @override
+  Widget build(BuildContext context) {
+    List<ClueSecret> clues = socket.currentClueSecret;
+    List<ClueDetail> cluesDetails = socket.currentClueDetails;
+
+    return Row(
+      children: [
+        Text('Research'),
+        CluePicker(
+          clueSecrets: clues.where((element) => element.index != ClueEnum.X1 && element.index != ClueEnum.X2).toList(),
+          value: value,
+          onChanged: (value) => setState(() => value = value),
+        ),
+        Text('Price_1'),
+        ElevatedButton(
+          onPressed: () {
+            socket.op(Operation.research(value));
           },
           child: Text('submit'),
         ),

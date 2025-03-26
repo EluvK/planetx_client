@@ -30,8 +30,8 @@ class SocketController extends GetxController {
   final settingController = Get.find<SettingController>();
 
   final currentGameState = GameStateResp.placeholder().obs;
-  final currentClueSecret = <String>[].obs;
-  final currentClueDetails = <String>[].obs;
+  final currentClueSecret = <ClueSecret>[].obs;
+  final currentClueDetails = <ClueDetail>[].obs;
 
   // final messages = <String>[].obs; // Observable list to store messages
 
@@ -103,10 +103,10 @@ class SocketController extends GetxController {
       // Get.snackbar("房间", data.toString());
     });
     socket!.on("game_start", (data) {
-      // print("clue_secret: $data");
+      print("clue_secret: $data");
       // Get.snackbar("线索", data.toString());
-      currentClueSecret.value = List<String>.from(data);
-      currentClueDetails.value = List<String>.filled(currentClueSecret.length, "");
+      currentClueSecret.value = (data as List).map((e) => ClueSecret.fromJson(e)).toList();
+      currentClueDetails.value = [];
     });
     socket!.on("op", (data) {
       print("op: $data");

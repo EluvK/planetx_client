@@ -47,11 +47,11 @@ void serdeOperation() {
     });
 
     test('op research', () {
-      final op = Operation.research(1);
+      final op = Operation.research(ClueEnum.A);
       final json = op.toJson();
       expect(json, {
         'research': {
-          'index': 1,
+          'index': "A",
         }
       });
     });
@@ -114,11 +114,11 @@ void serdeOperation() {
     test('op from json', () {
       final json = {
         'research': {
-          'index': 1,
+          'index': "A",
         }
       };
       final op = Operation.fromJson(json);
-      expect(op.value, ResearchOperation(1));
+      expect(op.value, ResearchOperation(ClueEnum.A));
     });
 
     test('op from json', () {
@@ -140,7 +140,8 @@ void serdeOperation() {
         }
       };
       final op = Operation.fromJson(json);
-      expect(op.value, ReadyPublishOperation([SectorType.Comet, SectorType.Asteroid]));
+      var exp = ReadyPublishOperation([SectorType.Comet, SectorType.Asteroid]);
+      expect(op.value, exp);
     });
 
     test('op from json', () {

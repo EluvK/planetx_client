@@ -23,8 +23,8 @@ const _$SectorTypeEnumMap = {
   SectorType.Asteroid: 'asteroid',
   SectorType.DwarfPlanet: 'dwarf_planet',
   SectorType.Nebula: 'nebula',
-  SectorType.X: 'x',
   SectorType.Space: 'space',
+  SectorType.X: 'x',
 };
 
 TargetOperation _$TargetOperationFromJson(Map<String, dynamic> json) => TargetOperation(
@@ -36,12 +36,23 @@ Map<String, dynamic> _$TargetOperationToJson(TargetOperation instance) => <Strin
     };
 
 ResearchOperation _$ResearchOperationFromJson(Map<String, dynamic> json) => ResearchOperation(
-      (json['index'] as num).toInt(),
+      $enumDecode(_$ClueEnumEnumMap, json['index']),
     );
 
 Map<String, dynamic> _$ResearchOperationToJson(ResearchOperation instance) => <String, dynamic>{
-      'index': instance.index,
+      'index': _$ClueEnumEnumMap[instance.index]!,
     };
+
+const _$ClueEnumEnumMap = {
+  ClueEnum.A: 'A',
+  ClueEnum.B: 'B',
+  ClueEnum.C: 'C',
+  ClueEnum.D: 'D',
+  ClueEnum.E: 'E',
+  ClueEnum.F: 'F',
+  ClueEnum.X1: 'X1',
+  ClueEnum.X2: 'X2',
+};
 
 LocateOperation _$LocateOperationFromJson(Map<String, dynamic> json) => LocateOperation(
       (json['index'] as num).toInt(),
@@ -71,4 +82,24 @@ DoPublishOperation _$DoPublishOperationFromJson(Map<String, dynamic> json) => Do
 Map<String, dynamic> _$DoPublishOperationToJson(DoPublishOperation instance) => <String, dynamic>{
       'index': instance.index,
       'sector_type': _$SectorTypeEnumMap[instance.sectorType]!,
+    };
+
+ClueSecret _$ClueSecretFromJson(Map<String, dynamic> json) => ClueSecret(
+      $enumDecode(_$ClueEnumEnumMap, json['index']),
+      json['secret'] as String,
+    );
+
+Map<String, dynamic> _$ClueSecretToJson(ClueSecret instance) => <String, dynamic>{
+      'index': _$ClueEnumEnumMap[instance.index]!,
+      'secret': instance.secret,
+    };
+
+ClueDetail _$ClueDetailFromJson(Map<String, dynamic> json) => ClueDetail(
+      $enumDecode(_$ClueEnumEnumMap, json['index']),
+      json['detail'] as String,
+    );
+
+Map<String, dynamic> _$ClueDetailToJson(ClueDetail instance) => <String, dynamic>{
+      'index': _$ClueEnumEnumMap[instance.index]!,
+      'detail': instance.detail,
     };

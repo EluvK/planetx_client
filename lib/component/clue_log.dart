@@ -2,19 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:planetx_client/controller/socket.dart';
-
-enum ClueEnum {
-  A,
-  B,
-  C,
-  D,
-  E,
-  F,
-  // ignore: constant_identifier_names
-  X1,
-  // ignore: constant_identifier_names
-  X2,
-}
+import 'package:planetx_client/model/op.dart';
 
 class ClueLog extends StatefulWidget {
   const ClueLog({super.key});
@@ -29,8 +17,8 @@ class _ClueLogState extends State<ClueLog> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final clueSecret = socket.currentClueSecret;
-      final clueDetails = socket.currentClueDetails;
+      List<ClueSecret> clueSecret = socket.currentClueSecret;
+      List<ClueDetail> clueDetails = socket.currentClueDetails;
       return Table(
         columnWidths: {
           0: const FlexColumnWidth(2),
@@ -38,24 +26,21 @@ class _ClueLogState extends State<ClueLog> {
         },
         border: TableBorder.all(),
         children: [
-          for (var clue in ClueEnum.values)
-            TableRow(
-              children: [
-                TableCell(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                        "${clue.name}:${clue.index <= 5 ? "  " : " "}${clueSecret.length > clue.index ? clueSecret[clue.index] : ''}"),
-                  ),
+          for (var clue in clueSecret)
+            TableRow(children: [
+              TableCell(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text("${clue.index.name}: ${clue.secret}"),
                 ),
-                TableCell(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(clueDetails.length > clue.index ? clueDetails[clue.index] : ''),
-                  ),
+              ),
+              TableCell(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(clueDetails.firstWhereOrNull((element) => element.index == clue.index)?.detail ?? ''),
                 ),
-              ],
-            ),
+              ),
+            ]),
         ],
       );
     });

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:get/get.dart';
 import 'package:planetx_client/controller/socket.dart';
+import 'package:planetx_client/model/op.dart';
 import 'package:planetx_client/model/room.dart';
 import 'package:planetx_client/utils/utils.dart';
 
@@ -277,8 +278,7 @@ class CircleSectors extends StatelessWidget {
                               ? xplanetIcon(
                                   buttonSize,
                                   rotation,
-                                  buttonIndex,
-                                  sectorIndex,
+                                  SectorType.fromStarMapIndex(buttonIndex),
                                   sectorStatus[sectorIndex][buttonIndex],
                                 )
                               : SizedBox(),
@@ -412,31 +412,7 @@ class CircleSectors extends StatelessWidget {
     );
   }
 
-  Container xplanetIcon(double buttonSize, double rotation, int buttonIndex, int sectorIndex, SectorStatus status) {
-    String iconName = '';
-    switch (buttonIndex) {
-      case 0:
-        iconName = 'assets/icons/comet.png';
-        break;
-      case 1:
-        iconName = 'assets/icons/asteroid.png';
-        break;
-      case 2:
-        iconName = 'assets/icons/dwarf_planet.png';
-        break;
-      case 3:
-        iconName = 'assets/icons/nebula.png';
-        break;
-      case 4:
-        iconName = 'assets/icons/bracket.png';
-        break;
-      case 5:
-        iconName = 'assets/icons/x.png';
-        break;
-      default:
-        return Container();
-    }
-
+  Container xplanetIcon(double buttonSize, double rotation, SectorType type, SectorStatus status) {
     return Container(
       width: buttonSize,
       height: buttonSize,
@@ -448,7 +424,7 @@ class CircleSectors extends StatelessWidget {
       child: Transform.rotate(
         angle: -rotation,
         child: Image.asset(
-          iconName,
+          type.iconName,
           width: buttonSize - 2,
           height: buttonSize - 2,
           color: status.imageColor.$2,
