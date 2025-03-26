@@ -30,6 +30,17 @@ extension SectorStatusExtension on SectorStatus {
         return Text('否定');
     }
   }
+
+  Widget get icon {
+    switch (this) {
+      case SectorStatus.confirm:
+        return Icon(Icons.check, color: Colors.green);
+      case SectorStatus.doubt:
+        return Icon(Icons.help, color: Colors.grey);
+      case SectorStatus.deny:
+        return Icon(Icons.close, color: Colors.red);
+    }
+  }
 }
 
 enum Season { spring, summer, autumn, winter }
@@ -63,6 +74,7 @@ class _StarMapState extends State<StarMap> {
   SectorStatus targetSectorStatus = SectorStatus.confirm;
 
   int seasonIndex = 0;
+  bool showMeetingView = false;
 
   @override
   Widget build(BuildContext context) {
@@ -113,32 +125,48 @@ class _StarMapState extends State<StarMap> {
       );
       return Container(
         decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-        child: Column(
+        child: Stack(
           children: [
+            Column(children: [SizedBox(height: 30), starMap]),
             // 操作按钮
-            Row(
-              children: [
-                Text('切换状态：'),
-                SegmentedButton(
-                  segments: [for (var status in SectorStatus.values) ButtonSegment(value: status, label: status.label)],
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4.0, left: 4.0),
+                child: SegmentedButton(
+                  segments: [
+                    for (var status in SectorStatus.values)
+                      ButtonSegment(
+                        value: status,
+                        label: status.label,
+                        icon: status.icon,
+                      )
+                  ],
                   selected: {targetSectorStatus},
+                  showSelectedIcon: false,
                   onSelectionChanged: (Set<SectorStatus> newSelection) {
                     setState(() {
                       targetSectorStatus = newSelection.first;
                     });
                   },
+                  style: const ButtonStyle(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+                  ),
                 ),
-              ],
+              ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [],
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                onPressed: () {
+                  setState(() {
+                    showMeetingView = !showMeetingView;
+                  });
+                },
+                icon: Icon(showMeetingView ? Icons.switch_left_rounded : Icons.switch_right_rounded, size: 30),
+              ),
             ),
-            starMap,
-            // 星图
-            // Expanded(
-            //   child: starMap,
-            // ),
           ],
         ),
       );

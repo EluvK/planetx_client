@@ -33,8 +33,8 @@ class _ClueLogState extends State<ClueLog> {
       final clueDetails = socket.currentClueDetails;
       return Table(
         columnWidths: {
-          0: const FlexColumnWidth(1),
-          1: const FlexColumnWidth(2),
+          0: const FlexColumnWidth(2),
+          1: const FlexColumnWidth(3),
         },
         border: TableBorder.all(),
         children: [
