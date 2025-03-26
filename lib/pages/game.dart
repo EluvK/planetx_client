@@ -22,6 +22,7 @@ class GamePage extends StatelessWidget {
             LayoutBuilder(builder: (context, constraints) {
               if (constraints.maxWidth > 1000) {
                 return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(flex: 2, child: const StarMap()),
                     Flexible(

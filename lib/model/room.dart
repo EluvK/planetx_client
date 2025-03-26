@@ -192,6 +192,35 @@ enum MapType {
   expert,
 }
 
+extension MapTypeExt on MapType {
+  int get sectorCount {
+    switch (this) {
+      case MapType.standard:
+        return 12;
+      case MapType.expert:
+        return 18;
+    }
+  }
+
+  List<int> get meetingPoints {
+    switch (this) {
+      case MapType.standard:
+        return [0, 3, 6, 9];
+      case MapType.expert:
+        return [0, 3, 6, 9, 12, 15];
+    }
+  }
+
+  List<int> get xCluePoints {
+    switch (this) {
+      case MapType.standard:
+        return [10];
+      case MapType.expert:
+        return [7, 16];
+    }
+  }
+}
+
 @JsonSerializable(fieldRename: FieldRename.snake)
 class UserLocationSequence {
   final int index;

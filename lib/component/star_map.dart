@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+import 'package:get/get.dart';
+import 'package:planetx_client/controller/socket.dart';
+import 'package:planetx_client/model/room.dart';
+import 'package:planetx_client/utils/utils.dart';
+
 enum SectorStatus { confirm, doubt, deny }
 
 extension SectorStatusExtension on SectorStatus {
@@ -33,13 +38,13 @@ extension SeasonExtension on Season {
   double get degree {
     switch (this) {
       case Season.spring:
-        return 0;
-      case Season.summer:
-        return 90;
-      case Season.autumn:
         return 180;
-      case Season.winter:
+      case Season.summer:
         return 270;
+      case Season.autumn:
+        return 0;
+      case Season.winter:
+        return 90;
     }
   }
 }
@@ -52,42 +57,8 @@ class StarMap extends StatefulWidget {
 }
 
 class _StarMapState extends State<StarMap> {
-  // 评审点 - 标准
-  // 3 4.5
-  // 6 4.5
-  // 9 4.5
-  // 12 4.5
-  // X1 10 4.5
-
-  // 评审点 - 大师
-  // 3 4.5
-  // 6 4.5
-  // 9 4.5
-  // 12 4.5
-  // 15 4.5
-  // 18 4.5
-  // X1 7 4.5
-  // X2 16 4.5
-
-  List<Map<String, double>> activePoints = [
-    {'sectorIndex': 1, 'sequenceIndex': 1},
-    {'sectorIndex': 1, 'sequenceIndex': 2},
-    {'sectorIndex': 1, 'sequenceIndex': 3},
-    {'sectorIndex': 1, 'sequenceIndex': 4},
-    {'sectorIndex': 3, 'sequenceIndex': 1},
-    {'sectorIndex': 3, 'sequenceIndex': 2},
-    {'sectorIndex': 3, 'sequenceIndex': 3},
-    {'sectorIndex': 3, 'sequenceIndex': 4},
-    {'sectorIndex': 6, 'sequenceIndex': 2},
-    {'sectorIndex': 6, 'sequenceIndex': 4},
-    {'sectorIndex': 11, 'sequenceIndex': 3},
-    {'sectorIndex': 3, 'sequenceIndex': 5},
-    {'sectorIndex': 6, 'sequenceIndex': 5},
-    {'sectorIndex': 9, 'sequenceIndex': 5},
-    {'sectorIndex': 12, 'sequenceIndex': 5},
-  ];
-
   final sectorStatus = List.generate(18, (index) => List.generate(6, (index) => SectorStatus.doubt));
+  final socket = Get.find<SocketController>();
 
   SectorStatus targetSectorStatus = SectorStatus.confirm;
 
@@ -95,79 +66,83 @@ class _StarMapState extends State<StarMap> {
 
   @override
   Widget build(BuildContext context) {
-    var starMap = LayoutBuilder(
-      builder: (context, constraints) {
-        // 获取父容器的宽度和高度
-        double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
-        // 设置最小值
-        double size = math.max(parentSize, 360);
-        return CircleSectors(
-          containerSize: size,
-          season: Season.values[seasonIndex],
-          activePoints: activePoints,
-          sectorStatus: sectorStatus,
-          onSectorTap: (sectorIndex, sequenceIndex) {
-            print('扇区 $sectorIndex - 按钮 $sequenceIndex 被点击');
-            setState(() {
-              switch (targetSectorStatus) {
-                case SectorStatus.confirm:
-                  if (sectorStatus[sectorIndex][sequenceIndex] == SectorStatus.confirm) {
-                    // 重置当前扇区的状态
-                    sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.doubt);
-                  } else {
-                    // 重置当前扇区的状态
-                    sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.deny);
-                    sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.confirm;
-                  }
-                  break;
-                case SectorStatus.doubt:
-                  sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.doubt;
-                  break;
-                case SectorStatus.deny:
-                  sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.deny;
-                  break;
-              }
-            });
-          },
-          onCenterTap: () {
-            setState(() {
-              seasonIndex = (seasonIndex + 1) % 4;
-            });
-          },
-        );
-      },
-    );
-    return Container(
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-      child: Column(
-        children: [
-          // 操作按钮
-          Row(
-            children: [
-              Text('切换状态：'),
-              SegmentedButton(
-                segments: [for (var status in SectorStatus.values) ButtonSegment(value: status, label: status.label)],
-                selected: {targetSectorStatus},
-                onSelectionChanged: (Set<SectorStatus> newSelection) {
-                  setState(() {
-                    targetSectorStatus = newSelection.first;
-                  });
-                },
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [],
-          ),
-          starMap,
-          // 星图
-          // Expanded(
-          //   child: starMap,
-          // ),
-        ],
-      ),
-    );
+    return Obx(() {
+      GameStateResp state = socket.currentGameState.value;
+      var starMap = LayoutBuilder(
+        builder: (context, constraints) {
+          // 获取父容器的宽度和高度
+          double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
+          // 设置最小值
+          double size = math.max(parentSize, 360);
+          return CircleSectors(
+            containerSize: size,
+            season: Season.values[seasonIndex],
+            mapType: state.mapType,
+            personPoints: state.users,
+            sectorStatus: sectorStatus,
+            onSectorTap: (sectorIndex, sequenceIndex) {
+              print('扇区 $sectorIndex - 按钮 $sequenceIndex 被点击');
+              setState(() {
+                switch (targetSectorStatus) {
+                  case SectorStatus.confirm:
+                    if (sectorStatus[sectorIndex][sequenceIndex] == SectorStatus.confirm) {
+                      // 重置当前扇区的状态
+                      sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.doubt);
+                    } else {
+                      // 重置当前扇区的状态
+                      sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.deny);
+                      sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.confirm;
+                    }
+                    break;
+                  case SectorStatus.doubt:
+                    sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.doubt;
+                    break;
+                  case SectorStatus.deny:
+                    sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.deny;
+                    break;
+                }
+              });
+            },
+            onCenterTap: () {
+              setState(() {
+                seasonIndex = (seasonIndex + 1) % 4;
+              });
+            },
+          );
+        },
+      );
+      return Container(
+        decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+        child: Column(
+          children: [
+            // 操作按钮
+            Row(
+              children: [
+                Text('切换状态：'),
+                SegmentedButton(
+                  segments: [for (var status in SectorStatus.values) ButtonSegment(value: status, label: status.label)],
+                  selected: {targetSectorStatus},
+                  onSelectionChanged: (Set<SectorStatus> newSelection) {
+                    setState(() {
+                      targetSectorStatus = newSelection.first;
+                    });
+                  },
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [],
+            ),
+            starMap,
+            // 星图
+            // Expanded(
+            //   child: starMap,
+            // ),
+          ],
+        ),
+      );
+    });
   }
 }
 
@@ -176,14 +151,16 @@ class CircleSectors extends StatelessWidget {
     super.key,
     required this.containerSize,
     required this.season,
+    required this.mapType,
     required this.sectorStatus,
-    required this.activePoints,
+    required this.personPoints,
     required this.onSectorTap,
     required this.onCenterTap,
   });
   final double containerSize;
   final Season season;
-  final List<Map<String, double>> activePoints;
+  final MapType mapType;
+  final List<UserState> personPoints;
   final List<List<SectorStatus>> sectorStatus;
   final void Function(int, int) onSectorTap;
   final void Function() onCenterTap;
@@ -194,11 +171,19 @@ class CircleSectors extends StatelessWidget {
     double radius = (containerSize - 30) / 2; // 圆半径
     double buttonSize = containerSize / 17; // 按钮大小
     const double baseRadius = 40; // 基础半径
-    const int sectorCount = 12; // 等分数
+    int sectorCount = mapType.sectorCount;
+    // const int sectorCount = 12; // 等分数
     const int buttonsPerSector = 6; // 每个扇区的按钮数
 
-    const double eachSectorDegree = 360 / sectorCount;
+    const int meetingPointSize = 18; // 会议点大小
+    const int xCluePointSize = 16; // X线索点大小
+    const int personPointSize = 20; // 人员点大小
+
+    double eachSectorDegree = 360 / sectorCount;
     double startDegree = season.degree;
+
+    List<int> meetingPoints = mapType.meetingPoints;
+    List<int> xCluePoints = mapType.xCluePoints;
 
     return Center(
       child: SizedBox(
@@ -322,22 +307,57 @@ class CircleSectors extends StatelessWidget {
               ),
             ),
 
-            // 生成最外层的小点（根据传入的列表）
-            ...activePoints.map((point) {
-              double sectorIndex = point['sectorIndex']!;
-              double sequenceIndex = point['sequenceIndex']!;
+            // 生成会议点
+            ...meetingPoints.map((point) {
+              double sectorIndex = point.toDouble();
+              double centerDegree = eachSectorDegree * sectorIndex + startDegree - 0.1 * (eachSectorDegree / 4);
+              double radians = (centerDegree) * math.pi / 180;
+              double x = radius * math.cos(radians);
+              double y = radius * math.sin(radians);
+
+              return Positioned(
+                left: containerSize / 2 + x - meetingPointSize / 2, // 调整位置
+                top: containerSize / 2 + y - meetingPointSize / 2, // 调整位置
+                child: Container(
+                  width: meetingPointSize.toDouble(),
+                  height: meetingPointSize.toDouble(),
+                  decoration: BoxDecoration(color: Colors.lightGreen, shape: BoxShape.circle),
+                  child: Icon(Icons.bookmark, color: Colors.white, size: 12),
+                ),
+              );
+            }),
+
+            // 生成X线索点
+            ...xCluePoints.map((point) {
+              double sectorIndex = point.toDouble();
+              double centerDegree = eachSectorDegree * sectorIndex + startDegree - 0.1 * (eachSectorDegree / 4);
+              double radians = (centerDegree) * math.pi / 180;
+              double x = radius * math.cos(radians);
+              double y = radius * math.sin(radians);
+
+              return Positioned(
+                left: containerSize / 2 + x - xCluePointSize / 2, // 调整位置
+                top: containerSize / 2 + y - xCluePointSize / 2, // 调整位置
+                child: Container(
+                  width: xCluePointSize.toDouble(),
+                  height: xCluePointSize.toDouble(),
+                  decoration: BoxDecoration(color: Colors.blueGrey, shape: BoxShape.circle),
+                  child: Icon(Icons.close, color: Colors.white, size: 12),
+                ),
+              );
+            }),
+
+            // 生成人员点
+            ...personPoints.indexed.map((indexState) {
+              int personIndex = indexState.$1;
+              double sectorIndex = indexState.$2.location.index.toDouble();
+              double sequenceIndex = indexState.$2.location.childIndex.toDouble();
 
               // 计算小点的角度（扇区起始角度 + 序列偏移）
               // 计算扇区起点角度（从顶部开始顺时针）
-              double centerDegree;
-              if (sequenceIndex == 5) {
-                centerDegree = eachSectorDegree * sectorIndex + startDegree - 0.1 * (eachSectorDegree / 4);
-              } else {
-                centerDegree = eachSectorDegree * (sectorIndex - 1) +
-                    startDegree +
-                    (sequenceIndex - 0.5) * ((eachSectorDegree - 4) / 4) +
-                    2; // 预留2度的空隙
-              }
+              double centerDegree = (startDegree + 2) + // 两边预留2度的空隙
+                  eachSectorDegree * (sectorIndex - 1) +
+                  (sequenceIndex - 0.5) * ((eachSectorDegree - 4) / 4);
               // 转换为极坐标角度（右侧为0，逆时针）
               double radians = (centerDegree) * math.pi / 180;
 
@@ -346,13 +366,13 @@ class CircleSectors extends StatelessWidget {
               double y = radius * math.sin(radians);
 
               return Positioned(
-                left: containerSize / 2 + x - 5, // 调整位置
-                top: containerSize / 2 + y - 5, // 调整位置
+                left: containerSize / 2 + x - personPointSize / 2, // 调整位置
+                top: containerSize / 2 + y - personPointSize / 2, // 调整位置
                 child: Container(
-                  width: 10,
-                  height: 10,
+                  width: personPointSize.toDouble(),
+                  height: personPointSize.toDouble(),
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: userIndexedColors[personIndex],
                     shape: BoxShape.circle,
                   ),
                 ),
