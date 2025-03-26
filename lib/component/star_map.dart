@@ -33,13 +33,13 @@ extension SeasonExtension on Season {
   double get degree {
     switch (this) {
       case Season.spring:
-        return 80;
-      case Season.summer:
         return 0;
+      case Season.summer:
+        return 90;
       case Season.autumn:
-        return 260;
-      case Season.winter:
         return 180;
+      case Season.winter:
+        return 270;
     }
   }
 }
@@ -52,17 +52,39 @@ class StarMap extends StatefulWidget {
 }
 
 class _StarMapState extends State<StarMap> {
+  // 评审点 - 标准
+  // 3 4.5
+  // 6 4.5
+  // 9 4.5
+  // 12 4.5
+  // X1 10 4.5
+
+  // 评审点 - 大师
+  // 3 4.5
+  // 6 4.5
+  // 9 4.5
+  // 12 4.5
+  // 15 4.5
+  // 18 4.5
+  // X1 7 4.5
+  // X2 16 4.5
+
   List<Map<String, double>> activePoints = [
-    {'sectorIndex': 1, 'sequenceIndex': 0.5},
     {'sectorIndex': 1, 'sequenceIndex': 1},
     {'sectorIndex': 1, 'sequenceIndex': 2},
     {'sectorIndex': 1, 'sequenceIndex': 3},
     {'sectorIndex': 1, 'sequenceIndex': 4},
-    {'sectorIndex': 1, 'sequenceIndex': 4.5},
+    {'sectorIndex': 3, 'sequenceIndex': 1},
+    {'sectorIndex': 3, 'sequenceIndex': 2},
     {'sectorIndex': 3, 'sequenceIndex': 3},
-    {'sectorIndex': 11, 'sequenceIndex': 3},
+    {'sectorIndex': 3, 'sequenceIndex': 4},
     {'sectorIndex': 6, 'sequenceIndex': 2},
     {'sectorIndex': 6, 'sequenceIndex': 4},
+    {'sectorIndex': 11, 'sequenceIndex': 3},
+    {'sectorIndex': 3, 'sequenceIndex': 5},
+    {'sectorIndex': 6, 'sequenceIndex': 5},
+    {'sectorIndex': 9, 'sequenceIndex': 5},
+    {'sectorIndex': 12, 'sequenceIndex': 5},
   ];
 
   final sectorStatus = List.generate(18, (index) => List.generate(6, (index) => SectorStatus.doubt));
@@ -172,7 +194,7 @@ class CircleSectors extends StatelessWidget {
     double radius = (containerSize - 30) / 2; // 圆半径
     double buttonSize = containerSize / 17; // 按钮大小
     const double baseRadius = 40; // 基础半径
-    const int sectorCount = 18; // 等分数
+    const int sectorCount = 12; // 等分数
     const int buttonsPerSector = 6; // 每个扇区的按钮数
 
     const double eachSectorDegree = 360 / sectorCount;
@@ -191,6 +213,7 @@ class CircleSectors extends StatelessWidget {
               painter: SectorBorderPainter(
                 sectorCount: sectorCount,
                 radius: radius,
+                startDegree: startDegree,
               ),
             ),
 
@@ -212,7 +235,8 @@ class CircleSectors extends StatelessWidget {
               // 计算扇区中心角度（从顶部开始顺时针）
               double centerDegree = eachSectorDegree * sectorIndex + startDegree + eachSectorDegree / 2;
               // 转换为极坐标角度（右侧为0，逆时针）
-              double radians = (centerDegree - 90) * math.pi / 180;
+              double radians = (centerDegree) * math.pi / 180;
+              // print('sectorIndex: $sectorIndex, centerDegree: $centerDegree, radians: $radians');
               // 计算旋转角度（使按钮朝向圆心）
               double rotation = -(radians + math.pi);
 
@@ -305,11 +329,17 @@ class CircleSectors extends StatelessWidget {
 
               // 计算小点的角度（扇区起始角度 + 序列偏移）
               // 计算扇区起点角度（从顶部开始顺时针）
-              double centerDegree = 20 * (sectorIndex - 1) + startDegree;
-              // 转换增加偏移量
-              centerDegree += (sequenceIndex - 0.5) * (eachSectorDegree / 4);
+              double centerDegree;
+              if (sequenceIndex == 5) {
+                centerDegree = eachSectorDegree * sectorIndex + startDegree - 0.1 * (eachSectorDegree / 4);
+              } else {
+                centerDegree = eachSectorDegree * (sectorIndex - 1) +
+                    startDegree +
+                    (sequenceIndex - 0.5) * ((eachSectorDegree - 4) / 4) +
+                    2; // 预留2度的空隙
+              }
               // 转换为极坐标角度（右侧为0，逆时针）
-              double radians = (centerDegree - 90) * math.pi / 180;
+              double radians = (centerDegree) * math.pi / 180;
 
               // 计算小点的笛卡尔坐标
               double x = radius * math.cos(radians);
@@ -407,8 +437,9 @@ class CircleBorderPainter extends CustomPainter {
 class SectorBorderPainter extends CustomPainter {
   final int sectorCount;
   final double radius;
+  final double startDegree;
 
-  SectorBorderPainter({required this.sectorCount, required this.radius});
+  SectorBorderPainter({required this.sectorCount, required this.radius, required this.startDegree});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -421,7 +452,8 @@ class SectorBorderPainter extends CustomPainter {
 
     // 绘制扇区边界线
     for (int i = 0; i < sectorCount; i++) {
-      double angle = 2 * math.pi * (i + 0.5) / sectorCount;
+      double angle = math.pi * (2 * i / sectorCount + startDegree / 180);
+      // print('i: $i, angle: $angle, cos: ${math.cos(angle)}, sin: ${math.sin(angle)}');
       canvas.drawLine(
         center,
         Offset(center.dx + radius * math.cos(angle), center.dy + radius * math.sin(angle)),

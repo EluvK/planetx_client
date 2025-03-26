@@ -4,6 +4,7 @@ import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/model/op.dart';
 import 'package:planetx_client/model/room.dart';
 
+// ignore: library_prefixes
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 enum SocketStatus { connecting, connected, disconnected, error }
@@ -28,9 +29,11 @@ class SocketController extends GetxController {
   final socketStatus = SocketStatus.disconnected.obs;
   final settingController = Get.find<SettingController>();
 
-  final currentRoom = GameStateResp.placeholder().obs;
+  final currentGameState = GameStateResp.placeholder().obs;
+  final currentClueSecret = <String>[].obs;
+  final currentClueDetails = <String>[].obs;
 
-  final messages = <String>[].obs; // Observable list to store messages
+  // final messages = <String>[].obs; // Observable list to store messages
 
   @override
   Future<void> onInit() async {
@@ -93,10 +96,17 @@ class SocketController extends GetxController {
     socket!.on("game_state", (data) {
       print("game_state: $data");
       final gs = GameStateResp.fromJson(data);
-      currentRoom.value = gs;
-      if (Get.currentRoute != "/game") Get.toNamed("/game");
-      addMessage("加入房间: ${gs.id}");
+      currentGameState.value = gs;
+      if (Get.currentRoute != "/game" && currentGameState.value.id != "") Get.toNamed("/game");
+      if (Get.currentRoute == "/game" && currentGameState.value.id == "") Get.offAllNamed("/");
+      // addMessage("game state: ${gs.id}");
       // Get.snackbar("房间", data.toString());
+    });
+    socket!.on("game_start", (data) {
+      // print("clue_secret: $data");
+      // Get.snackbar("线索", data.toString());
+      currentClueSecret.value = List<String>.from(data);
+      currentClueDetails.value = List<String>.filled(currentClueSecret.length, "");
     });
     socket!.on("op", (data) {
       print("op: $data");
@@ -128,10 +138,10 @@ class SocketController extends GetxController {
     socket!.emit('room', operation.toJson());
   }
 
-  void addMessage(String message) {
-    messages.add(message);
-    Future.delayed(const Duration(seconds: 10), () {
-      messages.remove(message);
-    });
-  }
+  // void addMessage(String message) {
+  //   messages.add(message);
+  //   Future.delayed(const Duration(seconds: 10), () {
+  //     messages.remove(message);
+  //   });
+  // }
 }

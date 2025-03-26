@@ -67,10 +67,10 @@ class RoomCreateOperation {
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class RoomEditOperation {
-  final String id;
-  final int seed;
+  final String roomId;
+  final int mapSeed;
   final MapType mapType;
-  RoomEditOperation(this.id, this.seed, this.mapType);
+  RoomEditOperation(this.roomId, this.mapSeed, this.mapType);
 
   factory RoomEditOperation.fromJson(Map<String, dynamic> json) => _$RoomEditOperationFromJson(json);
   Map<String, dynamic> toJson() => _$RoomEditOperationToJson(this);
@@ -120,7 +120,7 @@ class GameStateResp {
 
   factory GameStateResp.placeholder() => GameStateResp(
         '',
-        GameState.notStarted,
+        GameState.notStarted(),
         '',
         [],
         0,
@@ -133,13 +133,41 @@ class GameStateResp {
   Map<String, dynamic> toJson() => _$GameStateRespToJson(this);
 }
 
-@JsonEnum(fieldRename: FieldRename.snake)
-enum GameState {
-  notStarted,
-  starting,
-  wait,
-  autoMove,
-  end,
+class GameState {
+  final dynamic value;
+  GameState(this.value);
+
+  factory GameState.notStarted() => GameState('not_started');
+  factory GameState.starting() => GameState('starting');
+  factory GameState.wait(String value) => GameState({'wait': value});
+  factory GameState.autoMove() => GameState('auto_move');
+  factory GameState.end() => GameState('end');
+
+  factory GameState.fromJson(dynamic json) {
+    if (json is String) {
+      return GameState(json);
+    } else if (json is Map<String, dynamic>) {
+      if (json.containsKey('wait')) {
+        return GameState.wait(json['wait']);
+      } else {
+        throw Exception('unknown GameState type');
+      }
+    } else {
+      throw Exception('unknown GameState type');
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    if (value is String) {
+      return {value: true};
+    } else if (value is Map<String, dynamic>) {
+      return value;
+    } else {
+      throw Exception('unknown GameState type');
+    }
+  }
+
+  bool isNotStarted() => value == 'not_started';
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)

@@ -7,14 +7,14 @@ part of 'room.dart';
 // **************************************************************************
 
 RoomEditOperation _$RoomEditOperationFromJson(Map<String, dynamic> json) => RoomEditOperation(
-      json['id'] as String,
-      (json['seed'] as num).toInt(),
+      json['room_id'] as String,
+      (json['map_seed'] as num).toInt(),
       $enumDecode(_$MapTypeEnumMap, json['map_type']),
     );
 
 Map<String, dynamic> _$RoomEditOperationToJson(RoomEditOperation instance) => <String, dynamic>{
-      'id': instance.id,
-      'seed': instance.seed,
+      'room_id': instance.roomId,
+      'map_seed': instance.mapSeed,
       'map_type': _$MapTypeEnumMap[instance.mapType]!,
     };
 
@@ -25,7 +25,7 @@ const _$MapTypeEnumMap = {
 
 GameStateResp _$GameStateRespFromJson(Map<String, dynamic> json) => GameStateResp(
       json['id'] as String,
-      $enumDecode(_$GameStateEnumMap, json['status']),
+      GameState.fromJson(json['status']),
       json['hint'] as String?,
       (json['users'] as List<dynamic>).map((e) => UserState.fromJson(e as Map<String, dynamic>)).toList(),
       (json['start_index'] as num).toInt(),
@@ -36,7 +36,7 @@ GameStateResp _$GameStateRespFromJson(Map<String, dynamic> json) => GameStateRes
 
 Map<String, dynamic> _$GameStateRespToJson(GameStateResp instance) => <String, dynamic>{
       'id': instance.id,
-      'status': _$GameStateEnumMap[instance.status]!,
+      'status': instance.status,
       'hint': instance.hint,
       'users': instance.users,
       'start_index': instance.startIndex,
@@ -44,14 +44,6 @@ Map<String, dynamic> _$GameStateRespToJson(GameStateResp instance) => <String, d
       'map_seed': instance.mapSeed,
       'map_type': _$MapTypeEnumMap[instance.mapType]!,
     };
-
-const _$GameStateEnumMap = {
-  GameState.notStarted: 'not_started',
-  GameState.starting: 'starting',
-  GameState.wait: 'wait',
-  GameState.autoMove: 'auto_move',
-  GameState.end: 'end',
-};
 
 UserState _$UserStateFromJson(Map<String, dynamic> json) => UserState(
       json['id'] as String,

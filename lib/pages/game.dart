@@ -17,6 +17,7 @@ class GamePage extends StatelessWidget {
           shrinkWrap: true,
           children: [
             MessageBar(),
+            RoomInfos(),
             OpBar(),
             LayoutBuilder(builder: (context, constraints) {
               if (constraints.maxWidth > 1000) {
