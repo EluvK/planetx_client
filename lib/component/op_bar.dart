@@ -47,12 +47,35 @@ class _OpBarState extends State<OpBar> {
 
   OpEnum? _expandedOp;
 
+  reset() {
+    setState(() => _expandedOp = null);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       if (socket.currentGameState.value.status.isNotStarted) {
         return const SizedBox.shrink();
       }
+
+      final GameStage currentGameStage = socket.currentGameState.value.gameStage;
+      List<OpEnum> ops;
+      switch (currentGameStage) {
+        case GameStage.userMove:
+          ops = [
+            OpEnum.Survey,
+            OpEnum.Target,
+            OpEnum.Research,
+            OpEnum.Locate,
+          ];
+        case GameStage.meetingProposal:
+          ops = [OpEnum.ReadyPublish];
+        case GameStage.meetingPublish:
+          ops = [OpEnum.DoPublish];
+        default:
+          ops = [];
+      }
+
       if (_expandedOp == null) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -61,7 +84,7 @@ class _OpBarState extends State<OpBar> {
             runSpacing: 8.0,
             alignment: WrapAlignment.center,
             children: [
-              for (var op in OpEnum.values)
+              for (var op in ops)
                 ElevatedButton(
                   onPressed: () => setState(() => _expandedOp = op),
                   child: Text(op.name),
@@ -88,35 +111,25 @@ class _OpBarState extends State<OpBar> {
   Widget _buildExpandedContent(OpEnum op) {
     switch (op) {
       case OpEnum.Survey:
-        return SurveyOpWidget();
+        return SurveyOpWidget(reset: reset);
       case OpEnum.Target:
-        return TargetOpWidget();
+        return TargetOpWidget(reset: reset);
       case OpEnum.Research:
-        return ResearchOpWidget();
+        return ResearchOpWidget(reset: reset);
       case OpEnum.Locate:
-        return LocateOpWidget();
+        return LocateOpWidget(reset: reset);
       case OpEnum.ReadyPublish:
-        return _buildReadyPublish();
+        return ReadyPublishOpWidget(reset: reset);
       case OpEnum.DoPublish:
-        return _buildDoPublish();
+        return DoPublishOpWidget(reset: reset);
     }
-  }
-
-  Widget _buildLocate() {
-    return const Text('Locate');
-  }
-
-  Widget _buildReadyPublish() {
-    return const Text('ReadyPublish');
-  }
-
-  Widget _buildDoPublish() {
-    return const Text('DoPublish');
   }
 }
 
 class SurveyOpWidget extends StatefulWidget {
-  const SurveyOpWidget({super.key});
+  const SurveyOpWidget({super.key, required this.reset});
+
+  final void Function() reset;
 
   @override
   State<SurveyOpWidget> createState() => _SurveyOpWidgetState();
@@ -168,10 +181,12 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
           onChanged: (value) => setState(() => type = value),
           includeX: false,
         ),
-        Text('Price_3-4/2-4'),
+        _opCost(4 - (_range(from, to, max) - 1) ~/ 3),
+        // Text('Price_3-4/2-4'),
         ElevatedButton(
           onPressed: () {
             socket.op(Operation.survey(type, from, to));
+            widget.reset();
           },
           child: Text('submit'),
         ),
@@ -181,8 +196,9 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
 }
 
 class TargetOpWidget extends StatefulWidget {
-  const TargetOpWidget({super.key});
+  const TargetOpWidget({super.key, required this.reset});
 
+  final void Function() reset;
   @override
   State<TargetOpWidget> createState() => _TargetOpWidgetState();
 }
@@ -216,11 +232,12 @@ class _TargetOpWidgetState extends State<TargetOpWidget> {
           to: ed,
           max: max,
         ),
-        Text('Price_4'),
+        _opCost(4),
         SizedBox(width: 8),
         ElevatedButton(
           onPressed: () {
             socket.op(Operation.target(res));
+            widget.reset();
           },
           child: Text('submit'),
         ),
@@ -230,7 +247,9 @@ class _TargetOpWidgetState extends State<TargetOpWidget> {
 }
 
 class ResearchOpWidget extends StatefulWidget {
-  const ResearchOpWidget({super.key});
+  const ResearchOpWidget({super.key, required this.reset});
+
+  final void Function() reset;
 
   @override
   State<ResearchOpWidget> createState() => _ResearchOpWidgetState();
@@ -243,7 +262,6 @@ class _ResearchOpWidgetState extends State<ResearchOpWidget> {
   @override
   Widget build(BuildContext context) {
     List<ClueSecret> clues = socket.currentClueSecret;
-    // todo can add some marker to show which clues are already used
     List<Clue> cluesDetails = socket.currentClueDetails;
 
     return Row(
@@ -255,16 +273,18 @@ class _ResearchOpWidgetState extends State<ResearchOpWidget> {
                   // && cluesDetails.firstWhereOrNull((e) => e.index == element.index) == null
                   )
               .toList(),
+          clueDetails: cluesDetails,
           value: input,
           onChanged: (value) {
             print(value);
             setState(() => input = value);
           },
         ),
-        Text('Price_1'),
+        _opCost(1),
         ElevatedButton(
           onPressed: () {
             socket.op(Operation.research(input));
+            widget.reset();
           },
           child: Text('submit'),
         ),
@@ -274,7 +294,9 @@ class _ResearchOpWidgetState extends State<ResearchOpWidget> {
 }
 
 class LocateOpWidget extends StatefulWidget {
-  const LocateOpWidget({super.key});
+  const LocateOpWidget({super.key, required this.reset});
+
+  final void Function() reset;
 
   @override
   State<LocateOpWidget> createState() => _LocateOpWidgetState();
@@ -305,9 +327,88 @@ class _LocateOpWidgetState extends State<LocateOpWidget> {
         ),
         // Text('- '),
         SectorPicker(value: next, onChanged: (value) => setState(() => next = value)),
+        _opCost(5),
         ElevatedButton(
           onPressed: () {
             socket.op(Operation.locate(index, pre, next));
+            widget.reset();
+          },
+          child: Text('submit'),
+        ),
+      ],
+    );
+  }
+}
+
+@override
+Widget _opCost(int cost) {
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [Icon(Icons.numbers_rounded), Text(cost.toString())],
+  );
+}
+
+int _range(int from, int to, int max) {
+  if (from < to) {
+    return to - from + 1;
+  } else {
+    return max - from + to;
+  }
+}
+
+class ReadyPublishOpWidget extends StatefulWidget {
+  const ReadyPublishOpWidget({super.key, required this.reset});
+
+  final void Function() reset;
+
+  @override
+  State<ReadyPublishOpWidget> createState() => _ReadyPublishOpWidgetState();
+}
+
+class _ReadyPublishOpWidgetState extends State<ReadyPublishOpWidget> {
+  final socket = Get.find<SocketController>();
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text('ReadyPublish:'),
+        ElevatedButton(
+          onPressed: () {
+            socket.op(Operation.readyPublish([
+              // todo
+            ]));
+            widget.reset();
+          },
+          child: Text('submit'),
+        ),
+      ],
+    );
+  }
+}
+
+class DoPublishOpWidget extends StatefulWidget {
+  const DoPublishOpWidget({super.key, required this.reset});
+
+  final void Function() reset;
+
+  @override
+  State<DoPublishOpWidget> createState() => _DoPublishOpWidgetState();
+}
+
+class _DoPublishOpWidgetState extends State<DoPublishOpWidget> {
+  final socket = Get.find<SocketController>();
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text('DoPublish:'),
+        ElevatedButton(
+          onPressed: () {
+            socket.op(Operation.doPublish(
+              //todo
+              2, SectorType.Comet,
+            ));
+            widget.reset();
           },
           child: Text('submit'),
         ),

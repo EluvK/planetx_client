@@ -171,7 +171,7 @@ class _StarMapState extends State<StarMap> {
         // 获取父容器的宽度和高度
         double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
         // 设置最小值
-        double size = math.max(parentSize, 360);
+        double size = math.max(parentSize, 300);
         return CircleSectors(
           containerSize: size,
           season: Season.values[seasonIndex],
@@ -220,7 +220,7 @@ class _StarMapState extends State<StarMap> {
         // 获取父容器的宽度和高度
         double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
         // 设置最小值
-        double size = math.max(parentSize, 360);
+        double size = math.max(parentSize, 300);
         return CircleMeetings(
           containerSize: size,
           season: Season.values[seasonIndex],

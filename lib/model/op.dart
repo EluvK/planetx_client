@@ -32,6 +32,43 @@ enum SectorType {
         throw Exception('unknown SectorType index');
     }
   }
+
+  factory SectorType.fromString(String str) {
+    switch (str) {
+      case 'comet':
+        return SectorType.Comet;
+      case 'asteroid':
+        return SectorType.Asteroid;
+      case 'dwarf_planet':
+        return SectorType.DwarfPlanet;
+      case 'nebula':
+        return SectorType.Nebula;
+      case 'space':
+        return SectorType.Space;
+      case 'x':
+        return SectorType.X;
+      default:
+        throw Exception('unknown SectorType string');
+    }
+  }
+
+  @override
+  String toString() {
+    switch (this) {
+      case SectorType.Comet:
+        return 'Comet';
+      case SectorType.Asteroid:
+        return 'Asteroid';
+      case SectorType.DwarfPlanet:
+        return 'DwarfPlanet';
+      case SectorType.Nebula:
+        return 'Nebula';
+      case SectorType.Space:
+        return 'Space';
+      case SectorType.X:
+        return 'X';
+    }
+  }
 }
 
 extension SectorTypeExtension on SectorType {
@@ -146,7 +183,7 @@ class Operation {
     } else if (value is ResearchOperation) {
       return 'Research ${value.index}';
     } else if (value is LocateOperation) {
-      return 'Locate ${value.index}';
+      return 'Locate';
     } else if (value is ReadyPublishOperation) {
       return 'ReadyPublish ${value.sectors}';
     } else if (value is DoPublishOperation) {
@@ -267,7 +304,7 @@ class OperationResult {
     if (json.containsKey('survey')) {
       return OperationResult(SurveyOperationResult(json['survey']));
     } else if (json.containsKey('target')) {
-      return OperationResult(TargetOperationResult(json['target']));
+      return OperationResult(TargetOperationResult(SectorType.fromString(json['target'] as String)));
     } else if (json.containsKey('research')) {
       return OperationResult(ResearchOperationResult.fromJson(json['research']));
     } else if (json.containsKey('locate')) {
@@ -362,7 +399,29 @@ enum ClueEnum {
   // ignore: constant_identifier_names
   X1,
   // ignore: constant_identifier_names
-  X2,
+  X2;
+
+  @override
+  String toString() {
+    switch (this) {
+      case ClueEnum.A:
+        return 'A';
+      case ClueEnum.B:
+        return 'B';
+      case ClueEnum.C:
+        return 'C';
+      case ClueEnum.D:
+        return 'D';
+      case ClueEnum.E:
+        return 'E';
+      case ClueEnum.F:
+        return 'F';
+      case ClueEnum.X1:
+        return 'X1';
+      case ClueEnum.X2:
+        return 'X2';
+    }
+  }
 }
 
 extension ClueEnumExtension on ClueEnum {

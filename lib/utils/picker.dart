@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:planetx_client/model/op.dart';
 
 class _PickerDialog<T> extends StatefulWidget {
@@ -165,9 +166,11 @@ List<int> _getNumbers(int from, int to, int step, int max) {
 
 class CluePicker extends _Picker<ClueEnum> {
   final List<ClueSecret> clueSecrets;
+  final List<Clue> clueDetails;
   CluePicker({
     super.key,
     required this.clueSecrets,
+    required this.clueDetails,
     required super.value,
     required super.onChanged,
   }) : super(
@@ -175,6 +178,10 @@ class CluePicker extends _Picker<ClueEnum> {
           title: '选择线索',
           toItemWidget: (ClueEnum t) {
             final current = clueSecrets.firstWhere((e) => e.index == t);
+            final known = clueDetails.firstWhereOrNull((e) => e.index == t);
+            if (known != null) {
+              return Text("${current.index.name} ${current.secret} ✅");
+            }
             return Text("${current.index.name} ${current.secret}");
           },
           toResultWidget: (ClueEnum t) {
