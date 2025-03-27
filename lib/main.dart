@@ -8,6 +8,7 @@ import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/controller/socket.dart';
 import 'package:planetx_client/pages/game.dart';
 import 'package:planetx_client/pages/home.dart';
+import 'package:planetx_client/pages/test.dart';
 
 void main() async {
   await GetStorage.init('XPlanetStorage');
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       getPages: [
         GetPage(name: '/', page: () => HomePage()),
+        GetPage(name: '/test', page: () => TestPage()),
         GetPage(name: '/game', page: () => GamePage()),
         GetPage(name: '/setting', page: () => SettingPage()),
       ],
