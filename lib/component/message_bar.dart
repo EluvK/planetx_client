@@ -103,7 +103,7 @@ class _RoomInfosState extends State<RoomInfos> {
           ),
           rowTextIconWidget(
             "Seed: ${gameState.mapSeed}",
-            gameState.status.isNotStarted()
+            gameState.status.isNotStarted
                 ? () {
                     var rng = Random();
                     socket.room(RoomUserOperation.edit(gameState.id, rng.nextInt(0xffffffff), gameState.mapType));
@@ -113,7 +113,7 @@ class _RoomInfosState extends State<RoomInfos> {
           ),
           rowTextIconWidget(
             "Type: ${gameState.mapType.name}",
-            gameState.status.isNotStarted()
+            gameState.status.isNotStarted
                 ? () {
                     final mapType = gameState.mapType == MapType.expert ? MapType.standard : MapType.expert;
                     socket.room(RoomUserOperation.edit(gameState.id, gameState.mapSeed, mapType));
@@ -173,7 +173,7 @@ class _RoomInfosState extends State<RoomInfos> {
           children: [
             gameInfo,
             userInfo,
-            if (gameState.status.isNotStarted()) buttons,
+            if (gameState.status.isNotStarted) buttons,
           ],
         ),
       );

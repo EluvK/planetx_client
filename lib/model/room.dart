@@ -139,7 +139,7 @@ class GameState {
 
   factory GameState.notStarted() => GameState('not_started');
   factory GameState.starting() => GameState('starting');
-  factory GameState.wait(String value) => GameState({'wait': value});
+  factory GameState.wait(List<String> value) => GameState({'wait': value});
   factory GameState.autoMove() => GameState('auto_move');
   factory GameState.end() => GameState('end');
 
@@ -148,7 +148,12 @@ class GameState {
       return GameState(json);
     } else if (json is Map<String, dynamic>) {
       if (json.containsKey('wait')) {
-        return GameState.wait(json['wait']);
+        if (json['wait'] is List<dynamic>) {
+          List<String> r = (json['wait'] as List<dynamic>).map((e) => e as String).toList();
+          return GameState.wait(r);
+        } else {
+          throw Exception('unknown GameState type');
+        }
       } else {
         throw Exception('unknown GameState type');
       }
@@ -167,7 +172,7 @@ class GameState {
     }
   }
 
-  bool isNotStarted() => value == 'not_started';
+  bool get isNotStarted => value == 'not_started';
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)

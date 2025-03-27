@@ -53,6 +53,31 @@ extension SectorTypeExtension on SectorType {
   }
 }
 
+@JsonEnum(fieldRename: FieldRename.snake)
+enum MeetingResultStatus {
+  Revealed,
+  BeforeRevealed1,
+  BeforeRevealed2,
+  Publish;
+
+  factory MeetingResultStatus.fromIndex(int index) {
+    switch (index) {
+      case 0:
+        return MeetingResultStatus.Revealed;
+      case 1:
+        return MeetingResultStatus.BeforeRevealed1;
+      case 2:
+        return MeetingResultStatus.BeforeRevealed2;
+      case 3:
+        return MeetingResultStatus.Publish;
+      default:
+        throw Exception('unknown MeetingResultStatus index');
+    }
+  }
+
+  // meetingIcons defined at star_map.dart anyway.
+}
+
 class Operation {
   final dynamic value;
 

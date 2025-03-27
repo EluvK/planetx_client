@@ -81,55 +81,45 @@ class _StarMapState extends State<StarMap> {
   Widget build(BuildContext context) {
     return Obx(() {
       GameStateResp state = socket.currentGameState.value;
-      var starMap = LayoutBuilder(
-        builder: (context, constraints) {
-          // 获取父容器的宽度和高度
-          double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
-          // 设置最小值
-          double size = math.max(parentSize, 360);
-          return CircleSectors(
-            containerSize: size,
-            season: Season.values[seasonIndex],
-            mapType: state.mapType,
-            personPoints: state.users,
-            sectorStatus: sectorStatus,
-            onSectorTap: (sectorIndex, sequenceIndex) {
-              print('扇区 $sectorIndex - 按钮 $sequenceIndex 被点击');
-              setState(() {
-                switch (targetSectorStatus) {
-                  case SectorStatus.confirm:
-                    if (sectorStatus[sectorIndex][sequenceIndex] == SectorStatus.confirm) {
-                      // 重置当前扇区的状态
-                      sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.doubt);
-                    } else {
-                      // 重置当前扇区的状态
-                      sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.deny);
-                      sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.confirm;
-                    }
-                    break;
-                  case SectorStatus.doubt:
-                    sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.doubt;
-                    break;
-                  case SectorStatus.deny:
-                    sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.deny;
-                    break;
-                }
+
+      // if (state.status.isNotStarted) {
+      //   return const SizedBox.shrink();
+      // }
+
+      // this is a flip animation from left to right
+      // ref: https://github.com/GONZALEZD/flutter_demos/blob/main/flip_animation/lib/main.dart
+      var animatedMap = AnimatedSwitcher(
+        duration: const Duration(milliseconds: 800),
+        layoutBuilder: (widget, list) => Stack(children: [widget!, ...list]),
+        transitionBuilder: (child, animation) {
+          final rotateAnim = Tween(begin: math.pi, end: 0.0).animate(animation);
+          return AnimatedBuilder(
+              animation: rotateAnim,
+              child: child,
+              builder: (context, child) {
+                final tiltSign = showMeetingView ? 1.0 : -1.0;
+                final tilt = ((animation.value - 0.5).abs() - 0.5) * 0.003 * tiltSign;
+                final rawRotation = rotateAnim.value;
+                final value = math.min(rawRotation, math.pi / 2);
+                return Transform(
+                  transform: (Matrix4.rotationY(value)..setEntry(3, 0, tilt)),
+                  alignment: Alignment.center,
+                  child: child,
+                );
               });
-            },
-            onCenterTap: () {
-              setState(() {
-                seasonIndex = (seasonIndex + 1) % 4;
-              });
-            },
-          );
         },
+        switchInCurve: Curves.easeInBack,
+        switchOutCurve: Curves.easeInBack.flipped,
+        child: showMeetingView ? buildMeetingMap(state) : buildStarMap(state),
       );
+
       return Container(
         decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
         child: Stack(
           children: [
-            Column(children: [SizedBox(height: 30), starMap]),
+            Column(children: [SizedBox(height: 30), animatedMap]),
             // 操作按钮
+            // if (showMeetingView)
             Align(
               alignment: Alignment.topLeft,
               child: Padding(
@@ -173,6 +163,257 @@ class _StarMapState extends State<StarMap> {
       );
     });
   }
+
+  LayoutBuilder buildStarMap(GameStateResp state) {
+    return LayoutBuilder(
+      key: ValueKey(showMeetingView),
+      builder: (context, constraints) {
+        // 获取父容器的宽度和高度
+        double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
+        // 设置最小值
+        double size = math.max(parentSize, 360);
+        return CircleSectors(
+          containerSize: size,
+          season: Season.values[seasonIndex],
+          mapType: state.mapType,
+          visibleIndexStart: state.startIndex,
+          visibleIndexEnd: state.endIndex,
+          personPoints: state.users,
+          sectorStatus: sectorStatus,
+          onSectorTap: (sectorIndex, sequenceIndex) {
+            print('扇区 $sectorIndex - 按钮 $sequenceIndex 被点击');
+            setState(() {
+              switch (targetSectorStatus) {
+                case SectorStatus.confirm:
+                  if (sectorStatus[sectorIndex][sequenceIndex] == SectorStatus.confirm) {
+                    // 重置当前扇区的状态
+                    sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.doubt);
+                  } else {
+                    // 重置当前扇区的状态
+                    sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.deny);
+                    sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.confirm;
+                  }
+                  break;
+                case SectorStatus.doubt:
+                  sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.doubt;
+                  break;
+                case SectorStatus.deny:
+                  sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.deny;
+                  break;
+              }
+            });
+          },
+          onCenterTap: () {
+            setState(() {
+              seasonIndex = (seasonIndex + 1) % 4;
+            });
+          },
+        );
+      },
+    );
+  }
+
+  LayoutBuilder buildMeetingMap(GameStateResp state) {
+    return LayoutBuilder(
+      key: ValueKey(showMeetingView),
+      builder: (context, constraints) {
+        // 获取父容器的宽度和高度
+        double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
+        // 设置最小值
+        double size = math.max(parentSize, 360);
+        return CircleMeetings(
+          containerSize: size,
+          season: Season.values[seasonIndex],
+          mapType: state.mapType,
+          onCenterTap: () {
+            setState(() {
+              seasonIndex = (seasonIndex + 1) % 4;
+            });
+          },
+        );
+      },
+    );
+  }
+}
+
+class CircleMeetings extends StatelessWidget {
+  const CircleMeetings({
+    super.key,
+    required this.containerSize,
+    required this.season,
+    required this.mapType,
+    required this.onCenterTap,
+  });
+
+  final double containerSize;
+  final Season season;
+  final MapType mapType;
+  final void Function() onCenterTap;
+
+  static const double meetingBackgroudIconSize = 16;
+  static const List<Icon> meetingIcons = [
+    Icon(Icons.autorenew_rounded, size: meetingBackgroudIconSize),
+    Icon(Icons.crop_free, size: meetingBackgroudIconSize),
+    Icon(Icons.crop_free, size: meetingBackgroudIconSize),
+    Icon(Icons.add_box_outlined, size: meetingBackgroudIconSize),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    double radius = (containerSize - 30) / 2; // 圆半径
+    const double baseRadius = 40; // 基础半径
+    int sectorCount = mapType.sectorCount;
+    double eachSectorDegree = 360 / sectorCount;
+    double startDegree = season.degree;
+
+    const int meetingReviewTimePerSector = 4; // 每个扇区的会议揭露时间
+
+    const int meetingPointSize = 18; // 会议点大小
+    List<int> meetingPoints = mapType.meetingPoints;
+
+    // double buttonSize = containerSize / 17; // 按钮大小
+    // const int buttonsPerSector = 6; // 每个扇区的按钮数
+
+    return Center(
+      child: SizedBox(
+        width: containerSize,
+        height: containerSize,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // 绘制扇区边界线和最外层圆形边框
+            CustomPaint(
+              size: Size(containerSize, containerSize),
+              painter: SectorBorderPainter(
+                sectorCount: sectorCount,
+                radius: radius,
+                startDegree: startDegree,
+              ),
+            ),
+
+            // 添加同心圆形边框
+            ...List.generate(meetingReviewTimePerSector, (buttonIndex) {
+              double circleRadius =
+                  baseRadius + (radius - baseRadius) * (buttonIndex + 1) / (meetingReviewTimePerSector + 0.6);
+              return CustomPaint(
+                size: Size(containerSize, containerSize),
+                painter: CircleBorderPainter(
+                  radius: circleRadius,
+                  color: Colors.grey.withOpacity(0.3), // 更浅的颜色
+                ),
+              );
+            }),
+
+            ...List.generate(sectorCount, (sectorIndex) {
+              // 计算扇区中心角度（从顶部开始顺时针）
+              double centerDegree = eachSectorDegree * sectorIndex + startDegree + eachSectorDegree / 2;
+              // 转换为极坐标角度（右侧为0，逆时针）
+              double radians = (centerDegree) * math.pi / 180;
+              // print('sectorIndex: $sectorIndex, centerDegree: $centerDegree, radians: $radians');
+              // 计算旋转角度（使按钮朝向圆心）
+              double rotation = -(radians + math.pi);
+
+              return Stack(
+                children: [
+                  ...List.generate(meetingReviewTimePerSector, (meetingIndex) {
+                    // 计算按钮的半径位置（从内到外均匀分布）
+                    // double buttonRadius =  radius * (buttonIndex + 1) / (buttonsPerSector + 1);
+                    double buttonRadius =
+                        baseRadius + (radius - baseRadius) * (meetingIndex + 1) / (meetingReviewTimePerSector + 0.6);
+                    // 计算按钮的笛卡尔坐标
+                    double x = buttonRadius * math.cos(radians);
+                    double y = buttonRadius * math.sin(radians);
+
+                    return Positioned(
+                      left: containerSize / 2 + x - 12,
+                      top: containerSize / 2 + y - 12,
+                      child: Container(
+                        width: meetingBackgroudIconSize * 1.5,
+                        height: meetingBackgroudIconSize * 1.5,
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        child: Center(
+                          child: meetingIcons[meetingIndex],
+                        ),
+                      ),
+                    );
+                  }),
+
+                  // 在最外层显示序号
+                  Positioned(
+                    left: containerSize / 2 + (radius + 10) * math.cos(radians) - 5, // 调整位置
+                    top: containerSize / 2 + (radius + 10) * math.sin(radians) - 10, // 调整位置
+                    child: Transform.rotate(
+                      angle: -rotation,
+                      child: Text(
+                        '${sectorIndex + 1}',
+                        style: TextStyle(color: Colors.black, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                  // 在最里层显示序号
+                  Positioned(
+                    left: containerSize / 2 + (baseRadius + 2) * math.cos(radians) - 5, // 调整位置
+                    top: containerSize / 2 + (baseRadius + 2) * math.sin(radians) - 10, // 调整位置
+                    child: Transform.rotate(
+                      angle: -rotation,
+                      child: Text(
+                        '${sectorIndex + 1}',
+                        style: TextStyle(color: Colors.black, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
+
+            // 中心按钮
+            GestureDetector(
+              onTap: () => onCenterTap(),
+              child: Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white),
+                ),
+                child: Center(
+                  child: Text(
+                    season.name,
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                ),
+              ),
+            ),
+
+            // 生成会议点
+            ...meetingPoints.map((point) {
+              double sectorIndex = point.toDouble();
+              double centerDegree = eachSectorDegree * sectorIndex + startDegree - 0.1 * (eachSectorDegree / 4);
+              double radians = (centerDegree) * math.pi / 180;
+              double x = radius * math.cos(radians);
+              double y = radius * math.sin(radians);
+
+              return Positioned(
+                left: containerSize / 2 + x - meetingPointSize / 2, // 调整位置
+                top: containerSize / 2 + y - meetingPointSize / 2, // 调整位置
+                child: Container(
+                  width: meetingPointSize.toDouble(),
+                  height: meetingPointSize.toDouble(),
+                  decoration: BoxDecoration(color: Colors.lightGreen, shape: BoxShape.circle),
+                  child: Icon(Icons.bookmark, color: Colors.white, size: 12),
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class CircleSectors extends StatelessWidget {
@@ -181,6 +422,8 @@ class CircleSectors extends StatelessWidget {
     required this.containerSize,
     required this.season,
     required this.mapType,
+    required this.visibleIndexStart,
+    required this.visibleIndexEnd,
     required this.sectorStatus,
     required this.personPoints,
     required this.onSectorTap,
@@ -189,6 +432,8 @@ class CircleSectors extends StatelessWidget {
   final double containerSize;
   final Season season;
   final MapType mapType;
+  final int visibleIndexStart;
+  final int visibleIndexEnd;
   final List<UserState> personPoints;
   final List<List<SectorStatus>> sectorStatus;
   final void Function(int, int) onSectorTap;
@@ -287,7 +532,7 @@ class CircleSectors extends StatelessWidget {
                     );
                   }),
 
-                  // 在最里层显示序号
+                  // 在最外层显示序号
                   Positioned(
                     left: containerSize / 2 + (radius + 10) * math.cos(radians) - 5, // 调整位置
                     top: containerSize / 2 + (radius + 10) * math.sin(radians) - 10, // 调整位置
@@ -295,11 +540,17 @@ class CircleSectors extends StatelessWidget {
                       angle: -rotation,
                       child: Text(
                         '${sectorIndex + 1}',
-                        style: TextStyle(color: Colors.black, fontSize: 14),
+                        // style: TextStyle(color: Colors.black, fontSize: 14),
+                        style: visibleSector(sectorIndex, visibleIndexStart, visibleIndexEnd)
+                            ? TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)
+                            : TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
                       ),
                     ),
                   ),
-                  // 在最外层显示序号
+                  // 在最里层显示序号
                   Positioned(
                     left: containerSize / 2 + (baseRadius + 2) * math.cos(radians) - 5, // 调整位置
                     top: containerSize / 2 + (baseRadius + 2) * math.sin(radians) - 10, // 调整位置
@@ -307,7 +558,12 @@ class CircleSectors extends StatelessWidget {
                       angle: -rotation,
                       child: Text(
                         '${sectorIndex + 1}',
-                        style: TextStyle(color: Colors.black, fontSize: 14),
+                        style: visibleSector(sectorIndex, visibleIndexStart, visibleIndexEnd)
+                            ? TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)
+                            : TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
                       ),
                     ),
                   ),
@@ -334,6 +590,36 @@ class CircleSectors extends StatelessWidget {
                 ),
               ),
             ),
+
+            // // 生成非可见星区阴影
+            // ...List.generate(sectorCount, (sectorIndex) {
+            //   if (visibleSector(sectorIndex, visibleIndexStart, visibleIndexEnd)) {
+            //     // sectorIndex < visibleIndexStart && sectorIndex > visibleIndexEnd) {
+            //     // 计算扇区中心角度（从顶部开始顺时针）
+            //     double centerDegree = eachSectorDegree * sectorIndex + startDegree + eachSectorDegree / 2;
+            //     // 转换为极坐标角度（右侧为0，逆时针）
+            //     double radians = (centerDegree) * math.pi / 180;
+            //     // 计算旋转角度（使按钮朝向圆心）
+            //     double rotation = -(radians + math.pi);
+            //     // 计算阴影的半径位置
+            //     double shadowRadius = radius + 10;
+            //     // 计算阴影的笛卡尔坐标
+            //     double x = shadowRadius * math.cos(radians);
+            //     double y = shadowRadius * math.sin(radians);
+
+            //     return Positioned(
+            //       left: containerSize / 2 + x - buttonSize / 2,
+            //       top: containerSize / 2 + y - buttonSize / 2,
+            //       child: Container(
+            //         width: buttonSize,
+            //         height: buttonSize,
+            //         decoration: BoxDecoration(color: Colors.red.withOpacity(0.5), shape: BoxShape.circle),
+            //       ),
+            //     );
+            //   } else {
+            //     return SizedBox.shrink();
+            //   }
+            // }),
 
             // 生成会议点
             ...meetingPoints.map((point) {
@@ -410,6 +696,14 @@ class CircleSectors extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  bool visibleSector(int sectorIndex, int visibleIndexStart, int visibleIndexEnd) {
+    if (visibleIndexStart > visibleIndexEnd) {
+      return sectorIndex + 1 >= visibleIndexStart || sectorIndex + 1 <= visibleIndexEnd;
+    } else {
+      return sectorIndex + 1 >= visibleIndexStart && sectorIndex + 1 <= visibleIndexEnd;
+    }
   }
 
   Container xplanetIcon(double buttonSize, double rotation, SectorType type, SectorStatus status) {

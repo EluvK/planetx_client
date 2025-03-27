@@ -43,39 +43,46 @@ extension on OpEnum {
 }
 
 class _OpBarState extends State<OpBar> {
+  final socket = Get.find<SocketController>();
+
   OpEnum? _expandedOp;
 
   @override
   Widget build(BuildContext context) {
-    if (_expandedOp == null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2.0),
-        child: Wrap(
-          spacing: 8.0,
-          runSpacing: 8.0,
-          alignment: WrapAlignment.center,
+    return Obx(() {
+      if (socket.currentGameState.value.status.isNotStarted) {
+        return const SizedBox.shrink();
+      }
+      if (_expandedOp == null) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2.0),
+          child: Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            alignment: WrapAlignment.center,
+            children: [
+              for (var op in OpEnum.values)
+                ElevatedButton(
+                  onPressed: () => setState(() => _expandedOp = op),
+                  child: Text(op.name),
+                ),
+            ],
+          ),
+        );
+      } else {
+        return Row(
           children: [
-            for (var op in OpEnum.values)
-              ElevatedButton(
-                onPressed: () => setState(() => _expandedOp = op),
-                child: Text(op.name),
-              ),
+            IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => setState(() => _expandedOp = null),
+            ),
+            Expanded(
+              child: _buildExpandedContent(_expandedOp!),
+            ),
           ],
-        ),
-      );
-    } else {
-      return Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => setState(() => _expandedOp = null),
-          ),
-          Expanded(
-            child: _buildExpandedContent(_expandedOp!),
-          ),
-        ],
-      );
-    }
+        );
+      }
+    });
   }
 
   Widget _buildExpandedContent(OpEnum op) {
@@ -87,7 +94,7 @@ class _OpBarState extends State<OpBar> {
       case OpEnum.Research:
         return ResearchOpWidget();
       case OpEnum.Locate:
-        return _buildLocate();
+        return LocateOpWidget();
       case OpEnum.ReadyPublish:
         return _buildReadyPublish();
       case OpEnum.DoPublish:
@@ -138,7 +145,7 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('Survey'),
+        Text('Survey:'),
         NumberPicker(
           value: from,
           onChanged: (value) => setState(() => from = value),
@@ -181,7 +188,7 @@ class TargetOpWidget extends StatefulWidget {
 }
 
 class _TargetOpWidgetState extends State<TargetOpWidget> {
-  var value = 1;
+  var res = 1;
   final socket = Get.find<SocketController>();
   late int st;
   late int ed;
@@ -192,7 +199,7 @@ class _TargetOpWidgetState extends State<TargetOpWidget> {
     st = socket.currentGameState.value.startIndex;
     ed = socket.currentGameState.value.endIndex;
     max = socket.currentGameState.value.mapType.sectorCount;
-    value = st;
+    res = st;
     super.initState();
   }
 
@@ -200,10 +207,10 @@ class _TargetOpWidgetState extends State<TargetOpWidget> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('Target'),
+        Text('Target:'),
         NumberPicker(
-          value: value,
-          onChanged: (value) => setState(() => value = value),
+          value: res,
+          onChanged: (value) => setState(() => res = value),
           title: 'from',
           from: st,
           to: ed,
@@ -213,7 +220,7 @@ class _TargetOpWidgetState extends State<TargetOpWidget> {
         SizedBox(width: 8),
         ElevatedButton(
           onPressed: () {
-            socket.op(Operation.target(value));
+            socket.op(Operation.target(res));
           },
           child: Text('submit'),
         ),
@@ -231,25 +238,72 @@ class ResearchOpWidget extends StatefulWidget {
 
 class _ResearchOpWidgetState extends State<ResearchOpWidget> {
   final socket = Get.find<SocketController>();
-  ClueEnum value = ClueEnum.A;
+  ClueEnum input = ClueEnum.A;
 
   @override
   Widget build(BuildContext context) {
     List<ClueSecret> clues = socket.currentClueSecret;
+    // todo can add some marker to show which clues are already used
     List<ClueDetail> cluesDetails = socket.currentClueDetails;
 
     return Row(
       children: [
-        Text('Research'),
+        Text('Research:'),
         CluePicker(
           clueSecrets: clues.where((element) => element.index != ClueEnum.X1 && element.index != ClueEnum.X2).toList(),
-          value: value,
-          onChanged: (value) => setState(() => value = value),
+          value: input,
+          onChanged: (value) {
+            print(value);
+            setState(() => input = value);
+          },
         ),
         Text('Price_1'),
         ElevatedButton(
           onPressed: () {
-            socket.op(Operation.research(value));
+            socket.op(Operation.research(input));
+          },
+          child: Text('submit'),
+        ),
+      ],
+    );
+  }
+}
+
+class LocateOpWidget extends StatefulWidget {
+  const LocateOpWidget({super.key});
+
+  @override
+  State<LocateOpWidget> createState() => _LocateOpWidgetState();
+}
+
+class _LocateOpWidgetState extends State<LocateOpWidget> {
+  final socket = Get.find<SocketController>();
+
+  int index = 1;
+  SectorType pre = SectorType.Space;
+  SectorType next = SectorType.Space;
+
+  @override
+  Widget build(BuildContext context) {
+    int mapSize = socket.currentGameState.value.mapType.sectorCount;
+    return Row(
+      children: [
+        Text('Locate:'),
+        SectorPicker(value: pre, onChanged: (value) => setState(() => pre = value)),
+        // Text(' -'),
+        NumberPicker(
+          value: index,
+          onChanged: (value) => setState(() => index = value),
+          title: 'Locate X',
+          from: 1,
+          to: mapSize,
+          max: mapSize,
+        ),
+        // Text('- '),
+        SectorPicker(value: next, onChanged: (value) => setState(() => next = value)),
+        ElevatedButton(
+          onPressed: () {
+            socket.op(Operation.locate(index, pre, next));
           },
           child: Text('submit'),
         ),

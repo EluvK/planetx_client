@@ -92,12 +92,17 @@ class SectorPicker extends _Picker<SectorType> {
               Text(" ${t.name}"),
             ],
           ),
-          toResultWidget: (SectorType t) => Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(t.iconName, width: 24, height: 24),
-              Text(" ${t.name}"),
-            ],
+          toResultWidget: (SectorType t) => Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(t.iconName, width: 24, height: 24),
+                Text(" ${t.name}"),
+              ],
+            ),
           ),
         );
 }
@@ -128,6 +133,13 @@ class NumberPicker extends _Picker<int> {
         super(
           items: numbers?.toList() ?? _getNumbers(from!, to!, step!, max!),
           toItemWidget: (int number) => Text(" ${number.toString()} "),
+          toResultWidget: (int number) => Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              number.toString(),
+              style: TextStyle(decoration: TextDecoration.underline),
+            ),
+          ),
         );
 }
 
@@ -163,11 +175,17 @@ class CluePicker extends _Picker<ClueEnum> {
           title: '选择线索',
           toItemWidget: (ClueEnum t) {
             final current = clueSecrets.firstWhere((e) => e.index == t);
-            return Text(" ${current.index.name} ${current.secret} ");
+            return Text("${current.index.name} ${current.secret}");
           },
           toResultWidget: (ClueEnum t) {
             final current = clueSecrets.firstWhere((e) => e.index == t);
-            return Text(" ${current.index.name} ");
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                current.index.name,
+                style: TextStyle(decoration: TextDecoration.underline),
+              ),
+            );
           },
         );
 }
