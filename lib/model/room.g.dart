@@ -26,6 +26,7 @@ const _$MapTypeEnumMap = {
 GameStateResp _$GameStateRespFromJson(Map<String, dynamic> json) => GameStateResp(
       json['id'] as String,
       GameState.fromJson(json['status']),
+      $enumDecode(_$GameStageEnumMap, json['game_stage']),
       json['hint'] as String?,
       (json['users'] as List<dynamic>).map((e) => UserState.fromJson(e as Map<String, dynamic>)).toList(),
       (json['start_index'] as num).toInt(),
@@ -37,6 +38,7 @@ GameStateResp _$GameStateRespFromJson(Map<String, dynamic> json) => GameStateRes
 Map<String, dynamic> _$GameStateRespToJson(GameStateResp instance) => <String, dynamic>{
       'id': instance.id,
       'status': instance.status,
+      'game_stage': _$GameStageEnumMap[instance.gameStage]!,
       'hint': instance.hint,
       'users': instance.users,
       'start_index': instance.startIndex,
@@ -44,6 +46,13 @@ Map<String, dynamic> _$GameStateRespToJson(GameStateResp instance) => <String, d
       'map_seed': instance.mapSeed,
       'map_type': _$MapTypeEnumMap[instance.mapType]!,
     };
+
+const _$GameStageEnumMap = {
+  GameStage.userMove: 'user_move',
+  GameStage.meetingProposal: 'meeting_proposal',
+  GameStage.meetingPublish: 'meeting_publish',
+  GameStage.gameEnd: 'game_end',
+};
 
 UserState _$UserStateFromJson(Map<String, dynamic> json) => UserState(
       json['id'] as String,

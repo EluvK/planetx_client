@@ -94,12 +94,16 @@ Map<String, dynamic> _$ClueSecretToJson(ClueSecret instance) => <String, dynamic
       'secret': instance.secret,
     };
 
-ClueDetail _$ClueDetailFromJson(Map<String, dynamic> json) => ClueDetail(
+Clue _$ClueFromJson(Map<String, dynamic> json) => Clue(
       $enumDecode(_$ClueEnumEnumMap, json['index']),
-      json['detail'] as String,
+      $enumDecode(_$SectorTypeEnumMap, json['subject']),
+      $enumDecode(_$SectorTypeEnumMap, json['object']),
+      ClueConnection.fromJson(json['conn']),
     );
 
-Map<String, dynamic> _$ClueDetailToJson(ClueDetail instance) => <String, dynamic>{
+Map<String, dynamic> _$ClueToJson(Clue instance) => <String, dynamic>{
       'index': _$ClueEnumEnumMap[instance.index]!,
-      'detail': instance.detail,
+      'subject': _$SectorTypeEnumMap[instance.subject]!,
+      'object': _$SectorTypeEnumMap[instance.object]!,
+      'conn': instance.conn,
     };

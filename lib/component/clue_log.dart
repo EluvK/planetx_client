@@ -18,7 +18,7 @@ class _ClueLogState extends State<ClueLog> {
   Widget build(BuildContext context) {
     return Obx(() {
       List<ClueSecret> clueSecret = socket.currentClueSecret;
-      List<ClueDetail> clueDetails = socket.currentClueDetails;
+      List<Clue> clueDetails = socket.currentClueDetails;
       return Table(
         columnWidths: {
           0: const FlexColumnWidth(2),
@@ -37,7 +37,7 @@ class _ClueLogState extends State<ClueLog> {
               TableCell(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(clueDetails.firstWhereOrNull((element) => element.index == clue.index)?.detail ?? ''),
+                  child: Text(clueDetails.firstWhereOrNull((element) => element.index == clue.index)?.fmt() ?? ""),
                 ),
               ),
             ]),

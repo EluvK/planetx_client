@@ -137,6 +137,24 @@ class Operation {
       throw Exception('unknown Operation type');
     }
   }
+
+  String fmt() {
+    if (value is SurveyOperation) {
+      return 'Survey ${value.start}-${value.end}, ${value.sectorType}';
+    } else if (value is TargetOperation) {
+      return 'Target ${value.index}';
+    } else if (value is ResearchOperation) {
+      return 'Research ${value.index}';
+    } else if (value is LocateOperation) {
+      return 'Locate ${value.index}';
+    } else if (value is ReadyPublishOperation) {
+      return 'ReadyPublish ${value.sectors}';
+    } else if (value is DoPublishOperation) {
+      return 'DoPublish ${value.index} ${value.sectorType}';
+    } else {
+      throw Exception('unknown Operation type');
+    }
+  }
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
@@ -251,7 +269,7 @@ class OperationResult {
     } else if (json.containsKey('target')) {
       return OperationResult(TargetOperationResult(json['target']));
     } else if (json.containsKey('research')) {
-      return OperationResult(ResearchOperationResult(json['research']));
+      return OperationResult(ResearchOperationResult.fromJson(json['research']));
     } else if (json.containsKey('locate')) {
       return OperationResult(LocateOperationResult(json['locate']));
     } else if (json.containsKey('ready_publish')) {
@@ -270,7 +288,7 @@ class OperationResult {
     } else if (value is TargetOperationResult) {
       return {'target': (value as TargetOperationResult).sectorType};
     } else if (value is ResearchOperationResult) {
-      return {'research': (value as ResearchOperationResult).content};
+      return {'research': (value as ResearchOperationResult).toJson()};
     } else if (value is LocateOperationResult) {
       return {'locate': (value as LocateOperationResult).success};
     } else if (value is ReadyPublishOperationResult) {
@@ -279,6 +297,24 @@ class OperationResult {
       return {
         'do_publish': [value.index, value.sectorType]
       };
+    } else {
+      throw Exception('unknown OperationResult type');
+    }
+  }
+
+  String fmt() {
+    if (value is SurveyOperationResult) {
+      return '${value.index}';
+    } else if (value is TargetOperationResult) {
+      return '${value.sectorType}';
+    } else if (value is ResearchOperationResult) {
+      return '${value.fmt()}';
+    } else if (value is LocateOperationResult) {
+      return '${value.success}';
+    } else if (value is ReadyPublishOperationResult) {
+      return '${value.indexes}';
+    } else if (value is DoPublishOperationResult) {
+      return '${value.index} ${value.sectorType}';
     } else {
       throw Exception('unknown OperationResult type');
     }
@@ -295,10 +331,7 @@ class TargetOperationResult {
   TargetOperationResult(this.sectorType);
 }
 
-class ResearchOperationResult {
-  final String content;
-  ResearchOperationResult(this.content);
-}
+typedef ResearchOperationResult = Clue;
 
 class LocateOperationResult {
   final bool success;
@@ -358,7 +391,7 @@ extension ClueEnumExtension on ClueEnum {
 @JsonSerializable(fieldRename: FieldRename.snake)
 class ClueSecret {
   final ClueEnum index;
-  final String secret;
+  final String secret; // todo maybe we need to refactor this too.
 
   ClueSecret(this.index, this.secret);
 
@@ -367,12 +400,131 @@ class ClueSecret {
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class ClueDetail {
+class Clue {
   final ClueEnum index;
-  final String detail;
+  final SectorType subject;
+  final SectorType object;
+  final ClueConnection conn;
 
-  ClueDetail(this.index, this.detail);
+  Clue(this.index, this.subject, this.object, this.conn);
 
-  factory ClueDetail.fromJson(Map<String, dynamic> json) => _$ClueDetailFromJson(json);
-  Map<String, dynamic> toJson() => _$ClueDetailToJson(this);
+  factory Clue.fromJson(Map<String, dynamic> json) => _$ClueFromJson(json);
+  Map<String, dynamic> toJson() => _$ClueToJson(this);
+
+  String fmt() {
+    if (subject == SectorType.X) {
+      if (conn.value == 'allAdjacent') {
+        return '$subject 和 $object 相邻';
+      } else if (conn.value == 'oneAdjacent') {
+        return '$subject 和 $object 相邻';
+      } else if (conn.value == 'notAdjacent') {
+        return '$subject 不和 $object 相邻';
+      } else if (conn.value == 'oneOpposite') {
+        return '$subject 和 $object 正对';
+      } else if (conn.value == 'notOpposite') {
+        return '$subject 不和 $object 正对';
+      } else if (conn.value is Map<String, dynamic>) {
+        if (conn.value.containsKey('allInRange')) {
+          return '$subject 在 $object 的 ${conn.value['allInRange']} 格范围内';
+        } else if (conn.value.containsKey('notInRange')) {
+          return '$subject 不在 $object 的 ${conn.value['notInRange']} 格内';
+        } else {
+          throw Exception('unknown ClueConnection type');
+        }
+      } else {
+        throw Exception('unknown ClueConnection type');
+      }
+    }
+    if (conn.value == 'allAdjacent') {
+      return '所有 $subject 和 $object 相邻';
+    } else if (conn.value == 'oneAdjacent') {
+      return '至少一个 $subject 和 $object 相邻';
+    } else if (conn.value == 'notAdjacent') {
+      return '没有 $subject 和 $object 相邻';
+    } else if (conn.value == 'oneOpposite') {
+      return '至少一个 $subject 和 $object 正对';
+    } else if (conn.value == 'notOpposite') {
+      return '没有 $subject 和 $object 正对';
+    } else if (conn.value is Map<String, dynamic>) {
+      if (conn.value.containsKey('allInRange')) {
+        if (object == subject) {
+          return '所有 $subject 都在一个长度为 ${conn.value['allInRange']} 的区间内';
+        } else {
+          return '所有 $subject 在 $object 的 ${conn.value['allInRange']} 格范围内';
+        }
+      } else if (conn.value.containsKey('notInRange')) {
+        return '没有 $subject 在 $object 的 ${conn.value['notInRange']} 格内';
+      } else {
+        throw Exception('unknown ClueConnection type');
+      }
+    } else {
+      throw Exception('unknown ClueConnection type');
+    }
+  }
+}
+
+class ClueConnection {
+  dynamic value;
+
+  ClueConnection(this.value);
+
+  factory ClueConnection.allAdjacent() {
+    return ClueConnection('allAdjacent');
+  }
+  factory ClueConnection.oneAdjacent() {
+    return ClueConnection('oneAdjacent');
+  }
+  factory ClueConnection.notAdjacent() {
+    return ClueConnection('notAdjacent');
+  }
+  factory ClueConnection.oneOpposite() {
+    return ClueConnection('oneOpposite');
+  }
+  factory ClueConnection.notOpposite() {
+    return ClueConnection('notOpposite');
+  }
+  factory ClueConnection.allInRange(int range) {
+    return ClueConnection({'allInRange': range});
+  }
+  factory ClueConnection.notInRange(int range) {
+    return ClueConnection({'notInRange': range});
+  }
+
+  factory ClueConnection.fromJson(dynamic json) {
+    if (json is String) {
+      if (json == 'allAdjacent') {
+        return ClueConnection.allAdjacent();
+      } else if (json == 'oneAdjacent') {
+        return ClueConnection.oneAdjacent();
+      } else if (json == 'notAdjacent') {
+        return ClueConnection.notAdjacent();
+      } else if (json == 'oneOpposite') {
+        return ClueConnection.oneOpposite();
+      } else if (json == 'notOpposite') {
+        return ClueConnection.notOpposite();
+      } else {
+        throw Exception('unknown ClueConnection type');
+      }
+    } else if (json is Map<String, dynamic>) {
+      if (json.containsKey('allInRange')) {
+        return ClueConnection.allInRange(json['allInRange']);
+      } else if (json.containsKey('notInRange')) {
+        return ClueConnection.notInRange(json['notInRange']);
+      } else {
+        throw Exception('unknown ClueConnection type');
+      }
+    } else {
+      throw Exception('unknown ClueConnection type');
+    }
+  }
+
+  dynamic toJson() {
+    if (value is String) {
+      return value;
+    } else if (value is Map<String, dynamic>) {
+      return value;
+    } else {
+      throw Exception('unknown ClueConnection type');
+    }
+  }
 }

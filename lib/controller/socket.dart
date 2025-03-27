@@ -30,8 +30,9 @@ class SocketController extends GetxController {
   final settingController = Get.find<SettingController>();
 
   final currentGameState = GameStateResp.placeholder().obs;
+  final currentMovesResult = <OperationResult>[].obs; // operation results for self. sensitive data
   final currentClueSecret = <ClueSecret>[].obs;
-  final currentClueDetails = <ClueDetail>[].obs;
+  final currentClueDetails = <Clue>[].obs; // operation results for self. sensitive data
 
   // final messages = <String>[].obs; // Observable list to store messages
 
@@ -106,15 +107,21 @@ class SocketController extends GetxController {
       print("clue_secret: $data");
       // Get.snackbar("线索", data.toString());
       currentClueSecret.value = (data as List).map((e) => ClueSecret.fromJson(e)).toList();
-      currentClueDetails.value = [];
+      currentClueDetails.clear();
     });
-    socket!.on("op", (data) {
-      print("op: $data");
-      Get.snackbar("操作", data.toString());
-    });
+    // socket!.on("op", (data) {
+    //   print("op: $data");
+    //   Get.snackbar("操作", data.toString());
+    // });
     socket!.on("op_result", (data) {
       print("op_result: $data");
       Get.snackbar("操作结果", data.toString());
+      final opResult = OperationResult.fromJson(data);
+      currentMovesResult.add(opResult);
+      if (opResult.value is ResearchOperationResult) {
+        final researchOpResult = opResult.value as ResearchOperationResult;
+        currentClueDetails.add(researchOpResult);
+      }
     });
   }
 

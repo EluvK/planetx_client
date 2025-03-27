@@ -100,6 +100,7 @@ class RoomUnprepareOperation {
 class GameStateResp {
   final String id;
   final GameState status;
+  final GameStage gameStage;
   final String? hint;
   final List<UserState> users;
   final int startIndex;
@@ -110,6 +111,7 @@ class GameStateResp {
   GameStateResp(
     this.id,
     this.status,
+    this.gameStage,
     this.hint,
     this.users,
     this.startIndex,
@@ -121,6 +123,7 @@ class GameStateResp {
   factory GameStateResp.placeholder() => GameStateResp(
         '',
         GameState.notStarted(),
+        GameStage.userMove,
         '',
         [],
         0,
@@ -173,6 +176,14 @@ class GameState {
   }
 
   bool get isNotStarted => value == 'not_started';
+}
+
+@JsonEnum(fieldRename: FieldRename.snake)
+enum GameStage {
+  userMove,
+  meetingProposal,
+  meetingPublish,
+  gameEnd,
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)

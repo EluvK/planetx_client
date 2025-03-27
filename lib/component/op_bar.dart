@@ -244,13 +244,17 @@ class _ResearchOpWidgetState extends State<ResearchOpWidget> {
   Widget build(BuildContext context) {
     List<ClueSecret> clues = socket.currentClueSecret;
     // todo can add some marker to show which clues are already used
-    List<ClueDetail> cluesDetails = socket.currentClueDetails;
+    List<Clue> cluesDetails = socket.currentClueDetails;
 
     return Row(
       children: [
         Text('Research:'),
         CluePicker(
-          clueSecrets: clues.where((element) => element.index != ClueEnum.X1 && element.index != ClueEnum.X2).toList(),
+          clueSecrets: clues
+              .where((element) => element.index != ClueEnum.X1 && element.index != ClueEnum.X2
+                  // && cluesDetails.firstWhereOrNull((e) => e.index == element.index) == null
+                  )
+              .toList(),
           value: input,
           onChanged: (value) {
             print(value);
