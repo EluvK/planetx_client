@@ -33,6 +33,8 @@ class SocketController extends GetxController {
   final currentMovesResult = <OperationResult>[].obs; // operation results for self. sensitive data
   final currentClueSecret = <ClueSecret>[].obs;
   final currentClueDetails = <Clue>[].obs; // operation results for self. sensitive data
+  final currentTokens = <Token>[].obs; // operation results for self. sensitive data
+  final currentSecretTokens = <SecretToken>[].obs;
 
   // final messages = <String>[].obs; // Observable list to store messages
 
@@ -108,6 +110,7 @@ class SocketController extends GetxController {
       // Get.snackbar("线索", data.toString());
       currentClueSecret.value = (data as List).map((e) => ClueSecret.fromJson(e)).toList();
       currentClueDetails.clear();
+      currentMovesResult.clear();
     });
     // socket!.on("op", (data) {
     //   print("op: $data");
@@ -122,6 +125,22 @@ class SocketController extends GetxController {
         final researchOpResult = opResult.value as ResearchOperationResult;
         currentClueDetails.add(researchOpResult);
       }
+    });
+
+    socket!.on("token", (data) {
+      print("token: $data");
+      Get.snackbar("token", data.toString());
+      List<Token> tokens = (data as List).map((e) => Token.fromJson(e)).toList();
+      print("tokens: $tokens");
+      currentTokens.value = tokens;
+    });
+
+    socket!.on("board_tokens", (data) {
+      print("board_tokens: $data");
+      Get.snackbar("board_tokens", data.toString());
+      List<SecretToken> tokens = (data as List).map((e) => SecretToken.fromJson(e)).toList();
+      print("tokens: $tokens");
+      currentSecretTokens.value = tokens;
     });
   }
 

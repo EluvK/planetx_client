@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planetx_client/model/op.dart';
+import 'package:planetx_client/utils/utils.dart';
 
 class _PickerDialog<T> extends StatefulWidget {
   const _PickerDialog({super.key, required this.items, required this.title, required this.toItemWidget});
@@ -105,6 +106,62 @@ class SectorPicker extends _Picker<SectorType> {
               ],
             ),
           ),
+        );
+}
+
+class TokenPicker extends _Picker<Nullable<SectorType>> {
+  final Map<SectorType, int> tokenCount;
+  TokenPicker({
+    super.key,
+    required super.value,
+    required super.onChanged,
+    required this.tokenCount,
+  }) : super(
+          items: [
+            Nullable<SectorType>.none(),
+            for (var e in tokenCount.entries)
+              if (e.value > 0) Nullable.some(e.key),
+          ],
+          title: '选择Token',
+          toItemWidget: (Nullable<SectorType> t) {
+            if (t.isNone) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.not_interested_rounded, color: Colors.grey),
+                  Text('不放置'),
+                ],
+              );
+            } else {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(t.value!.iconName, width: 24, height: 24),
+                  Text(" ${t.value!.name}"),
+                  Text(" ${tokenCount[t.value!]}"),
+                ],
+              );
+            }
+          },
+          toResultWidget: (Nullable<SectorType> t) {
+            if (t.isNone) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.not_interested_rounded, color: Colors.grey),
+                  Text('不放置'),
+                ],
+              );
+            } else {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(t.value!.iconName, width: 24, height: 24),
+                  Text(" ${t.value!.name}"),
+                ],
+              );
+            }
+          },
         );
 }
 

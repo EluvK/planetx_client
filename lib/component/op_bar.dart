@@ -6,6 +6,7 @@ import 'package:planetx_client/controller/socket.dart';
 import 'package:planetx_client/model/op.dart';
 import 'package:planetx_client/model/room.dart';
 import 'package:planetx_client/utils/picker.dart';
+import 'package:planetx_client/utils/utils.dart';
 
 class OpBar extends StatefulWidget {
   const OpBar({super.key});
@@ -76,35 +77,33 @@ class _OpBarState extends State<OpBar> {
           ops = [];
       }
 
-      if (_expandedOp == null) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2.0),
-          child: Wrap(
-            spacing: 8.0,
-            runSpacing: 8.0,
-            alignment: WrapAlignment.center,
-            children: [
-              for (var op in ops)
-                ElevatedButton(
-                  onPressed: () => setState(() => _expandedOp = op),
-                  child: Text(op.name),
-                ),
-            ],
-          ),
-        );
-      } else {
-        return Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => setState(() => _expandedOp = null),
-            ),
-            Expanded(
-              child: _buildExpandedContent(_expandedOp!),
-            ),
-          ],
-        );
-      }
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 2.0),
+        child: _expandedOp == null
+            ? Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                alignment: WrapAlignment.center,
+                children: [
+                  for (var op in ops)
+                    ElevatedButton(
+                      onPressed: () => setState(() => _expandedOp = op),
+                      child: Text(op.name),
+                    ),
+                ],
+              )
+            : Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => setState(() => _expandedOp = null),
+                  ),
+                  Expanded(
+                    child: _buildExpandedContent(_expandedOp!),
+                  ),
+                ],
+              ),
+      );
     });
   }
 
@@ -156,7 +155,8 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('Survey:'),
         NumberPicker(
@@ -221,7 +221,8 @@ class _TargetOpWidgetState extends State<TargetOpWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('Target:'),
         NumberPicker(
@@ -264,7 +265,8 @@ class _ResearchOpWidgetState extends State<ResearchOpWidget> {
     List<ClueSecret> clues = socket.currentClueSecret;
     List<Clue> cluesDetails = socket.currentClueDetails;
 
-    return Row(
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('Research:'),
         CluePicker(
@@ -312,7 +314,8 @@ class _LocateOpWidgetState extends State<LocateOpWidget> {
   @override
   Widget build(BuildContext context) {
     int mapSize = socket.currentGameState.value.mapType.sectorCount;
-    return Row(
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('Locate:'),
         SectorPicker(value: pre, onChanged: (value) => setState(() => pre = value)),
@@ -367,15 +370,54 @@ class ReadyPublishOpWidget extends StatefulWidget {
 
 class _ReadyPublishOpWidgetState extends State<ReadyPublishOpWidget> {
   final socket = Get.find<SocketController>();
+
+  Nullable<SectorType> firstToken = Nullable.none();
+  Nullable<SectorType> secondToken = Nullable.none();
+
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final cnt = socket.currentGameState.value.mapType.meteringSectorCount;
+    Map<SectorType, int> tokenCount = {};
+    for (var token in socket.currentTokens) {
+      if (token.placed) continue;
+      if (tokenCount[token.type] == null) {
+        tokenCount[token.type] = 1;
+      } else {
+        tokenCount[token.type] = tokenCount[token.type]! + 1;
+      }
+    }
+    Map<SectorType, int> tokenCount1 = tokenCount;
+    Map<SectorType, int> tokenCount2 = tokenCount1;
+    if (firstToken.isSome) {
+      tokenCount2[firstToken.value!] = tokenCount1[firstToken.value!]! - 1;
+    }
+    if (secondToken.isSome) {
+      tokenCount2[secondToken.value!] = tokenCount1[secondToken.value!]! - 1;
+    }
+    // print(tokenCount);
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('ReadyPublish:'),
+        TokenPicker(
+          value: firstToken,
+          onChanged: (value) => setState(() {
+            print("value: $value");
+            firstToken = value;
+          }),
+          tokenCount: tokenCount1,
+        ),
+        if (cnt == 2)
+          TokenPicker(
+            value: secondToken,
+            onChanged: (value) => setState(() => secondToken = value),
+            tokenCount: tokenCount2,
+          ),
         ElevatedButton(
           onPressed: () {
             socket.op(Operation.readyPublish([
-              // todo
+              if (firstToken.isSome) firstToken.value!,
+              if (secondToken.isSome) secondToken.value!,
             ]));
             widget.reset();
           },
@@ -399,7 +441,8 @@ class _DoPublishOpWidgetState extends State<DoPublishOpWidget> {
   final socket = Get.find<SocketController>();
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('DoPublish:'),
         ElevatedButton(

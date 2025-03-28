@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names
-
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -376,7 +374,7 @@ class LocateOperationResult {
 }
 
 class ReadyPublishOperationResult {
-  final List<int> indexes;
+  final int indexes;
   ReadyPublishOperationResult(this.indexes);
 }
 

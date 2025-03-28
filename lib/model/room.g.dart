@@ -62,6 +62,7 @@ UserState _$UserStateFromJson(Map<String, dynamic> json) => UserState(
       json['should_move'] as bool,
       (json['moves'] as List<dynamic>).map((e) => Operation.fromJson(e as Map<String, dynamic>)).toList(),
       (json['moves_result'] as List<dynamic>).map((e) => OperationResult.fromJson(e as Map<String, dynamic>)).toList(),
+      (json['used_token'] as List<dynamic>).map((e) => SecretToken.fromJson(e as Map<String, dynamic>)).toList(),
     );
 
 Map<String, dynamic> _$UserStateToJson(UserState instance) => <String, dynamic>{
@@ -72,6 +73,44 @@ Map<String, dynamic> _$UserStateToJson(UserState instance) => <String, dynamic>{
       'should_move': instance.shouldMove,
       'moves': instance.moves,
       'moves_result': instance.movesResult,
+      'used_token': instance.usedToken,
+    };
+
+SecretToken _$SecretTokenFromJson(Map<String, dynamic> json) => SecretToken(
+      json['user_id'] as String,
+      (json['user_index'] as num).toInt(),
+      (json['sector_index'] as num).toInt(),
+      (json['meeting_index'] as num).toInt(),
+      $enumDecodeNullable(_$SectorTypeEnumMap, json['type']),
+    );
+
+Map<String, dynamic> _$SecretTokenToJson(SecretToken instance) => <String, dynamic>{
+      'user_id': instance.userId,
+      'user_index': instance.userIndex,
+      'sector_index': instance.sectorIndex,
+      'meeting_index': instance.meetingIndex,
+      'type': _$SectorTypeEnumMap[instance.type],
+    };
+
+const _$SectorTypeEnumMap = {
+  SectorType.Comet: 'comet',
+  SectorType.Asteroid: 'asteroid',
+  SectorType.DwarfPlanet: 'dwarf_planet',
+  SectorType.Nebula: 'nebula',
+  SectorType.Space: 'space',
+  SectorType.X: 'x',
+};
+
+Token _$TokenFromJson(Map<String, dynamic> json) => Token(
+      json['placed'] as bool,
+      SecretToken.fromJson(json['secret'] as Map<String, dynamic>),
+      $enumDecode(_$SectorTypeEnumMap, json['type']),
+    );
+
+Map<String, dynamic> _$TokenToJson(Token instance) => <String, dynamic>{
+      'placed': instance.placed,
+      'secret': instance.secret,
+      'type': _$SectorTypeEnumMap[instance.type]!,
     };
 
 UserLocationSequence _$UserLocationSequenceFromJson(Map<String, dynamic> json) => UserLocationSequence(

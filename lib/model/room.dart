@@ -195,8 +195,18 @@ class UserState {
   final bool shouldMove;
   final List<Operation> moves;
   final List<OperationResult> movesResult;
+  final List<SecretToken> usedToken;
 
-  UserState(this.id, this.name, this.ready, this.location, this.shouldMove, this.moves, this.movesResult);
+  UserState(
+    this.id,
+    this.name,
+    this.ready,
+    this.location,
+    this.shouldMove,
+    this.moves,
+    this.movesResult,
+    this.usedToken,
+  );
 
   factory UserState.fromJson(Map<String, dynamic> json) => _$UserStateFromJson(json);
   Map<String, dynamic> toJson() => _$UserStateToJson(this);
@@ -235,6 +245,42 @@ extension MapTypeExt on MapType {
         return [7, 16];
     }
   }
+
+  int get meteringSectorCount {
+    switch (this) {
+      case MapType.standard:
+        return 1;
+      case MapType.expert:
+        return 2;
+    }
+  }
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class SecretToken {
+  // used alone as placed token
+
+  final String userId;
+  final int userIndex; // game sequence 1, 2, 3, 4
+  final int sectorIndex;
+  final int meetingIndex; // 0 for known, 1,2, 3 is just published, // -1 for wrong guess
+  final SectorType? type; // if meetingIndex == 0/-1 ,then this is not null.
+
+  SecretToken(this.userId, this.userIndex, this.sectorIndex, this.meetingIndex, this.type);
+
+  factory SecretToken.fromJson(Map<String, dynamic> json) => _$SecretTokenFromJson(json);
+  Map<String, dynamic> toJson() => _$SecretTokenToJson(this);
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class Token {
+  final bool placed;
+  final SecretToken secret;
+  final SectorType type;
+
+  Token(this.placed, this.secret, this.type);
+  factory Token.fromJson(Map<String, dynamic> json) => _$TokenFromJson(json);
+  Map<String, dynamic> toJson() => _$TokenToJson(this);
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
