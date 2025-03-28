@@ -78,14 +78,16 @@ class _Picker<T> extends StatelessWidget {
 
 class SectorPicker extends _Picker<SectorType> {
   final bool includeX;
+  final List<SectorType>? userDefinedItems;
 
   SectorPicker({
     super.key,
     required super.value,
     required super.onChanged,
+    this.userDefinedItems,
     this.includeX = true,
   }) : super(
-          items: SectorType.values.where((t) => t != SectorType.X).toList(),
+          items: userDefinedItems ?? SectorType.values.where((t) => t != SectorType.X).toList(),
           title: '选择类型',
           toItemWidget: (SectorType t) => Row(
             mainAxisSize: MainAxisSize.min,
