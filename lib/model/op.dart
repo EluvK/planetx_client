@@ -310,7 +310,8 @@ class OperationResult {
     } else if (json.containsKey('ready_publish')) {
       return OperationResult(ReadyPublishOperationResult(json['ready_publish']));
     } else if (json.containsKey('do_publish')) {
-      return OperationResult(DoPublishOperationResult(json['do_publish'][0], json['do_publish'][1]));
+      return OperationResult(
+          DoPublishOperationResult(json['do_publish'][0], SectorType.fromString(json['do_publish'][1] as String)));
     } else {
       throw Exception('unknown OperationResult type');
     }

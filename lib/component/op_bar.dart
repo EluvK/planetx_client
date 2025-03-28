@@ -439,17 +439,49 @@ class DoPublishOpWidget extends StatefulWidget {
 
 class _DoPublishOpWidgetState extends State<DoPublishOpWidget> {
   final socket = Get.find<SocketController>();
+  var index = 1;
+  var sectorType = SectorType.Comet;
+  late int max;
+  late List<SectorType> tokenTypes;
+
+  @override
+  void initState() {
+    max = socket.currentGameState.value.mapType.sectorCount;
+    tokenTypes = socket.currentTokens
+        .where((element) => element.placed && element.secret.sectorIndex == 0)
+        .map((e) => e.type)
+        .toSet()
+        .toList();
+    if (tokenTypes.isNotEmpty) {
+      sectorType = tokenTypes[0];
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('DoPublish:'),
+        NumberPicker(
+          value: index,
+          onChanged: (value) => setState(() => index = value),
+          title: '放置位置',
+          from: 1,
+          to: max,
+          max: max,
+        ),
+        SectorPicker(
+          value: sectorType,
+          onChanged: (value) => setState(() => sectorType = value),
+          userDefinedItems: tokenTypes,
+        ),
         ElevatedButton(
           onPressed: () {
             socket.op(Operation.doPublish(
-              //todo
-              2, SectorType.Comet,
+              index,
+              sectorType,
             ));
             widget.reset();
           },

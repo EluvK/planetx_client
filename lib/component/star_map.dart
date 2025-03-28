@@ -81,6 +81,8 @@ class _StarMapState extends State<StarMap> {
   Widget build(BuildContext context) {
     return Obx(() {
       GameStateResp state = socket.currentGameState.value;
+      List<SecretToken> stokens = socket.currentSecretTokens.value;
+      List<Token> tokens = socket.currentTokens.value;
 
       // if (state.status.isNotStarted) {
       //   return const SizedBox.shrink();
@@ -110,7 +112,7 @@ class _StarMapState extends State<StarMap> {
         },
         switchInCurve: Curves.easeInBack,
         switchOutCurve: Curves.easeInBack.flipped,
-        child: showMeetingView ? buildMeetingMap(state) : buildStarMap(state),
+        child: showMeetingView ? buildMeetingMap(state, stokens, tokens) : buildStarMap(state),
       );
 
       return Container(
@@ -119,34 +121,34 @@ class _StarMapState extends State<StarMap> {
           children: [
             Column(children: [SizedBox(height: 30), animatedMap]),
             // 操作按钮
-            // if (showMeetingView)
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 4.0, left: 4.0),
-                child: SegmentedButton(
-                  segments: [
-                    for (var status in SectorStatus.values)
-                      ButtonSegment(
-                        value: status,
-                        label: status.label,
-                        icon: status.icon,
-                      )
-                  ],
-                  selected: {targetSectorStatus},
-                  showSelectedIcon: false,
-                  onSelectionChanged: (Set<SectorStatus> newSelection) {
-                    setState(() {
-                      targetSectorStatus = newSelection.first;
-                    });
-                  },
-                  style: const ButtonStyle(
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+            if (!showMeetingView)
+              Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4.0, left: 4.0),
+                  child: SegmentedButton(
+                    segments: [
+                      for (var status in SectorStatus.values)
+                        ButtonSegment(
+                          value: status,
+                          label: status.label,
+                          icon: status.icon,
+                        )
+                    ],
+                    selected: {targetSectorStatus},
+                    showSelectedIcon: false,
+                    onSelectionChanged: (Set<SectorStatus> newSelection) {
+                      setState(() {
+                        targetSectorStatus = newSelection.first;
+                      });
+                    },
+                    style: const ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+                    ),
                   ),
                 ),
               ),
-            ),
             Align(
               alignment: Alignment.topRight,
               child: IconButton(
@@ -213,7 +215,7 @@ class _StarMapState extends State<StarMap> {
     );
   }
 
-  LayoutBuilder buildMeetingMap(GameStateResp state) {
+  LayoutBuilder buildMeetingMap(GameStateResp state, List<SecretToken> secretTokens, List<Token> tokens) {
     return LayoutBuilder(
       key: ValueKey(showMeetingView),
       builder: (context, constraints) {
@@ -225,6 +227,8 @@ class _StarMapState extends State<StarMap> {
           containerSize: size,
           season: Season.values[seasonIndex],
           mapType: state.mapType,
+          secretTokens: secretTokens,
+          tokens: tokens,
           onCenterTap: () {
             setState(() {
               seasonIndex = (seasonIndex + 1) % 4;
@@ -242,12 +246,16 @@ class CircleMeetings extends StatelessWidget {
     required this.containerSize,
     required this.season,
     required this.mapType,
+    required this.secretTokens,
+    required this.tokens,
     required this.onCenterTap,
   });
 
   final double containerSize;
   final Season season;
   final MapType mapType;
+  final List<SecretToken> secretTokens;
+  final List<Token> tokens;
   final void Function() onCenterTap;
 
   static const double meetingBackgroudIconSize = 16;

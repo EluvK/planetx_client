@@ -129,7 +129,7 @@ class SocketController extends GetxController {
 
     socket!.on("token", (data) {
       print("token: $data");
-      Get.snackbar("token", data.toString());
+      // Get.snackbar("token", data.toString());
       List<Token> tokens = (data as List).map((e) => Token.fromJson(e)).toList();
       print("tokens: $tokens");
       currentTokens.value = tokens;
@@ -137,7 +137,7 @@ class SocketController extends GetxController {
 
     socket!.on("board_tokens", (data) {
       print("board_tokens: $data");
-      Get.snackbar("board_tokens", data.toString());
+      // Get.snackbar("board_tokens", data.toString());
       List<SecretToken> tokens = (data as List).map((e) => SecretToken.fromJson(e)).toList();
       print("tokens: $tokens");
       currentSecretTokens.value = tokens;
