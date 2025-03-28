@@ -452,6 +452,7 @@ class _DoPublishOpWidgetState extends State<DoPublishOpWidget> {
         .map((e) => e.type)
         .toSet()
         .toList();
+    // todo optimize this list, could remove the used tokens at second phase
     if (tokenTypes.isNotEmpty) {
       sectorType = tokenTypes[0];
     }

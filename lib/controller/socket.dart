@@ -94,7 +94,7 @@ class SocketController extends GetxController {
     });
     socket!.on("server_resp", (data) {
       print(data);
-      // Get.snackbar("服务端", data.toString());
+      Get.snackbar("服务端", data.toString());
     });
     socket!.on("game_state", (data) {
       print("game_state: $data");

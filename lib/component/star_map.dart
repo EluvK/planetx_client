@@ -81,8 +81,8 @@ class _StarMapState extends State<StarMap> {
   Widget build(BuildContext context) {
     return Obx(() {
       GameStateResp state = socket.currentGameState.value;
-      List<SecretToken> stokens = socket.currentSecretTokens.value;
-      List<Token> tokens = socket.currentTokens.value;
+      List<SecretToken> stokens = socket.currentSecretTokens;
+      List<Token> tokens = socket.currentTokens;
 
       // if (state.status.isNotStarted) {
       //   return const SizedBox.shrink();
@@ -121,6 +121,8 @@ class _StarMapState extends State<StarMap> {
           children: [
             Column(children: [SizedBox(height: 30), animatedMap]),
             // 操作按钮
+            if (showMeetingView) Align(alignment: Alignment.topCenter, child: selfTokenCounter(tokens)),
+            if (showMeetingView) Align(alignment: Alignment.topLeft, child: othersSecretTokenCounter(stokens)),
             if (!showMeetingView)
               Align(
                 alignment: Alignment.topLeft,
@@ -164,6 +166,63 @@ class _StarMapState extends State<StarMap> {
         ),
       );
     });
+  }
+
+  Widget selfTokenCounter(List<Token> tokens) {
+    Map<SectorType, int> tokenCount = {};
+    for (var token in tokens) {
+      if (token.placed) {
+        continue;
+      }
+      if (tokenCount.containsKey(token.type)) {
+        tokenCount[token.type] = tokenCount[token.type]! + 1;
+      } else {
+        tokenCount[token.type] = 1;
+      }
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var entry in tokenCount.entries)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(entry.key.iconName, width: 16, height: 16),
+              SizedBox(width: 4),
+              Text('${entry.value}'),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget othersSecretTokenCounter(List<SecretToken> stokens) {
+    Map<int, int> tokenCount = {}; // userIndex -> count
+    for (var token in stokens) {
+      if (token.sectorIndex != 0) {
+        continue;
+      }
+      if (tokenCount.containsKey(token.userIndex)) {
+        tokenCount[token.userIndex] = tokenCount[token.userIndex]! + 1;
+      } else {
+        tokenCount[token.userIndex] = 1;
+      }
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var entry in tokenCount.entries)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.person, size: 16, color: userIndexedColors[entry.key - 1]),
+              SizedBox(width: 4),
+              Text('${entry.value}'),
+            ],
+          ),
+      ],
+    );
   }
 
   LayoutBuilder buildStarMap(GameStateResp state) {
@@ -258,14 +317,6 @@ class CircleMeetings extends StatelessWidget {
   final List<Token> tokens;
   final void Function() onCenterTap;
 
-  static const double meetingBackgroudIconSize = 16;
-  static const List<Icon> meetingIcons = [
-    Icon(Icons.autorenew_rounded, size: meetingBackgroudIconSize),
-    Icon(Icons.crop_free, size: meetingBackgroudIconSize),
-    Icon(Icons.crop_free, size: meetingBackgroudIconSize),
-    Icon(Icons.add_box_outlined, size: meetingBackgroudIconSize),
-  ];
-
   @override
   Widget build(BuildContext context) {
     double radius = (containerSize - 30) / 2; // 圆半径
@@ -275,12 +326,21 @@ class CircleMeetings extends StatelessWidget {
     double startDegree = season.degree;
 
     const int meetingReviewTimePerSector = 4; // 每个扇区的会议揭露时间
-
     const int meetingPointSize = 18; // 会议点大小
-    List<int> meetingPoints = mapType.meetingPoints;
 
-    // double buttonSize = containerSize / 17; // 按钮大小
-    // const int buttonsPerSector = 6; // 每个扇区的按钮数
+    List<int> meetingPoints = mapType.meetingPoints;
+    double dynamicTokenSize = containerSize / 24; // 动态Token大小
+    List<Icon> meetingTokenBackgroundIcons = [
+      Icon(Icons.autorenew_rounded, size: dynamicTokenSize),
+      Icon(Icons.crop_free, size: dynamicTokenSize, color: Colors.grey),
+      Icon(Icons.crop_free, size: dynamicTokenSize, color: Colors.grey),
+      Icon(Icons.add_box_outlined, size: dynamicTokenSize, color: Colors.blueGrey),
+    ];
+
+    final List<SecretToken> meetingTokens = secretTokens.where((token) => token.sectorIndex != 0).toList();
+    for (var token in secretTokens) {
+      print(token.toJson());
+    }
 
     return Center(
       child: SizedBox(
@@ -333,19 +393,17 @@ class CircleMeetings extends StatelessWidget {
                     double y = buttonRadius * math.sin(radians);
 
                     return Positioned(
-                      left: containerSize / 2 + x - 12,
-                      top: containerSize / 2 + y - 12,
-                      child: Container(
-                        width: meetingBackgroudIconSize * 1.5,
-                        height: meetingBackgroudIconSize * 1.5,
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey),
-                        ),
-                        child: Center(
-                          child: meetingIcons[meetingIndex],
-                        ),
+                      left: containerSize / 2 + x - dynamicTokenSize / 2,
+                      top: containerSize / 2 + y - dynamicTokenSize / 2,
+                      child: SizedBox(
+                        width: dynamicTokenSize.toDouble(),
+                        height: dynamicTokenSize.toDouble(),
+                        // decoration: BoxDecoration(
+                        //   color: Colors.transparent,
+                        //   shape: BoxShape.circle,
+                        //   border: Border.all(color: Colors.grey),
+                        // ),
+                        child: meetingTokenBackgroundIcons[meetingIndex],
                       ),
                     );
                   }),
@@ -417,6 +475,36 @@ class CircleMeetings extends StatelessWidget {
                 ),
               );
             }),
+
+            // 生成 SecretToken 点
+            ...meetingTokens.map((token) {
+              double sectorIndex = token.sectorIndex.toDouble();
+              double meetingIndex = token.meetingIndex.toDouble();
+              // 计算扇区中心角度（从顶部开始顺时针）
+              // const double maxTokenCount = 6;
+              double centerDegree = eachSectorDegree * (sectorIndex - 1) + startDegree;
+              double delta = (eachSectorDegree) * (1.25 - (token.userIndex + 1) / 5);
+              centerDegree += delta;
+
+              // 转换为极坐标角度（右侧为0，逆时针）
+              double radians = (centerDegree) * math.pi / 180;
+              double buttonRadius =
+                  baseRadius + (radius - baseRadius) * (meetingIndex + 1) / (meetingReviewTimePerSector + 0.6);
+              double x = buttonRadius * math.cos(radians);
+              double y = buttonRadius * math.sin(radians);
+              print(centerDegree);
+
+              return Positioned(
+                left: containerSize / 2 + x - dynamicTokenSize / 2, // 调整位置
+                top: containerSize / 2 + y - dynamicTokenSize / 2, // 调整位置
+                child: Container(
+                  width: dynamicTokenSize.toDouble(),
+                  height: dynamicTokenSize.toDouble(),
+                  decoration: BoxDecoration(color: userIndexedColors[token.userIndex - 1], shape: BoxShape.circle),
+                  child: Icon(Icons.token_outlined, color: Colors.white, size: dynamicTokenSize.toDouble()),
+                ),
+              );
+            }),
           ],
         ),
       ),
@@ -451,7 +539,7 @@ class CircleSectors extends StatelessWidget {
   Widget build(BuildContext context) {
     // const double size = 1200; // 容器大小
     double radius = (containerSize - 30) / 2; // 圆半径
-    double buttonSize = containerSize / 17; // 按钮大小
+    double buttonSize = containerSize / 19; // 按钮大小
     const double baseRadius = 40; // 基础半径
     int sectorCount = mapType.sectorCount;
     // const int sectorCount = 12; // 等分数
