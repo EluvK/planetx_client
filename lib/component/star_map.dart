@@ -69,7 +69,6 @@ class StarMap extends StatefulWidget {
 }
 
 class _StarMapState extends State<StarMap> {
-  final sectorStatus = List.generate(18, (index) => List.generate(6, (index) => SectorStatus.doubt));
   final socket = Get.find<SocketController>();
 
   SectorStatus targetSectorStatus = SectorStatus.confirm;
@@ -91,7 +90,7 @@ class _StarMapState extends State<StarMap> {
       // this is a flip animation from left to right
       // ref: https://github.com/GONZALEZD/flutter_demos/blob/main/flip_animation/lib/main.dart
       var animatedMap = AnimatedSwitcher(
-        duration: const Duration(milliseconds: 800),
+        duration: const Duration(milliseconds: 400),
         layoutBuilder: (widget, list) => Stack(children: [widget!, ...list]),
         transitionBuilder: (child, animation) {
           final rotateAnim = Tween(begin: math.pi, end: 0.0).animate(animation);
@@ -226,6 +225,7 @@ class _StarMapState extends State<StarMap> {
   }
 
   LayoutBuilder buildStarMap(GameStateResp state) {
+    final sectorStatus = socket.localSectorStatus;
     return LayoutBuilder(
       key: ValueKey(showMeetingView),
       builder: (context, constraints) {
@@ -480,6 +480,9 @@ class CircleMeetings extends StatelessWidget {
             ...meetingTokens.map((token) {
               double sectorIndex = token.sectorIndex.toDouble();
               double meetingIndex = token.meetingIndex.toDouble();
+              if (meetingIndex == 4) {
+                meetingIndex = 3.14; // wasted token
+              }
               // 计算扇区中心角度（从顶部开始顺时针）
               // const double maxTokenCount = 6;
               double centerDegree = eachSectorDegree * (sectorIndex - 1) + startDegree;
@@ -492,21 +495,45 @@ class CircleMeetings extends StatelessWidget {
                   baseRadius + (radius - baseRadius) * (meetingIndex + 1) / (meetingReviewTimePerSector + 0.6);
               double x = buttonRadius * math.cos(radians);
               double y = buttonRadius * math.sin(radians);
-              print(centerDegree);
+              // print(centerDegree);
 
               return Positioned(
                 left: containerSize / 2 + x - dynamicTokenSize / 2, // 调整位置
                 top: containerSize / 2 + y - dynamicTokenSize / 2, // 调整位置
-                child: Container(
-                  width: dynamicTokenSize.toDouble(),
-                  height: dynamicTokenSize.toDouble(),
-                  decoration: BoxDecoration(color: userIndexedColors[token.userIndex - 1], shape: BoxShape.circle),
-                  child: Icon(Icons.token_outlined, color: Colors.white, size: dynamicTokenSize.toDouble()),
-                ),
+                child: secretTokenWidget(dynamicTokenSize, token),
               );
             }),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget secretTokenWidget(double dynamicTokenSize, SecretToken token) {
+    if (token.type == null) {
+      return Container(
+        width: dynamicTokenSize.toDouble(),
+        height: dynamicTokenSize.toDouble(),
+        decoration: BoxDecoration(color: userIndexedColors[token.userIndex - 1], shape: BoxShape.circle),
+        child: Icon(Icons.token_outlined, color: Colors.white, size: dynamicTokenSize.toDouble()),
+      );
+    }
+    var type = token.type!;
+    return Container(
+      width: dynamicTokenSize.toDouble(),
+      height: dynamicTokenSize.toDouble(),
+      decoration: BoxDecoration(
+        // color: Colors.transparent,
+        color: userIndexedColors[token.userIndex - 1].withAlpha(80),
+        shape: BoxShape.circle,
+        border: Border.all(color: userIndexedColors[token.userIndex - 1], width: 3),
+      ),
+      child: Image.asset(
+        type.iconName,
+        // width: dynamicTokenSize - 10,
+        // height: dynamicTokenSize - 10,
+        // color: Colors.blueGrey,
+        // colorBlendMode: BlendMode.dstIn,
       ),
     );
   }
@@ -881,12 +908,4 @@ class SectorBorderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-bool isPrime(int n) {
-  // hard code 1 to 20 prime
-  if (n == 2 || n == 3 || n == 5 || n == 7 || n == 11 || n == 13 || n == 17 || n == 19) {
-    return true;
-  }
-  return false;
 }

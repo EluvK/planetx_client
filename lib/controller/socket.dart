@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:planetx_client/component/star_map.dart';
 import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/model/op.dart';
 import 'package:planetx_client/model/room.dart';
@@ -28,6 +29,8 @@ class SocketController extends GetxController {
   IO.Socket? socket;
   final socketStatus = SocketStatus.disconnected.obs;
   final settingController = Get.find<SettingController>();
+
+  final localSectorStatus = <List<SectorStatus>>[].obs; // local sector status for star map
 
   final currentGameState = GameStateResp.placeholder().obs;
   final currentMovesResult = <OperationResult>[].obs; // operation results for self. sensitive data
@@ -85,40 +88,44 @@ class SocketController extends GetxController {
     socket!.onDisconnect((data) {
       socketStatus.value = SocketStatus.disconnected;
       print('disconnect $data');
-      Get.snackbar("断开连接", data.toString());
+      Get.snackbar("断开连接", data.toString(), snackPosition: SnackPosition.BOTTOM);
     });
     socket!.onConnectError((data) {
       socketStatus.value = SocketStatus.error;
       print('connect_error $data');
-      // Get.snackbar("连接错误", data.toString());
+      // Get.snackbar("连接错误", data.toString(), snackPosition: SnackPosition.BOTTOM);
     });
     socket!.on("server_resp", (data) {
       print(data);
-      Get.snackbar("服务端", data.toString());
+      Get.snackbar("服务端", data.toString(), snackPosition: SnackPosition.BOTTOM);
     });
     socket!.on("game_state", (data) {
       print("game_state: $data");
       final gs = GameStateResp.fromJson(data);
       currentGameState.value = gs;
-      if (Get.currentRoute != "/game" && currentGameState.value.id != "") Get.toNamed("/game");
+      if (Get.currentRoute != "/game" && currentGameState.value.id != "") {
+        Get.toNamed("/game");
+        localSectorStatus.clear();
+        localSectorStatus.value = List.generate(18, (index) => List.generate(6, (index) => SectorStatus.doubt));
+      }
       if (Get.currentRoute == "/game" && currentGameState.value.id == "") Get.offAllNamed("/");
       // addMessage("game state: ${gs.id}");
-      // Get.snackbar("房间", data.toString());
+      // Get.snackbar("房间", data.toString(), snackPosition: SnackPosition.BOTTOM);
     });
     socket!.on("game_start", (data) {
       print("clue_secret: $data");
-      // Get.snackbar("线索", data.toString());
+      // Get.snackbar("线索", data.toString(), snackPosition: SnackPosition.BOTTOM);
       currentClueSecret.value = (data as List).map((e) => ClueSecret.fromJson(e)).toList();
       currentClueDetails.clear();
       currentMovesResult.clear();
     });
     // socket!.on("op", (data) {
     //   print("op: $data");
-    //   Get.snackbar("操作", data.toString());
+    //   Get.snackbar("操作", data.toString(), snackPosition: SnackPosition.BOTTOM);
     // });
     socket!.on("op_result", (data) {
       print("op_result: $data");
-      Get.snackbar("操作结果", data.toString());
+      Get.snackbar("操作结果", data.toString(), snackPosition: SnackPosition.BOTTOM);
       final opResult = OperationResult.fromJson(data);
       currentMovesResult.add(opResult);
       if (opResult.value is ResearchOperationResult) {
@@ -129,7 +136,7 @@ class SocketController extends GetxController {
 
     socket!.on("token", (data) {
       print("token: $data");
-      // Get.snackbar("token", data.toString());
+      // Get.snackbar("token", data.toString(), snackPosition: SnackPosition.BOTTOM);
       List<Token> tokens = (data as List).map((e) => Token.fromJson(e)).toList();
       print("tokens: $tokens");
       currentTokens.value = tokens;
@@ -137,16 +144,24 @@ class SocketController extends GetxController {
 
     socket!.on("board_tokens", (data) {
       print("board_tokens: $data");
-      // Get.snackbar("board_tokens", data.toString());
+      // Get.snackbar("board_tokens", data.toString(), snackPosition: SnackPosition.BOTTOM);
       List<SecretToken> tokens = (data as List).map((e) => SecretToken.fromJson(e)).toList();
-      print("tokens: $tokens");
+      print("board_tokens: $tokens");
       currentSecretTokens.value = tokens;
+    });
+
+    socket!.on("xclue", (data) {
+      print("xclue: $data");
+      // Get.snackbar("xclue", data.toString(), snackPosition: SnackPosition.BOTTOM);
+      List<Clue> clues = (data as List).map((e) => Clue.fromJson(e)).toList();
+      print("clues: $clues");
+      currentClueDetails.addAll(clues);
     });
   }
 
   void op(Operation operation) {
     if (socket == null) {
-      Get.snackbar("未连接", "请先连接服务器");
+      Get.snackbar("未连接", "请先连接服务器", snackPosition: SnackPosition.BOTTOM);
       return;
     }
     socket!.emit('op', operation.toJson());
@@ -162,6 +177,18 @@ class SocketController extends GetxController {
       if (socket != null && socket!.connected) break;
     }
     socket!.emit('room', operation.toJson());
+  }
+
+  void sync() async {
+    if (socket == null) {
+      reconnect();
+    }
+
+    for (var i = 0; i < 10; i++) {
+      await Future.delayed(Duration(milliseconds: 300));
+      if (socket != null && socket!.connected) break;
+    }
+    socket!.emit('sync', {});
   }
 
   // void addMessage(String message) {

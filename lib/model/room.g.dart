@@ -51,6 +51,8 @@ const _$GameStageEnumMap = {
   GameStage.userMove: 'user_move',
   GameStage.meetingProposal: 'meeting_proposal',
   GameStage.meetingPublish: 'meeting_publish',
+  GameStage.meetingCheck: 'meeting_check',
+  GameStage.lastMove: 'last_move',
   GameStage.gameEnd: 'game_end',
 };
 
@@ -59,9 +61,9 @@ UserState _$UserStateFromJson(Map<String, dynamic> json) => UserState(
       json['name'] as String,
       json['ready'] as bool,
       UserLocationSequence.fromJson(json['location'] as Map<String, dynamic>),
-      json['should_move'] as bool,
+      json['last_move'] as bool,
+      json['can_locate'] as bool,
       (json['moves'] as List<dynamic>).map((e) => Operation.fromJson(e as Map<String, dynamic>)).toList(),
-      (json['moves_result'] as List<dynamic>).map((e) => OperationResult.fromJson(e as Map<String, dynamic>)).toList(),
       (json['used_token'] as List<dynamic>).map((e) => SecretToken.fromJson(e as Map<String, dynamic>)).toList(),
     );
 
@@ -70,9 +72,9 @@ Map<String, dynamic> _$UserStateToJson(UserState instance) => <String, dynamic>{
       'name': instance.name,
       'ready': instance.ready,
       'location': instance.location,
-      'should_move': instance.shouldMove,
+      'last_move': instance.lastMove,
+      'can_locate': instance.canLocate,
       'moves': instance.moves,
-      'moves_result': instance.movesResult,
       'used_token': instance.usedToken,
     };
 

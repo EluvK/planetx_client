@@ -18,3 +18,11 @@ class Nullable<T> {
   bool get isSome => value != null;
   // T? get value => value;
 }
+
+bool isPrime(int n) {
+  // hard code 1 to 20 prime
+  if (n == 2 || n == 3 || n == 5 || n == 7 || n == 11 || n == 13 || n == 17 || n == 19) {
+    return true;
+  }
+  return false;
+}

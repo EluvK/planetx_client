@@ -183,6 +183,8 @@ enum GameStage {
   userMove,
   meetingProposal,
   meetingPublish,
+  meetingCheck,
+  lastMove,
   gameEnd,
 }
 
@@ -192,9 +194,10 @@ class UserState {
   final String name;
   final bool ready;
   final UserLocationSequence location;
-  final bool shouldMove;
+  final bool lastMove;
+  final bool canLocate;
   final List<Operation> moves;
-  final List<OperationResult> movesResult;
+  // final List<OperationResult> movesResult;
   final List<SecretToken> usedToken;
 
   UserState(
@@ -202,9 +205,10 @@ class UserState {
     this.name,
     this.ready,
     this.location,
-    this.shouldMove,
+    this.lastMove,
+    this.canLocate,
     this.moves,
-    this.movesResult,
+    // this.movesResult,
     this.usedToken,
   );
 

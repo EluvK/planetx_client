@@ -31,13 +31,24 @@ class _OpLogState extends State<OpLog> {
 
     return Obx(() {
       List<Operation> userMoves =
-          socket.currentGameState.value.users.firstWhere((element) => element.id == currentUserId).moves;
-      List<OperationResult> results = socket.currentMovesResult;
+          socket.currentGameState.value.users.firstWhereOrNull((element) => element.id == currentUserId)?.moves ?? [];
+      List<OperationResult> results =
+          socket.currentMovesResult.where((element) => !element.isPublishOperation).toList();
       Map<User, List<Operation>> otherUserMoves = {
         for (var e in socket.currentGameState.value.users) User(e.name, e.id): e.moves
       };
       final maxRow = otherUserMoves.values.map((e) => e.length).fold(0, (a, b) => a > b ? a : b);
       otherUserMoves.removeWhere((key, value) => key.id == currentUserId);
+
+      // meetingstr
+      List<String> meetingStr = [];
+      for (var m in socket.currentMovesResult.where((element) => element.isPublishOperation).toList()) {
+        if (m.isReadyPublishOperation) {
+          meetingStr.add(m.fmt());
+        } else {
+          meetingStr.last += "(${m.fmt()})";
+        }
+      }
 
       // Combine userMoves and results into table rows
       List<TableRow> tableRows = [
@@ -45,6 +56,7 @@ class _OpLogState extends State<OpLog> {
           children: [
             cell(Text("User")),
             cell(Text("Result")),
+            cell(Text("My Meeting Logs")),
             for (var user in otherUserMoves.keys) cell(Text(user.name)),
           ],
         ),
@@ -53,15 +65,29 @@ class _OpLogState extends State<OpLog> {
             children: [
               cell(Text(userMoves.length > i ? userMoves[i].fmt() : "")),
               cell(Text(results.length > i ? results[i].fmt() : "")),
+              cell(Text(meetingStr.length > i ? meetingStr[i] : "")),
               for (var user in otherUserMoves.keys)
                 cell(Text(otherUserMoves[user]!.length > i ? otherUserMoves[user]![i].fmt() : "")),
             ],
           ),
       ];
 
-      return Table(
-        border: TableBorder.all(),
-        children: tableRows,
+      return Column(
+        children: [
+          const Text("Operation Log"),
+          const SizedBox(height: 4),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: Theme.of(context).colorScheme.primaryContainer,
+            ),
+            child: Table(
+              border: TableBorder.all(),
+              children: tableRows,
+            ),
+          ),
+          const SizedBox(height: 4),
+        ],
       );
     });
   }

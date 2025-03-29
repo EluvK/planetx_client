@@ -73,6 +73,8 @@ class _OpBarState extends State<OpBar> {
           ops = [OpEnum.ReadyPublish];
         case GameStage.meetingPublish:
           ops = [OpEnum.DoPublish];
+        case GameStage.lastMove:
+          ops = [OpEnum.Target, OpEnum.DoPublish];
         default:
           ops = [];
       }
@@ -166,6 +168,7 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
           to: ed,
           max: max,
           title: 'from',
+          onlyPrime: type == SectorType.Comet,
         ),
         Text('-'),
         NumberPicker(
@@ -175,6 +178,7 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
           to: ed,
           max: max,
           title: 'to',
+          onlyPrime: type == SectorType.Comet,
         ),
         SectorPicker(
           value: type,
@@ -447,11 +451,15 @@ class _DoPublishOpWidgetState extends State<DoPublishOpWidget> {
   @override
   void initState() {
     max = socket.currentGameState.value.mapType.sectorCount;
-    tokenTypes = socket.currentTokens
-        .where((element) => element.placed && element.secret.sectorIndex == 0)
-        .map((e) => e.type)
-        .toSet()
-        .toList();
+    if (socket.currentGameState.value.gameStage == GameStage.lastMove) {
+      tokenTypes = socket.currentTokens.where((element) => !element.placed).map((e) => e.type).toSet().toList();
+    } else {
+      tokenTypes = socket.currentTokens
+          .where((element) => element.placed && element.secret.sectorIndex == 0)
+          .map((e) => e.type)
+          .toSet()
+          .toList();
+    }
     // todo optimize this list, could remove the used tokens at second phase
     if (tokenTypes.isNotEmpty) {
       sectorType = tokenTypes[0];

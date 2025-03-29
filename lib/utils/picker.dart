@@ -173,6 +173,7 @@ class NumberPicker extends _Picker<int> {
   final int? step;
   final int? max;
   final List<int>? numbers;
+  final bool onlyPrime;
 
   NumberPicker({
     super.key,
@@ -184,6 +185,7 @@ class NumberPicker extends _Picker<int> {
     this.to,
     this.step = 1,
     this.max,
+    this.onlyPrime = false,
     TextStyle? style,
     Color? color,
   })  : assert(
@@ -191,7 +193,13 @@ class NumberPicker extends _Picker<int> {
           '必须提供numbers列表或者from/to/step/max范围',
         ),
         super(
-          items: numbers?.toList() ?? _getNumbers(from!, to!, step!, max!),
+          items: (numbers?.toList() ?? _getNumbers(from!, to!, step!, max!)).where((e) {
+            if (onlyPrime) {
+              return isPrime(e);
+            } else {
+              return true;
+            }
+          }).toList(),
           toItemWidget: (int number) => Text(" ${number.toString()} "),
           toResultWidget: (int number) => Container(
             margin: const EdgeInsets.symmetric(horizontal: 8.0),

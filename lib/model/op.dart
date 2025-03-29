@@ -355,6 +355,10 @@ class OperationResult {
       throw Exception('unknown OperationResult type');
     }
   }
+
+  bool get isPublishOperation => value is DoPublishOperationResult || value is ReadyPublishOperationResult;
+  bool get isReadyPublishOperation => value is ReadyPublishOperationResult;
+  bool get isDoPublishOperation => value is DoPublishOperationResult;
 }
 
 class SurveyOperationResult {

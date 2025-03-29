@@ -96,10 +96,14 @@ class _RoomInfosState extends State<RoomInfos> {
         children: [
           rowTextIconWidget(
             "Room: ${gameState.id}",
-            () {
-              Clipboard.setData(ClipboardData(text: gameState.id));
-            },
-            Icons.copy,
+            gameState.status.isNotStarted
+                ? () {
+                    Clipboard.setData(ClipboardData(text: gameState.id));
+                  }
+                : () {
+                    socket.sync();
+                  },
+            gameState.status.isNotStarted ? Icons.copy : Icons.sync,
           ),
           rowTextIconWidget(
             "Seed: ${gameState.mapSeed}",
