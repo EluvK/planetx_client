@@ -11,7 +11,7 @@ class SettingController extends GetxController {
   RxString userName = ''.obs;
   RxString userId = ''.obs;
 
-  RxString serverAddress = 'http://127.0.0.1:17878'.obs;
+  RxString serverAddress = 'https://api.planetx-online.top'.obs;
 
   @override
   Future<void> onInit() async {
@@ -33,7 +33,7 @@ class SettingController extends GetxController {
     }
 
     if (box.read('serverAddress') == null) {
-      serverAddress.value = 'http://127.0.0.1:17878';
+      serverAddress.value = 'https://api.planetx-online.top';
       box.write('serverAddress', serverAddress.value);
     } else {
       serverAddress.value = box.read('serverAddress');

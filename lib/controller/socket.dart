@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planetx_client/component/star_map.dart';
@@ -72,13 +73,27 @@ class SocketController extends GetxController {
       socket!.disconnect();
     }
 
-    socket = IO.io(address, <String, dynamic>{
-      'transports': ['websocket'],
-      'autoConnect': false,
-      'reconnectionAttempts': 5,
-      'reconnectionDelay': 1000,
-      'reconnectionDelayMax': 5000,
-    });
+    if (kIsWeb) {
+      socket = IO.io(
+        address,
+        IO.OptionBuilder()
+            .setReconnectionAttempts(5)
+            .setReconnectionDelay(1000)
+            .setReconnectionDelayMax(5000)
+            .build(),
+      );
+    } else {
+      socket = IO.io(
+        address,
+        IO.OptionBuilder()
+            .setTransports(['websocket'])
+            .setReconnectionAttempts(5)
+            .setReconnectionDelay(1000)
+            .setReconnectionDelayMax(5000)
+            .build(),
+      );
+    }
+
     socket!.connect();
     socket!.onConnect((_) {
       print('connect');

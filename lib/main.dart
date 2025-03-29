@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 // import 'package:flutter/foundation.dart';
 // import 'package:flutter/services.dart';
@@ -10,8 +12,17 @@ import 'package:planetx_client/pages/game.dart';
 import 'package:planetx_client/pages/home.dart';
 import 'package:planetx_client/pages/test.dart';
 
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  }
+}
+
 void main() async {
   await GetStorage.init('XPlanetStorage');
+  HttpOverrides.global = MyHttpOverrides();
 
   await Get.putAsync(() async {
     final controller = SettingController();
@@ -40,7 +51,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var app = GetMaterialApp(
-      title: 'Flutter Demo',
+      title: 'PlanetX',
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       getPages: [
