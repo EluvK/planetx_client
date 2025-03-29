@@ -145,12 +145,19 @@ class _RoomInfosState extends State<RoomInfos> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+            ),
             onPressed: () {
               socket.room(RoomUserOperation.leave(gameState.id));
             },
             child: const Text("Leave"),
           ),
+          SizedBox(height: 4),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+            ),
             onPressed: () {
               if (currentUserState.ready) {
                 socket.room(RoomUserOperation.unprepare(gameState.id));
@@ -170,7 +177,7 @@ class _RoomInfosState extends State<RoomInfos> {
         ),
         padding: EdgeInsets.all(8),
         child: Wrap(
-          spacing: 4.0,
+          spacing: 2.0,
           runSpacing: 4.0,
           alignment: WrapAlignment.spaceEvenly,
           crossAxisAlignment: WrapCrossAlignment.center,

@@ -83,12 +83,15 @@ class _OpBarState extends State<OpBar> {
         padding: const EdgeInsets.symmetric(vertical: 2.0),
         child: _expandedOp == null
             ? Wrap(
-                spacing: 8.0,
+                spacing: 4.0,
                 runSpacing: 8.0,
                 alignment: WrapAlignment.center,
                 children: [
                   for (var op in ops)
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+                      ),
                       onPressed: () => setState(() => _expandedOp = op),
                       child: Text(op.name),
                     ),
@@ -188,6 +191,9 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
         _opCost(4 - (_range(from, to, max) - 1) ~/ 3),
         // Text('Price_3-4/2-4'),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+          ),
           onPressed: () {
             socket.op(Operation.survey(type, from, to));
             widget.reset();
@@ -240,6 +246,9 @@ class _TargetOpWidgetState extends State<TargetOpWidget> {
         _opCost(4),
         SizedBox(width: 8),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+          ),
           onPressed: () {
             socket.op(Operation.target(res));
             widget.reset();
@@ -288,6 +297,9 @@ class _ResearchOpWidgetState extends State<ResearchOpWidget> {
         ),
         _opCost(1),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+          ),
           onPressed: () {
             socket.op(Operation.research(input));
             widget.reset();
@@ -336,6 +348,9 @@ class _LocateOpWidgetState extends State<LocateOpWidget> {
         SectorPicker(value: next, onChanged: (value) => setState(() => next = value)),
         _opCost(5),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+          ),
           onPressed: () {
             socket.op(Operation.locate(index, pre, next));
             widget.reset();
@@ -418,6 +433,9 @@ class _ReadyPublishOpWidgetState extends State<ReadyPublishOpWidget> {
             tokenCount: tokenCount2,
           ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+          ),
           onPressed: () {
             socket.op(Operation.readyPublish([
               if (firstToken.isSome) firstToken.value!,
@@ -487,6 +505,9 @@ class _DoPublishOpWidgetState extends State<DoPublishOpWidget> {
           userDefinedItems: tokenTypes,
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+          ),
           onPressed: () {
             socket.op(Operation.doPublish(
               index,

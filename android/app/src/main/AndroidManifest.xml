@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="planetx_client"
+        android:label="Planet X"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
