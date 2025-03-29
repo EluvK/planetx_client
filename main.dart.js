@@ -86700,7 +86700,7 @@ A.Nb.prototype={
 M(a){var s,r=null,q=t.z
 q=A.b([A.LV(r,r,r,B.iP,B.iR,B.ap,r,!1,r,!0,r,"/",!0,new A.adw(),r,r,r,!0,!0,r,r,r,r,q),A.LV(r,r,r,B.iP,B.iR,B.ap,r,!1,r,!0,r,"/test",!0,new A.adx(),r,r,r,!0,!0,r,r,r,r,q),A.LV(r,r,r,B.iP,B.iR,B.ap,r,!1,r,!0,r,"/game",!0,new A.ady(),r,r,r,!0,!0,r,r,r,r,q),A.LV(r,r,r,B.iP,B.iR,B.ap,r,!1,r,!0,r,"/setting",!0,new A.adz(),r,r,r,!0,!0,r,r,r,r,q)],t.RT)
 s=A.aND(r,r,r,r,!0,7,r,r,r,r,r,r,r,r,r,"lxgw",r,B.rR,!1,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,B.mC,r,r,r,B.Tu,r,B.rT,r,!1,!0,r,r,r,r,B.TB.TU(),!1,!0,r,!0,!1,6,r,A.aCJ(A.b2())).gVb()
-return new A.A0("/","Flutter Demo",s,A.aNC(r,r,r,r,!0,14,r,r,r,r,!1,r,r,r,r,r,"lxgw",r,B.rR,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,B.mC,r,r,r,r,B.Tv,r,B.rT,r,!1,!0,r,r,r,r,r,B.Tz.TU(),!1,!0,r,!0,!1,6,r,A.aCJ(A.b2())).gVb(),B.a7Y,!1,q,r)}}
+return new A.A0("/","PlanetX",s,A.aNC(r,r,r,r,!0,14,r,r,r,r,!1,r,r,r,r,r,"lxgw",r,B.rR,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,B.mC,r,r,r,r,B.Tv,r,B.rT,r,!1,!0,r,r,r,r,r,B.Tz.TU(),!1,!0,r,!0,!1,6,r,A.aCJ(A.b2())).gVb(),B.a7Y,!1,q,r)}}
 A.adw.prototype={
 $0(){return new A.uH(null)},
 $S:561}
