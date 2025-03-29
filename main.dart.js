@@ -86379,7 +86379,7 @@ n=$.d7
 if(n==null)n=$.d7=new A.fc()
 n.e0(o.cN$)
 n=q.CW
-if(J.aA(o.cO$,"serverAddress")==null){n.sp(0,"http://127.0.0.1:17878")
+if(J.aA(o.cO$,"serverAddress")==null){n.sp(0,"https://server.planetx-online.top")
 p.nZ(0,"serverAddress",n.gp(0))}else{p=p.c.c.a
 o=$.d7
 if(o==null)o=$.d7=new A.fc()
@@ -86672,7 +86672,7 @@ A.awN.prototype={
 $0(){var s=0,r=A.P(t.OU),q,p,o
 var $async$$0=A.Q(function(a,b){if(a===1)return A.M(b,r)
 while(true)switch(s){case 0:p=t.Wo
-o=new A.rr(A.aD3("XPlanetStorage"),A.az2(""),A.az2(""),A.az2("http://127.0.0.1:17878"),A.b([],t.EH),A.ch(null,null,null,t.X,t.xW),new A.lO(p),new A.lO(p),!1,!1)
+o=new A.rr(A.aD3("XPlanetStorage"),A.az2(""),A.az2(""),A.az2("https://server.planetx-online.top"),A.b([],t.EH),A.ch(null,null,null,t.X,t.xW),new A.lO(p),new A.lO(p),!1,!1)
 o.Aa()
 q=o
 s=1
