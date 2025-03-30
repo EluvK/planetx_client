@@ -115,7 +115,7 @@ class _StarMapState extends State<StarMap> {
       );
 
       return Container(
-        decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+        decoration: BoxDecoration(border: Border.all(color: Colors.grey, width: 0.1)),
         child: Stack(
           children: [
             Column(children: [SizedBox(height: 30), animatedMap]),

@@ -25,11 +25,11 @@ class _MessageBarState extends State<MessageBar> {
 
       return Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.black),
-          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey, width: 1),
+          borderRadius: BorderRadius.circular(3),
         ),
-        height: 30,
-        child: Center(child: Text(hint ?? '')),
+        // height: 30,
+        child: Center(child: Text(hint ?? '', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
         // ListView(
         //   shrinkWrap: true,
         //   children: socket.messages
@@ -59,7 +59,7 @@ class _RoomInfosState extends State<RoomInfos> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(text),
+        Text(text, style: const TextStyle(fontSize: 14)),
         if (onPressed != null)
           SizedBox(
             height: 16,
@@ -172,8 +172,8 @@ class _RoomInfosState extends State<RoomInfos> {
 
       return Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.black),
-          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey, width: 1),
+          borderRadius: BorderRadius.circular(6),
         ),
         padding: EdgeInsets.all(8),
         child: Wrap(

@@ -98,14 +98,14 @@ class _OpBarState extends State<OpBar> {
                 ],
               )
             : Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () => setState(() => _expandedOp = null),
                   ),
-                  Expanded(
-                    child: _buildExpandedContent(_expandedOp!),
-                  ),
+                  Flexible(child: _buildExpandedContent(_expandedOp!)),
                 ],
               ),
       );
@@ -161,6 +161,7 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
   @override
   Widget build(BuildContext context) {
     return Wrap(
+      alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('Survey:'),
@@ -232,6 +233,7 @@ class _TargetOpWidgetState extends State<TargetOpWidget> {
   @override
   Widget build(BuildContext context) {
     return Wrap(
+      alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('Target:'),
@@ -279,6 +281,7 @@ class _ResearchOpWidgetState extends State<ResearchOpWidget> {
     List<Clue> cluesDetails = socket.currentClueDetails;
 
     return Wrap(
+      alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('Research:'),
@@ -331,6 +334,7 @@ class _LocateOpWidgetState extends State<LocateOpWidget> {
   Widget build(BuildContext context) {
     int mapSize = socket.currentGameState.value.mapType.sectorCount;
     return Wrap(
+      alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('Locate:'),
@@ -415,6 +419,7 @@ class _ReadyPublishOpWidgetState extends State<ReadyPublishOpWidget> {
     }
     // print(tokenCount);
     return Wrap(
+      alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('ReadyPublish:'),
@@ -488,6 +493,7 @@ class _DoPublishOpWidgetState extends State<DoPublishOpWidget> {
   @override
   Widget build(BuildContext context) {
     return Wrap(
+      alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('DoPublish:'),

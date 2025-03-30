@@ -19,11 +19,11 @@ class _PickerDialogState<T> extends State<_PickerDialog<T>> {
     return AlertDialog(
       title: Text(widget.title),
       content: SizedBox(
-        width: double.maxFinite,
+        width: double.minPositive,
         child: Wrap(
           spacing: 8.0,
           runSpacing: 8.0,
-          alignment: WrapAlignment.center,
+          alignment: WrapAlignment.spaceEvenly,
           children: [
             for (var item in widget.items)
               ElevatedButton(

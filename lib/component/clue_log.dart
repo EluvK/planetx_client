@@ -19,28 +19,34 @@ class _ClueLogState extends State<ClueLog> {
     return Obx(() {
       List<ClueSecret> clueSecret = socket.currentClueSecret;
       List<Clue> clueDetails = socket.currentClueDetails;
-      return Table(
-        columnWidths: {
-          0: const FlexColumnWidth(2),
-          1: const FlexColumnWidth(3),
-        },
-        border: TableBorder.all(),
+      return Column(
         children: [
-          for (var clue in clueSecret)
-            TableRow(children: [
-              TableCell(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text("${clue.index.name}: ${clue.secret}"),
-                ),
-              ),
-              TableCell(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(clueDetails.firstWhereOrNull((element) => element.index == clue.index)?.fmt() ?? ""),
-                ),
-              ),
-            ]),
+          const Text("Clue Log"),
+          const SizedBox(height: 4),
+          Table(
+            columnWidths: {
+              0: const FlexColumnWidth(2),
+              1: const FlexColumnWidth(3),
+            },
+            border: TableBorder.all(),
+            children: [
+              for (var clue in clueSecret)
+                TableRow(children: [
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text("${clue.index.name}: ${clue.secret}"),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(clueDetails.firstWhereOrNull((element) => element.index == clue.index)?.fmt() ?? ""),
+                    ),
+                  ),
+                ]),
+            ],
+          ),
         ],
       );
     });

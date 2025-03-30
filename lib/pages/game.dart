@@ -16,22 +16,28 @@ class GamePage extends StatelessWidget {
         child: ListView(
           shrinkWrap: true,
           children: [
-            MessageBar(),
+            Padding(
+              padding: const EdgeInsets.only(bottom:4.0),
+              child: MessageBar(),
+            ),
             RoomInfos(),
             OpBar(),
             LayoutBuilder(builder: (context, constraints) {
+              // print("width: ${constraints.maxWidth}, height: ${constraints.maxHeight}");
               if (constraints.maxWidth > 1000) {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(flex: 2, child: const StarMap()),
+                    Expanded(flex: 45, child: const StarMap()),
                     Flexible(
-                      flex: 1,
+                      flex: 55,
                       child: Column(
                         children: [
                           OpLog(),
                           SizedBox(height: 2),
                           ClueLog(),
+                          SizedBox(height: 2),
+                          MeetingLog(),
                         ],
                       ),
                     ),
@@ -44,6 +50,8 @@ class GamePage extends StatelessWidget {
                     OpLog(),
                     SizedBox(height: 2),
                     ClueLog(),
+                    SizedBox(height: 2),
+                    MeetingLog(),
                   ],
                 );
               }
