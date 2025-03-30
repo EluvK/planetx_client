@@ -8,7 +8,7 @@ relvant links:
 
 - [boardgamegeek](https://boardgamegeek.com/boardgame/279537/the-search-for-planet-x)
 
-You can play the game online at [planetx-online.top](https://planetx-online.top/) Or download the `apk`(fro android) or `exe`(for windows) from the [releases page](https://github.com/EluvK/planetx_client/releases).
+You can play the game online at [planetx-online.top](https://planetx-online.top/) Or download the `apk`(for android) or `exe`(for windows) from the [releases page](https://github.com/EluvK/planetx_client/releases).
 
 ## Server
 
