@@ -83,7 +83,8 @@ flutter:
   fonts:
     - family: lxgw
       fonts:
-        - asset: assets/font/LXGWWenKaiMonoScreen.ttf
+        # - asset: assets/font/LXGWWenKaiMonoScreen.ttf
+        - asset: assets/font/LXGWWenKaiMonoScreen-3500common.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
