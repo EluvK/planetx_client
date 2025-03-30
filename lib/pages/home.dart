@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('app_name'.tr),
+        title: Text('The Search for Planet X'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -46,10 +46,7 @@ class _HomeBodyState extends State<HomeBody> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Board Game\nThe Search for Planet X',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
+            Text('app_name'.tr, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
