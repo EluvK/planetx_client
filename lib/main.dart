@@ -1,8 +1,6 @@
 import 'dart:io';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
-// import 'package:flutter/foundation.dart';
-// import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -11,6 +9,7 @@ import 'package:planetx_client/controller/socket.dart';
 import 'package:planetx_client/pages/game.dart';
 import 'package:planetx_client/pages/home.dart';
 import 'package:planetx_client/pages/test.dart';
+import 'package:planetx_client/utils/translation.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -37,9 +36,6 @@ void main() async {
   await Get.find<SocketController>().ensureInitialization();
 
   WidgetsFlutterBinding.ensureInitialized();
-  // if (kIsWeb) {
-  //   BrowserContextMenu.disableContextMenu();
-  // }
 
   runApp(const MyApp());
 }
@@ -47,13 +43,16 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final setting = Get.find<SettingController>();
+    var locale = setting.localeValue;
     var app = GetMaterialApp(
-      title: 'PlanetX',
+      title: 'app_name'.tr,
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
+      translations: Translation(),
+      locale: locale,
       getPages: [
         GetPage(name: '/', page: () => HomePage()),
         GetPage(name: '/test', page: () => TestPage()),

@@ -44,8 +44,8 @@ class _OpLogState extends State<OpLog> {
       List<TableRow> tableRows = [
         TableRow(
           children: [
-            cell(Text("User")),
-            cell(Text("Result")),
+            cell(Text("cell_user_self".tr)),
+            cell(Text("cell_user_op_result".tr)),
             for (var user in otherUserMoves.keys) cell(Text(user.name)),
           ],
         ),
@@ -62,7 +62,7 @@ class _OpLogState extends State<OpLog> {
 
       return Column(
         children: [
-          const Text("Operation Log"),
+          Text("title_operation_log".tr, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 4),
           Container(
             decoration: BoxDecoration(
@@ -99,13 +99,13 @@ class _MeetingLogState extends State<MeetingLog> {
         if (m.isReadyPublishOperation) {
           meetingStr.add(m.fmt());
         } else {
-          meetingStr.last += "(${m.fmt()})";
+          meetingStr.last += m.fmt();
         }
       }
 
       return Column(
         children: [
-          const Text("Meeting Log"),
+          Text("title_conference_log".tr, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 4),
           Container(
             decoration: BoxDecoration(
@@ -117,7 +117,7 @@ class _MeetingLogState extends State<MeetingLog> {
               children: [
                 TableRow(
                   children: [
-                    cell(Text("Meeting")),
+                    cell(Text("cell_conference_title".tr)),
                   ],
                 ),
                 for (var i = 0; i < meetingStr.length; i++)

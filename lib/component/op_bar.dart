@@ -28,17 +28,17 @@ extension on OpEnum {
   String get name {
     switch (this) {
       case OpEnum.Survey:
-        return 'Survey';
+        return 'op_name_survey'.tr;
       case OpEnum.Target:
-        return 'Target';
+        return 'op_name_target'.tr;
       case OpEnum.Research:
-        return 'Research';
+        return 'op_name_research'.tr;
       case OpEnum.Locate:
-        return 'Locate';
+        return 'op_name_locate_x'.tr;
       case OpEnum.ReadyPublish:
-        return 'ReadyPublish';
+        return 'op_name_ready_publish'.tr;
       case OpEnum.DoPublish:
-        return 'DoPublish';
+        return 'op_name_do_publish'.tr;
     }
   }
 }
@@ -105,6 +105,8 @@ class _OpBarState extends State<OpBar> {
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () => setState(() => _expandedOp = null),
                   ),
+                  Text("${_expandedOp!.name}: ",
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold)),
                   Flexible(child: _buildExpandedContent(_expandedOp!)),
                 ],
               ),
@@ -164,7 +166,6 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text('Survey:'),
         NumberPicker(
           value: from,
           onChanged: (value) => setState(() => from = value),
@@ -190,7 +191,6 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
           includeX: false,
         ),
         _opCost(4 - (_range(from, to, max) - 1) ~/ 3),
-        // Text('Price_3-4/2-4'),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
@@ -199,7 +199,7 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
             socket.op(Operation.survey(type, from, to));
             widget.reset();
           },
-          child: Text('submit'),
+          child: Text('op_button_confirm'.tr),
         ),
       ],
     );
@@ -236,7 +236,6 @@ class _TargetOpWidgetState extends State<TargetOpWidget> {
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text('Target:'),
         NumberPicker(
           value: res,
           onChanged: (value) => setState(() => res = value),
@@ -255,7 +254,7 @@ class _TargetOpWidgetState extends State<TargetOpWidget> {
             socket.op(Operation.target(res));
             widget.reset();
           },
-          child: Text('submit'),
+          child: Text('op_button_confirm'.tr),
         ),
       ],
     );
@@ -284,7 +283,6 @@ class _ResearchOpWidgetState extends State<ResearchOpWidget> {
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text('Research:'),
         CluePicker(
           clueSecrets: clues
               .where((element) => element.index != ClueEnum.X1 && element.index != ClueEnum.X2
@@ -307,7 +305,7 @@ class _ResearchOpWidgetState extends State<ResearchOpWidget> {
             socket.op(Operation.research(input));
             widget.reset();
           },
-          child: Text('submit'),
+          child: Text('op_button_confirm'.tr),
         ),
       ],
     );
@@ -337,7 +335,6 @@ class _LocateOpWidgetState extends State<LocateOpWidget> {
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text('Locate:'),
         SectorPicker(value: pre, onChanged: (value) => setState(() => pre = value)),
         // Text(' -'),
         NumberPicker(
@@ -359,7 +356,7 @@ class _LocateOpWidgetState extends State<LocateOpWidget> {
             socket.op(Operation.locate(index, pre, next));
             widget.reset();
           },
-          child: Text('submit'),
+          child: Text('op_button_confirm'.tr),
         ),
       ],
     );
@@ -368,9 +365,12 @@ class _LocateOpWidgetState extends State<LocateOpWidget> {
 
 @override
 Widget _opCost(int cost) {
-  return Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [Icon(Icons.numbers_rounded), Text(cost.toString())],
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [Icon(Icons.numbers_rounded), Text(cost.toString())],
+    ),
   );
 }
 
@@ -422,7 +422,6 @@ class _ReadyPublishOpWidgetState extends State<ReadyPublishOpWidget> {
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text('ReadyPublish:'),
         TokenPicker(
           value: firstToken,
           onChanged: (value) => setState(() {
@@ -448,7 +447,7 @@ class _ReadyPublishOpWidgetState extends State<ReadyPublishOpWidget> {
             ]));
             widget.reset();
           },
-          child: Text('submit'),
+          child: Text('op_button_confirm'.tr),
         ),
       ],
     );
@@ -496,7 +495,6 @@ class _DoPublishOpWidgetState extends State<DoPublishOpWidget> {
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text('DoPublish:'),
         NumberPicker(
           value: index,
           onChanged: (value) => setState(() => index = value),
@@ -521,7 +519,7 @@ class _DoPublishOpWidgetState extends State<DoPublishOpWidget> {
             ));
             widget.reset();
           },
-          child: Text('submit'),
+          child: Text('op_button_confirm'.tr),
         ),
       ],
     );

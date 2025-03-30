@@ -95,7 +95,7 @@ class _RoomInfosState extends State<RoomInfos> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           rowTextIconWidget(
-            "Room: ${gameState.id}",
+            "room_info_room".trParams({"room": gameState.id}),
             gameState.status.isNotStarted
                 ? () {
                     Clipboard.setData(ClipboardData(text: gameState.id));
@@ -106,7 +106,7 @@ class _RoomInfosState extends State<RoomInfos> {
             gameState.status.isNotStarted ? Icons.copy : Icons.sync,
           ),
           rowTextIconWidget(
-            "Seed: ${gameState.mapSeed}",
+            "room_info_seed".trParams({"seed": gameState.mapSeed.toString()}),
             gameState.status.isNotStarted
                 ? () {
                     var rng = Random();
@@ -116,7 +116,7 @@ class _RoomInfosState extends State<RoomInfos> {
             Icons.refresh,
           ),
           rowTextIconWidget(
-            "Type: ${gameState.mapType.name}",
+            "room_info_mode".trParams({"mode": gameState.mapType.name}),
             gameState.status.isNotStarted
                 ? () {
                     final mapType = gameState.mapType == MapType.expert ? MapType.standard : MapType.expert;
@@ -151,7 +151,7 @@ class _RoomInfosState extends State<RoomInfos> {
             onPressed: () {
               socket.room(RoomUserOperation.leave(gameState.id));
             },
-            child: const Text("Leave"),
+            child: Text("room_button_leave".tr),
           ),
           SizedBox(height: 4),
           ElevatedButton(
@@ -165,7 +165,7 @@ class _RoomInfosState extends State<RoomInfos> {
                 socket.room(RoomUserOperation.prepare(gameState.id));
               }
             },
-            child: Text(currentUserState.ready ? "Unprepare" : "Prepare"),
+            child: Text(currentUserState.ready ? "room_button_unprepare".tr : "room_button_prepare".tr),
           ),
         ],
       );

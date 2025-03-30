@@ -88,12 +88,12 @@ class SectorPicker extends _Picker<SectorType> {
     this.includeX = true,
   }) : super(
           items: userDefinedItems ?? SectorType.values.where((t) => t != SectorType.X).toList(),
-          title: '选择类型',
+          title: 'picker_title_sector'.tr,
           toItemWidget: (SectorType t) => Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Image.asset(t.iconName, width: 24, height: 24),
-              Text(" ${t.name}"),
+              Text(" ${t.toString()}"),
             ],
           ),
           toResultWidget: (SectorType t) => Container(
@@ -104,7 +104,7 @@ class SectorPicker extends _Picker<SectorType> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Image.asset(t.iconName, width: 24, height: 24),
-                Text(" ${t.name}"),
+                Text(" ${t.toString()}"),
               ],
             ),
           ),
@@ -124,14 +124,14 @@ class TokenPicker extends _Picker<Nullable<SectorType>> {
             for (var e in tokenCount.entries)
               if (e.value > 0) Nullable.some(e.key),
           ],
-          title: '选择Token',
+          title: 'picker_title_token'.tr,
           toItemWidget: (Nullable<SectorType> t) {
             if (t.isNone) {
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.not_interested_rounded, color: Colors.grey),
-                  Text('不放置'),
+                  Text('picker_item_none_token'.tr),
                 ],
               );
             } else {
@@ -139,7 +139,7 @@ class TokenPicker extends _Picker<Nullable<SectorType>> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Image.asset(t.value!.iconName, width: 24, height: 24),
-                  Text(" ${t.value!.name}"),
+                  Text(" ${t.value!.toString()}"),
                   Text(" ${tokenCount[t.value!]}"),
                 ],
               );
@@ -151,7 +151,7 @@ class TokenPicker extends _Picker<Nullable<SectorType>> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.not_interested_rounded, color: Colors.grey),
-                  Text('不放置'),
+                  Text('picker_item_none_token'.tr),
                 ],
               );
             } else {
@@ -159,7 +159,7 @@ class TokenPicker extends _Picker<Nullable<SectorType>> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Image.asset(t.value!.iconName, width: 24, height: 24),
-                  Text(" ${t.value!.name}"),
+                  Text(" ${t.value!.toString()}"),
                 ],
               );
             }
@@ -242,7 +242,7 @@ class CluePicker extends _Picker<ClueEnum> {
     required super.onChanged,
   }) : super(
           items: clueSecrets.map((e) => e.index).toList(),
-          title: '选择线索',
+          title: 'picker_title_clue'.tr,
           toItemWidget: (ClueEnum t) {
             final current = clueSecrets.firstWhere((e) => e.index == t);
             final known = clueDetails.firstWhereOrNull((e) => e.index == t);

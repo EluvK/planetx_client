@@ -21,7 +21,7 @@ class _ClueLogState extends State<ClueLog> {
       List<Clue> clueDetails = socket.currentClueDetails;
       return Column(
         children: [
-          const Text("Clue Log"),
+          Text("title_clue_log".tr, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 4),
           Table(
             columnWidths: {

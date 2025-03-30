@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'op.g.dart';
@@ -54,17 +55,17 @@ enum SectorType {
   String toString() {
     switch (this) {
       case SectorType.Comet:
-        return 'Comet';
+        return 'sector_type_comet'.tr;
       case SectorType.Asteroid:
-        return 'Asteroid';
+        return 'sector_type_asteroid'.tr;
       case SectorType.DwarfPlanet:
-        return 'DwarfPlanet';
+        return 'sector_type_dwarf'.tr;
       case SectorType.Nebula:
-        return 'Nebula';
+        return 'sector_type_nubula'.tr;
       case SectorType.Space:
-        return 'Space';
+        return 'sector_type_space'.tr;
       case SectorType.X:
-        return 'X';
+        return 'sector_type_x'.tr;
     }
   }
 }
@@ -175,17 +176,36 @@ class Operation {
 
   String fmt() {
     if (value is SurveyOperation) {
-      return 'Survey ${value.start}-${value.end}, ${value.sectorType}';
+      return 'operation_survey'.trParams(
+        {
+          "start": value.start.toString(),
+          "end": value.end.toString(),
+          "type": value.sectorType.toString(),
+        },
+      );
     } else if (value is TargetOperation) {
-      return 'Target ${value.index}';
+      return 'operation_target'.trParams(
+        {"index": value.index.toString()},
+      );
     } else if (value is ResearchOperation) {
-      return 'Research ${value.index}';
+      return 'operation_research'.trParams(
+        {"index": value.index.toString()},
+      );
     } else if (value is LocateOperation) {
-      return 'Locate';
+      return 'operation_locate_x'.tr;
     } else if (value is ReadyPublishOperation) {
-      return 'ReadyPublish ${value.sectors}';
+      return 'opeartion_ready_publish'.trParams(
+        {
+          "types": value.sectors.map((e) => e.toString()).toList().join(', '),
+        },
+      );
     } else if (value is DoPublishOperation) {
-      return 'DoPublish ${value.index} ${value.sectorType}';
+      return 'operation_do_publish'.trParams(
+        {
+          "index": value.index.toString(),
+          "type": value.sectorType.toString(),
+        },
+      );
     } else {
       throw Exception('unknown Operation type');
     }
@@ -348,9 +368,18 @@ class OperationResult {
     } else if (value is LocateOperationResult) {
       return '${value.success}';
     } else if (value is ReadyPublishOperationResult) {
-      return '${value.indexes}';
+      return 'operation_result_ready_publish'.trParams(
+        {
+          "cnt": value.indexes.toString(),
+        },
+      );
     } else if (value is DoPublishOperationResult) {
-      return '${value.index} ${value.sectorType}';
+      return 'operation_result_do_publish'.trParams(
+        {
+          "index": value.index.toString(),
+          "type": value.sectorType.toString(),
+        },
+      );
     } else {
       throw Exception('unknown OperationResult type');
     }

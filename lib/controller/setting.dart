@@ -13,6 +13,8 @@ class SettingController extends GetxController {
 
   RxString serverAddress = 'https://api.planetx-online.top'.obs;
 
+  final locale = const Locale('en').obs;
+
   @override
   Future<void> onInit() async {
     _beginInit = true;
@@ -38,6 +40,8 @@ class SettingController extends GetxController {
     } else {
       serverAddress.value = box.read('serverAddress');
     }
+
+    locale.value = Locale(box.read('locale') ?? 'zh');
 
     super.onInit();
     _initialized = true;
@@ -67,6 +71,12 @@ class SettingController extends GetxController {
   void setServerAddress(String address) {
     serverAddress.value = address;
     box.write('serverAddress', address);
+  }
+
+  Locale get localeValue => locale.value;
+  void setLocale(Locale locale) {
+    this.locale.value = locale;
+    box.write('locale', locale.languageCode);
   }
 }
 
@@ -112,7 +122,7 @@ class __SettingState extends State<_Setting> {
                 TextField(
                   controller: nameController,
                   decoration: InputDecoration(
-                    labelText: '昵称（修改后点击更新）',
+                    labelText: "${'nickname'.tr} (${'nickname_hint'.tr})",
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.refresh),
                       onPressed: () {
@@ -126,7 +136,7 @@ class __SettingState extends State<_Setting> {
                 TextField(
                   focusNode: focus,
                   controller: addressController,
-                  decoration: InputDecoration(labelText: '服务器地址', suffixIcon: status.icon),
+                  decoration: InputDecoration(labelText: 'service_address'.tr, suffixIcon: status.icon),
                   onChanged: (value) {},
                   onTapOutside: (e) {
                     settingController.setServerAddress(addressController.text);
@@ -135,11 +145,36 @@ class __SettingState extends State<_Setting> {
                     socketController.reconnect();
                   },
                 ),
+                SizedBox(height: 20),
+                languageButton(),
               ],
             ),
           ),
         ),
       );
     });
+  }
+
+  Widget languageButton() {
+    var btn = DropdownButton<Locale>(
+      value: settingController.locale.value,
+      onChanged: (Locale? newValue) {
+        settingController.setLocale(newValue!);
+      },
+      items: const [
+        DropdownMenuItem(
+          value: Locale('en'),
+          child: Text('English'),
+        ),
+        DropdownMenuItem(
+          value: Locale('zh'),
+          child: Text('中文'),
+        ),
+      ],
+    );
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [Text('language'.tr), btn],
+    );
   }
 }

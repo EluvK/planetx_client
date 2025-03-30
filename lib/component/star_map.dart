@@ -24,11 +24,11 @@ extension SectorStatusExtension on SectorStatus {
   Text get label {
     switch (this) {
       case SectorStatus.confirm:
-        return Text('确认');
+        return Text('starmap_button_confirm'.tr, style: TextStyle(color: Colors.green));
       case SectorStatus.doubt:
-        return Text('怀疑');
+        return Text('starmap_button_doubt'.tr, style: TextStyle(color: Colors.grey));
       case SectorStatus.deny:
-        return Text('否定');
+        return Text('starmap_button_deny'.tr, style: TextStyle(color: Colors.red));
     }
   }
 
@@ -57,6 +57,20 @@ extension SeasonExtension on Season {
         return 0;
       case Season.winter:
         return 90;
+    }
+  }
+
+  // @override
+  String get name {
+    switch (this) {
+      case Season.spring:
+        return 'starmap_season_spring'.tr;
+      case Season.summer:
+        return 'starmap_season_summer'.tr;
+      case Season.autumn:
+        return 'starmap_season_autumn'.tr;
+      case Season.winter:
+        return 'starmap_season_winter'.tr;
     }
   }
 }
@@ -443,7 +457,7 @@ class CircleMeetings extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.red,
+                  color: Colors.blueGrey,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white),
                 ),
@@ -701,7 +715,7 @@ class CircleSectors extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.red,
+                  color: Colors.blueGrey,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white),
                 ),

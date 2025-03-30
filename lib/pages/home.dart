@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Planet X'),
+        title: Text('app_name'.tr),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -42,19 +42,20 @@ class _HomeBodyState extends State<HomeBody> {
   Widget build(BuildContext context) {
     return Center(
       child: SizedBox(
-        width: 160,
+        width: 300,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Text(
-            //   'Welcome to Planet X',
-            //   style: TextStyle(fontSize: 24),
-            // ),
+            Text(
+              'Board Game\nThe Search for Planet X',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
                 socketController.room(RoomUserOperation.create());
               },
-              child: Text('Create'),
+              child: Text('home_create_room'.tr),
             ),
             SizedBox(height: 30),
             TextField(
@@ -76,7 +77,7 @@ class _HomeBodyState extends State<HomeBody> {
               onPressed: () {
                 socketController.room(RoomUserOperation.join(textController.text));
               },
-              child: Text('Join'),
+              child: Text('home_join_room'.tr),
             ),
           ],
         ),
