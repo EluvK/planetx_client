@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
     final setting = Get.find<SettingController>();
     var locale = setting.localeValue;
     var app = GetMaterialApp(
-      title: 'app_name'.tr,
+      title: 'The Search for Planet X',
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       translations: Translation(),
