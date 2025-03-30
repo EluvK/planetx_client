@@ -176,6 +176,7 @@ class GameState {
   }
 
   bool get isNotStarted => value == 'not_started';
+  bool get isEnd => value == 'end';
 }
 
 @JsonEnum(fieldRename: FieldRename.snake)

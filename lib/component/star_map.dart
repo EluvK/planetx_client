@@ -610,6 +610,8 @@ class CircleSectors extends StatelessWidget {
                 sectorCount: sectorCount,
                 radius: radius,
                 startDegree: startDegree,
+                startIndex: visibleIndexStart,
+                endIndex: visibleIndexEnd,
               ),
             ),
 
@@ -697,10 +699,7 @@ class CircleSectors extends StatelessWidget {
                         '${sectorIndex + 1}',
                         style: visibleSector(sectorIndex, visibleIndexStart, visibleIndexEnd)
                             ? TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)
-                            : TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14,
-                              ),
+                            : TextStyle(color: Colors.grey, fontSize: 14),
                       ),
                     ),
                   ),
@@ -894,7 +893,16 @@ class SectorBorderPainter extends CustomPainter {
   final double radius;
   final double startDegree;
 
-  SectorBorderPainter({required this.sectorCount, required this.radius, required this.startDegree});
+  final int? startIndex;
+  final int? endIndex;
+
+  SectorBorderPainter({
+    required this.sectorCount,
+    required this.radius,
+    required this.startDegree,
+    this.startIndex,
+    this.endIndex,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -909,11 +917,15 @@ class SectorBorderPainter extends CustomPainter {
     for (int i = 0; i < sectorCount; i++) {
       double angle = math.pi * (2 * i / sectorCount + startDegree / 180);
       // print('i: $i, angle: $angle, cos: ${math.cos(angle)}, sin: ${math.sin(angle)}');
+      // 开始和结束的边界线画粗一点
+      bool paintBlod = (startIndex != null && startIndex! == i + 1) || (endIndex != null && endIndex! == i);
       canvas.drawLine(
-        center,
-        Offset(center.dx + radius * math.cos(angle), center.dy + radius * math.sin(angle)),
-        paint,
-      );
+          center,
+          Offset(center.dx + radius * math.cos(angle), center.dy + radius * math.sin(angle)),
+          Paint()
+            ..color = paintBlod ? Colors.black : Colors.grey
+            ..strokeWidth = paintBlod ? 1.5 : 1
+            ..style = PaintingStyle.stroke);
     }
 
     // 绘制最外层圆形边框

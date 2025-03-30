@@ -144,29 +144,31 @@ class _RoomInfosState extends State<RoomInfos> {
       final buttons = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+          if (gameState.status.isNotStarted || gameState.status.isEnd)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+              ),
+              onPressed: () {
+                socket.room(RoomUserOperation.leave(gameState.id));
+              },
+              child: Text("room_button_leave".tr),
             ),
-            onPressed: () {
-              socket.room(RoomUserOperation.leave(gameState.id));
-            },
-            child: Text("room_button_leave".tr),
-          ),
           SizedBox(height: 4),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+          if (gameState.status.isNotStarted)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+              ),
+              onPressed: () {
+                if (currentUserState.ready) {
+                  socket.room(RoomUserOperation.unprepare(gameState.id));
+                } else {
+                  socket.room(RoomUserOperation.prepare(gameState.id));
+                }
+              },
+              child: Text(currentUserState.ready ? "room_button_unprepare".tr : "room_button_prepare".tr),
             ),
-            onPressed: () {
-              if (currentUserState.ready) {
-                socket.room(RoomUserOperation.unprepare(gameState.id));
-              } else {
-                socket.room(RoomUserOperation.prepare(gameState.id));
-              }
-            },
-            child: Text(currentUserState.ready ? "room_button_unprepare".tr : "room_button_prepare".tr),
-          ),
         ],
       );
 
@@ -184,7 +186,7 @@ class _RoomInfosState extends State<RoomInfos> {
           children: [
             gameInfo,
             userInfo,
-            if (gameState.status.isNotStarted) buttons,
+            buttons,
           ],
         ),
       );
