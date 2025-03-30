@@ -3,7 +3,7 @@
 
 #define MyAppName "xplanet"
 #define MyAppPublisher "github/eluvk"
-#define MyAppExeName "xplanet.exe"
+#define MyAppExeName "planetx_client.exe"
 #define MyAppURL "https://github.com/eluvk/planetx_client"
 #define MyAppPath ".\build\windows\x64\runner\Release\"+ MyAppExeName
 #define MyAppVersion GetVersionNumbersString(MyAppPath)
