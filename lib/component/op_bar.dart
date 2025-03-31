@@ -74,7 +74,7 @@ class _OpBarState extends State<OpBar> {
         case GameStage.meetingPublish:
           ops = [OpEnum.DoPublish];
         case GameStage.lastMove:
-          ops = [OpEnum.Target, OpEnum.DoPublish];
+          ops = [OpEnum.Locate, OpEnum.DoPublish];
         default:
           ops = [];
       }
