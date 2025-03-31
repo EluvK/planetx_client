@@ -86493,7 +86493,7 @@ A.asj.prototype={
 $0(){var s,r,q,p,o,n,m=null,l=this.a,k=l.d.cx
 if(k.gp(0).b.a==="not_started")return B.af
 s=t.DQ
-switch(k.gp(0).c.a){case 0:r=A.b([B.a_Z,B.z0,B.a0_,B.a00],s)
+switch(k.gp(0).c.a){case 0:r=A.b([B.a_Z,B.a0_,B.a00,B.z0],s)
 break
 case 1:r=A.b([B.a01],s)
 break
@@ -87831,7 +87831,7 @@ $S:576}
 A.uT.prototype={
 K(a){var s=null,r=A.a4(a).ax,q=r.y2
 r=q==null?r.c:q
-q=A.aZ(A.bG("app_name"),s,s,s,s,s,s)
+q=A.aZ("The Search for Planet X",s,s,s,s,s,s)
 return A.ahw(A.ayq(A.b([A.nw(s,s,B.Va,s,s,new A.a9_(),s,s,s)],t.p),r,s,q),B.UM)}}
 A.a9_.prototype={
 $0(){A.aE1($.bc(),"/setting",t.z)},
@@ -87843,7 +87843,7 @@ s=$.b6
 if(s==null)s=$.b6=B.Q
 return new A.Ur(new A.ww(B.Ea,r),s.d8(0,null,t.l))}}
 A.Ur.prototype={
-K(a){var s=this,r=null,q=A.aZ("Board Game\nThe Search for Planet X",r,r,r,A.bi(r,r,r,r,r,r,r,r,r,r,r,24,r,r,B.c2,r,r,!0,r,r,r,r,r,r,r,r),r,r),p=A.cN(r,30,r),o=A.jr(A.aZ(A.bG("home_create_room"),r,r,r,r,r,r),new A.aqH(s),r),n=A.cN(r,30,r),m=A.b([new A.zX(A.iN("[0-9a-zA-Z]",!0,!1),!0,"")],t.VS),l=s.d
+K(a){var s=this,r=null,q=A.aZ(A.bG("app_name"),r,r,r,A.bi(r,r,r,r,r,r,r,r,r,r,r,24,r,r,B.c2,r,r,!0,r,r,r,r,r,r,r,r),r,r),p=A.cN(r,30,r),o=A.jr(A.aZ(A.bG("home_create_room"),r,r,r,r,r,r),new A.aqH(s),r),n=A.cN(r,30,r),m=A.b([new A.zX(A.iN("[0-9a-zA-Z]",!0,!1),!0,"")],t.VS),l=s.d
 return A.f4(A.cN(A.fu(A.b([q,p,o,n,A.aAh(l,A.a9G(r,r,r,r,r,r,r,r,!0,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,"Number",!0,r,r,r,r,r,r,r,r,l.a.a.length===0?r:A.nw(r,r,A.de(B.UO,r,r,r),r,r,new A.aqI(s),r,r,r),r,r,r,r),r,m,4,r,r,B.fG),A.jr(A.aZ(A.bG("home_join_room"),r,r,r,r,r,r),new A.aqJ(s),r)],t.p),B.P,B.nd,B.b0),r,300),r,r)}}
 A.aqH.prototype={
 $0(){this.a.e.kn(new A.kP(new A.P7()))},
@@ -95326,9 +95326,9 @@ B.a_U=new A.k(125.1715,152.2773)
 B.acA=new A.k(0,-0.005)
 B.a_Y=new A.k(1/0,1/0)
 B.a_Z=new A.m3(0,"Survey")
-B.z0=new A.m3(1,"Target")
-B.a0_=new A.m3(2,"Research")
-B.a00=new A.m3(3,"Locate")
+B.a0_=new A.m3(1,"Target")
+B.a00=new A.m3(2,"Research")
+B.z0=new A.m3(3,"Locate")
 B.a01=new A.m3(4,"ReadyPublish")
 B.z1=new A.m3(5,"DoPublish")
 B.bd=new A.m4(0,"iOs")
