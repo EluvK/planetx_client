@@ -231,8 +231,8 @@ class _TranslationHelper {
       "zh_CN": "怀疑",
     },
     "starmap_button_deny": {
-      "en_US": "Deny",
-      "zh_CN": "否定",
+      "en_US": "Exclude",
+      "zh_CN": "排除",
     },
     "starmap_season_spring": {
       "en_US": "Spring",
