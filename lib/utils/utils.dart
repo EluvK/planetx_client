@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// ignore: constant_identifier_names
+const String VERSION = String.fromEnvironment('APP_VERSION', defaultValue: 'debug');
+
 const List<Color> userIndexedColors = [
   Colors.red,
   Colors.blue,

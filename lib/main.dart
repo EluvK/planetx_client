@@ -10,6 +10,7 @@ import 'package:planetx_client/pages/game.dart';
 import 'package:planetx_client/pages/home.dart';
 import 'package:planetx_client/pages/test.dart';
 import 'package:planetx_client/utils/translation.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -20,6 +21,8 @@ class MyHttpOverrides extends HttpOverrides {
 }
 
 void main() async {
+  usePathUrlStrategy();
+
   await GetStorage.init('XPlanetStorage');
   HttpOverrides.global = MyHttpOverrides();
 

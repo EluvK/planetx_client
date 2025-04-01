@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:planetx_client/controller/socket.dart';
 import 'package:planetx_client/model/user.dart';
 import 'package:uuid/uuid.dart';
 
@@ -77,6 +76,7 @@ class SettingController extends GetxController {
   void setLocale(Locale locale) {
     this.locale.value = locale;
     box.write('locale', locale.languageCode);
+    Get.updateLocale(locale);
   }
 }
 
@@ -103,56 +103,22 @@ class _Setting extends StatefulWidget {
 
 class __SettingState extends State<_Setting> {
   final settingController = Get.find<SettingController>();
-  final socketController = Get.find<SocketController>();
-  final nameController = TextEditingController(text: Get.find<SettingController>().userName.value);
-  final addressController = TextEditingController(text: Get.find<SettingController>().serverAddress.value);
-  final focus = FocusNode();
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      SocketStatus status = socketController.socketStatus.value;
-      return Center(
-        child: SizedBox(
-          width: 300,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: "${'nickname'.tr} (${'nickname_hint'.tr})",
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.refresh),
-                      onPressed: () {
-                        settingController.setUserName(nameController.text);
-                        socketController.reconnect(force: true);
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                TextField(
-                  focusNode: focus,
-                  controller: addressController,
-                  decoration: InputDecoration(labelText: 'service_address'.tr, suffixIcon: status.icon),
-                  onChanged: (value) {},
-                  onTapOutside: (e) {
-                    settingController.setServerAddress(addressController.text);
-                    print("onTapOutside: $e");
-                    focus.unfocus();
-                    socketController.reconnect();
-                  },
-                ),
-                SizedBox(height: 20),
-                languageButton(),
-              ],
-            ),
+    return Center(
+      child: SizedBox(
+        width: 300,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              languageButton(),
+            ],
           ),
         ),
-      );
-    });
+      ),
+    );
   }
 
   Widget languageButton() {

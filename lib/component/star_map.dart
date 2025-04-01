@@ -495,7 +495,7 @@ class CircleMeetings extends StatelessWidget {
               double sectorIndex = token.sectorIndex.toDouble();
               double meetingIndex = token.meetingIndex.toDouble();
               if (meetingIndex == 4) {
-                meetingIndex = 3.14; // wasted token
+                meetingIndex = 3.24;
               }
               // 计算扇区中心角度（从顶部开始顺时针）
               // const double maxTokenCount = 6;

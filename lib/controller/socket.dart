@@ -5,6 +5,7 @@ import 'package:planetx_client/component/star_map.dart';
 import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/model/op.dart';
 import 'package:planetx_client/model/room.dart';
+import 'package:planetx_client/model/server_resp.dart';
 
 // ignore: library_prefixes
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -29,6 +30,7 @@ extension SocketStatusExtension on SocketStatus {
 class SocketController extends GetxController {
   IO.Socket? socket;
   final socketStatus = SocketStatus.disconnected.obs;
+  final socketServerVersion = "".obs; // socket version
   final settingController = Get.find<SettingController>();
 
   final localSectorStatus = <List<SectorStatus>>[].obs; // local sector status for star map
@@ -76,11 +78,7 @@ class SocketController extends GetxController {
     if (kIsWeb) {
       socket = IO.io(
         address,
-        IO.OptionBuilder()
-            .setReconnectionAttempts(5)
-            .setReconnectionDelay(1000)
-            .setReconnectionDelayMax(5000)
-            .build(),
+        IO.OptionBuilder().setReconnectionAttempts(5).setReconnectionDelay(1000).setReconnectionDelayMax(5000).build(),
       );
     } else {
       socket = IO.io(
@@ -110,10 +108,7 @@ class SocketController extends GetxController {
       print('connect_error $data');
       // Get.snackbar("连接错误", data.toString(), snackPosition: SnackPosition.BOTTOM);
     });
-    socket!.on("server_resp", (data) {
-      print(data);
-      Get.snackbar("服务端", data.toString(), snackPosition: SnackPosition.BOTTOM);
-    });
+    socket!.on("server_resp", serverRespHandler);
     socket!.on("game_state", (data) {
       print("game_state: $data");
       final gs = GameStateResp.fromJson(data);
@@ -172,6 +167,21 @@ class SocketController extends GetxController {
       print("clues: $clues");
       currentClueDetails.addAll(clues);
     });
+  }
+
+  serverRespHandler(data) {
+    print("data: $data");
+    try {
+      final resp = ServerResp.fromJson(data);
+      if (resp.data is RespVersion) {
+        socketServerVersion.value = (resp.data as RespVersion).version;
+      }
+      print(resp);
+      Get.snackbar(resp.title, resp.content, snackPosition: SnackPosition.BOTTOM);
+    } catch (e) {
+      Get.snackbar("服务端", "解析错误 $e", snackPosition: SnackPosition.BOTTOM);
+      print("error: $e");
+    }
   }
 
   void op(Operation operation) {

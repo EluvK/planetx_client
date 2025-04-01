@@ -14,7 +14,12 @@ jobs:
           channel: stable
 
       - run: flutter pub get
-      - run: flutter build web --release
+      # - run: flutter build web --release
+      - run: |
+          version_str=$(cat pubspec.yaml | grep 'version: ' | sed 's/version: //')
+          version_number=$(echo $version_str | cut -d'+' -f1)
+          build_number=$(echo $version_str | cut -d'+' -f2)
+          flutter build web --release --dart-define="APP_VERSION=$version_number" --dart-define="APP_BUILD_NUMBER=$build_number"
       # - run: flutter build web --release --base-href /planetx_client/
 
       - name: Deploy to gh-pages
