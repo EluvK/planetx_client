@@ -15,11 +15,11 @@ Map<String, dynamic> _$RespVersionToJson(RespVersion instance) => <String, dynam
     };
 
 RespRejoinRoom _$RespRejoinRoomFromJson(Map<String, dynamic> json) => RespRejoinRoom(
-      json['room_id'] as String,
+      json['rejoin_room'] as String,
     );
 
 Map<String, dynamic> _$RespRejoinRoomToJson(RespRejoinRoom instance) => <String, dynamic>{
-      'room_id': instance.roomId,
+      'rejoin_room': instance.rejoinRoom,
     };
 
 RespRoomError _$RespRoomErrorFromJson(Map<String, dynamic> json) => RespRoomError(

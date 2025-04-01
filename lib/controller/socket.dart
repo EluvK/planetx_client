@@ -135,8 +135,9 @@ class SocketController extends GetxController {
     // });
     socket!.on("op_result", (data) {
       print("op_result: $data");
-      Get.snackbar("操作结果", data.toString(), snackPosition: SnackPosition.BOTTOM);
+      // Get.snackbar("操作结果", data.toString(), snackPosition: SnackPosition.BOTTOM);
       final opResult = OperationResult.fromJson(data);
+      Get.snackbar("操作结果", opResult.fmt(), snackPosition: SnackPosition.BOTTOM);
       currentMovesResult.add(opResult);
       if (opResult.value is ResearchOperationResult) {
         final researchOpResult = opResult.value as ResearchOperationResult;
@@ -175,9 +176,13 @@ class SocketController extends GetxController {
       final resp = ServerResp.fromJson(data);
       if (resp.data is RespVersion) {
         socketServerVersion.value = (resp.data as RespVersion).version;
+      } else {
+        if (resp.data is RespRejoinRoom) {
+          room(RoomUserOperation.join((resp.data as RespRejoinRoom).rejoinRoom));
+        } else {}
+        print(resp);
+        Get.snackbar(resp.title, resp.content, snackPosition: SnackPosition.BOTTOM);
       }
-      print(resp);
-      Get.snackbar(resp.title, resp.content, snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       Get.snackbar("服务端", "解析错误 $e", snackPosition: SnackPosition.BOTTOM);
       print("error: $e");

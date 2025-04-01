@@ -67,7 +67,7 @@ class ServerResp {
       return (data as RespVersion).version;
     }
     if (data is RespRejoinRoom) {
-      return (data as RespRejoinRoom).roomId;
+      return (data as RespRejoinRoom).rejoinRoom;
     }
     if (data is RespRoomError) {
       return (data as RespRoomError).roomErrors.fmt;
@@ -89,8 +89,8 @@ class RespVersion {
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class RespRejoinRoom {
-  String roomId;
-  RespRejoinRoom(this.roomId);
+  String rejoinRoom;
+  RespRejoinRoom(this.rejoinRoom);
 
   Map<String, dynamic> toJson() => _$RespRejoinRoomToJson(this);
 }

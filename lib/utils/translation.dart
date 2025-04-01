@@ -31,7 +31,7 @@ class _TranslationHelper {
     },
     "language": {
       "en_US": "Language",
-      "zh_CN": "语言",
+      "zh_CN": "语言(Language)",
     },
     "room_number_hint": {
       "en_US": "Room Number",
@@ -173,6 +173,18 @@ class _TranslationHelper {
     "room_button_leave": {
       "en_US": "Leave",
       "zh_CN": "离开",
+    },
+    "room_button_leave_confirm": {
+      "en_US": "Are you sure to leave?",
+      "zh_CN": "确定要离开吗？",
+    },
+    "cancel": {
+      "en_US": "Cancel",
+      "zh_CN": "取消",
+    },
+    "confirm": {
+      "en_US": "Confirm",
+      "zh_CN": "确定",
     },
     "room_button_prepare": {
       "en_US": "Prepare",

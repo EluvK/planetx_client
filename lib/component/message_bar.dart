@@ -144,16 +144,40 @@ class _RoomInfosState extends State<RoomInfos> {
       final buttons = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (gameState.status.isNotStarted || gameState.status.isEnd)
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
-              ),
-              onPressed: () {
-                socket.room(RoomUserOperation.leave(gameState.id));
-              },
-              child: Text("room_button_leave".tr),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
             ),
+            onPressed: () {
+              if (gameState.status.isNotStarted || gameState.status.isEnd) {
+                socket.room(RoomUserOperation.leave(gameState.id));
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text("room_button_leave".tr),
+                      content: Text("room_button_leave_confirm".tr),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text("cancel".tr, style: TextStyle(color: Colors.blue)),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            Get.offAllNamed('/');
+                          },
+                          child: Text("confirm".tr, style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
+            },
+            child: Text("room_button_leave".tr),
+          ),
           SizedBox(height: 4),
           if (gameState.status.isNotStarted)
             ElevatedButton(
