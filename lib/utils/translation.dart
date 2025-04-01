@@ -17,17 +17,25 @@ class _TranslationHelper {
       "en_US": "Nickname",
       "zh_CN": "昵称",
     },
-    "nickname_hint": {
-      "zh_CN": "修改后点击刷新生效",
-      "en_US": "Refresh to apply",
-    },
     "service_address": {
       "en_US": "Server Address",
       "zh_CN": "服务器地址",
     },
+    "server_version": {
+      "en_US": "Server Version @version",
+      "zh_CN": "服务器版本 @version",
+    },
+    "client_version": {
+      "en_US": "Client Version @version",
+      "zh_CN": "客户端版本 @version",
+    },
     "language": {
       "en_US": "Language",
       "zh_CN": "语言",
+    },
+    "room_number_hint": {
+      "en_US": "Room Number",
+      "zh_CN": "房间号",
     },
     "home_create_room": {
       "en_US": "Create Room",
@@ -36,6 +44,94 @@ class _TranslationHelper {
     "home_join_room": {
       "en_US": "Join Room",
       "zh_CN": "加入房间",
+    },
+    "server_resp_title_unknown": {
+      "en_US": "Unknown",
+      "zh_CN": "未知",
+    },
+    "server_resp_title_version": {
+      "en_US": "Server Version",
+      "zh_CN": "服务器版本",
+    },
+    "server_resp_title_rejoin_room": {
+      "en_US": "Rejoin Room",
+      "zh_CN": "重新加入房间",
+    },
+    "server_resp_title_room_errors": {
+      "en_US": "Room Errors",
+      "zh_CN": "房间错误",
+    },
+    "server_resp_title_op_errors": {
+      "en_US": "Operation Errors",
+      "zh_CN": "操作错误",
+    },
+    "room_error_room_not_found": {
+      "en_US": "Room Not Found",
+      "zh_CN": "房间不存在",
+    },
+    "room_error_room_started": {
+      "en_US": "Room Already Started Game",
+      "zh_CN": "房间已开始游戏",
+    },
+    "room_error_room_full": {
+      "en_US": "Room Full",
+      "zh_CN": "房间已满",
+    },
+    "room_error_user_not_found_in_room": {
+      "en_US": "User Not Found In Room",
+      "zh_CN": "用户不在房间内",
+    },
+    "op_error_user_not_found_in_room": {
+      "en_US": "User Not Found In Room",
+      "zh_CN": "用户不在房间内",
+    },
+    "op_error_game_not_found": {
+      "en_US": "Game Not Found",
+      "zh_CN": "游戏不存在",
+    },
+    "op_error_not_users_turn": {
+      "en_US": "Not Your Turn",
+      "zh_CN": "不是你的回合",
+    },
+    "op_error_invalid_move_in_stage": {
+      "en_US": "Invalid Move In Current Stage",
+      "zh_CN": "当前阶段无法进行此操作",
+    },
+    "op_error_invalid_index": {
+      "en_US": "Invalid Index",
+      "zh_CN": "无效的星区序号",
+    },
+    "op_error_invalid_clue": {
+      "en_US": "Invalid Clue",
+      "zh_CN": "无效研究",
+    },
+    "op_error_invalid_sector_type": {
+      "en_US": "Invalid Sector Type",
+      "zh_CN": "无效天体类型",
+    },
+    "op_error_invalid_index_of_prime": {
+      "en_US": "Invalid index for Comet should be prime",
+      "zh_CN": "彗星的序号应该是质数",
+    },
+    "op_error_token_not_enough": {
+      "en_US": "Token Not Enough",
+      "zh_CN": "Token 不足",
+    },
+    "op_error_sector_already_revealed": {
+      "en_US": "Sector Already Revealed",
+      "zh_CN": "该区天体已被揭示",
+    },
+    "op_error_target_time_exhausted": {
+      "en_US": "`Target` Exhausted",
+      "zh_CN": "扫描次数已用完",
+    },
+    "op_error_research_continuously": {
+      "en_US": "Research Continuously",
+      "zh_CN": "无法进行连续研究",
+    },
+    "op_error_end_game_can_not_locate": {
+      "en_US": "End Game Can Not Locate",
+      "zh_CN": "无法进行定位操作",
     },
     // component
     "title_clue_log": {
@@ -200,19 +296,19 @@ class _TranslationHelper {
       "zh_CN": "(@index, @type)",
     },
     // picker
-    "picker_title_sector":{
+    "picker_title_sector": {
       "en_US": "Select Object",
       "zh_CN": "选择天体",
     },
-    "picker_title_token":{
+    "picker_title_token": {
       "en_US": "Select Token",
       "zh_CN": "选择Token",
     },
-    "picker_item_none_token":{
+    "picker_item_none_token": {
       "en_US": "None",
       "zh_CN": "不使用",
     },
-    "picker_title_clue":{
+    "picker_title_clue": {
       "en_US": "Select Item",
       "zh_CN": "选择研究",
     },
