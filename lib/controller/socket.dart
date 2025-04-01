@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planetx_client/component/star_map.dart';
+import 'package:planetx_client/controller/sector_status.dart';
 import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/model/op.dart';
 import 'package:planetx_client/model/room.dart';
@@ -32,8 +33,9 @@ class SocketController extends GetxController {
   final socketStatus = SocketStatus.disconnected.obs;
   final socketServerVersion = "".obs; // socket version
   final settingController = Get.find<SettingController>();
+  late final sectorStatusController = Get.find<SectorStatusController>();
 
-  final localSectorStatus = <List<SectorStatus>>[].obs; // local sector status for star map
+  // final localSectorStatus = <List<SectorStatus>>[].obs; // local sector status for star map
 
   final currentGameState = GameStateResp.placeholder().obs;
   final currentMovesResult = <OperationResult>[].obs; // operation results for self. sensitive data
@@ -115,8 +117,9 @@ class SocketController extends GetxController {
       currentGameState.value = gs;
       if (Get.currentRoute != "/game" && currentGameState.value.id != "") {
         Get.toNamed("/game");
-        localSectorStatus.clear();
-        localSectorStatus.value = List.generate(18, (index) => List.generate(6, (index) => SectorStatus.doubt));
+        sectorStatusController.newGame();
+        // localSectorStatus.clear();
+        // localSectorStatus.value = List.generate(18, (index) => List.generate(6, (index) => SectorStatus.doubt));
       }
       if (Get.currentRoute == "/game" && currentGameState.value.id == "") Get.offAllNamed("/");
       // addMessage("game state: ${gs.id}");

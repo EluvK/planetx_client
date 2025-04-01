@@ -4,6 +4,7 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:planetx_client/controller/sector_status.dart';
 import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/controller/socket.dart';
 import 'package:planetx_client/pages/game.dart';
@@ -37,6 +38,12 @@ void main() async {
     return controller;
   });
   await Get.find<SocketController>().ensureInitialization();
+
+  await Get.putAsync(() async {
+    final controller = SectorStatusController();
+    return controller;
+  });
+  await Get.find<SectorStatusController>().ensureInitialization();
 
   WidgetsFlutterBinding.ensureInitialized();
 

@@ -2,47 +2,48 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 import 'package:get/get.dart';
+import 'package:planetx_client/controller/sector_status.dart';
 import 'package:planetx_client/controller/socket.dart';
 import 'package:planetx_client/model/op.dart';
 import 'package:planetx_client/model/room.dart';
 import 'package:planetx_client/utils/utils.dart';
 
-enum SectorStatus { confirm, doubt, deny }
+// enum SectorStatus { confirm, doubt, deny }
 
-extension SectorStatusExtension on SectorStatus {
-  (Border, Color, BlendMode) get imageColor {
-    switch (this) {
-      case SectorStatus.confirm:
-        return (Border.all(color: Colors.green), Colors.transparent, BlendMode.srcOver);
-      case SectorStatus.doubt:
-        return (Border.all(color: Colors.grey), Colors.grey.withAlpha(200), BlendMode.dstOut);
-      case SectorStatus.deny:
-        return (Border.all(color: Colors.transparent), Colors.black.withAlpha(10), BlendMode.srcIn);
-    }
-  }
+// extension SectorStatusExtension on SectorStatus {
+//   (Border, Color, BlendMode) get imageColor {
+//     switch (this) {
+//       case SectorStatus.confirm:
+//         return (Border.all(color: Colors.green), Colors.transparent, BlendMode.srcOver);
+//       case SectorStatus.doubt:
+//         return (Border.all(color: Colors.grey), Colors.grey.withAlpha(200), BlendMode.dstOut);
+//       case SectorStatus.deny:
+//         return (Border.all(color: Colors.transparent), Colors.black.withAlpha(10), BlendMode.srcIn);
+//     }
+//   }
 
-  Text get label {
-    switch (this) {
-      case SectorStatus.confirm:
-        return Text('starmap_button_confirm'.tr, style: TextStyle(color: Colors.green));
-      case SectorStatus.doubt:
-        return Text('starmap_button_doubt'.tr, style: TextStyle(color: Colors.grey));
-      case SectorStatus.deny:
-        return Text('starmap_button_deny'.tr, style: TextStyle(color: Colors.red));
-    }
-  }
+//   Text get label {
+//     switch (this) {
+//       case SectorStatus.confirm:
+//         return Text('starmap_button_confirm'.tr, style: TextStyle(color: Colors.green));
+//       case SectorStatus.doubt:
+//         return Text('starmap_button_doubt'.tr, style: TextStyle(color: Colors.grey));
+//       case SectorStatus.deny:
+//         return Text('starmap_button_deny'.tr, style: TextStyle(color: Colors.red));
+//     }
+//   }
 
-  Widget get icon {
-    switch (this) {
-      case SectorStatus.confirm:
-        return Icon(Icons.check, color: Colors.green);
-      case SectorStatus.doubt:
-        return Icon(Icons.help, color: Colors.grey);
-      case SectorStatus.deny:
-        return Icon(Icons.close, color: Colors.red);
-    }
-  }
-}
+//   Widget get icon {
+//     switch (this) {
+//       case SectorStatus.confirm:
+//         return Icon(Icons.check, color: Colors.green);
+//       case SectorStatus.doubt:
+//         return Icon(Icons.help, color: Colors.grey);
+//       case SectorStatus.deny:
+//         return Icon(Icons.close, color: Colors.red);
+//     }
+//   }
+// }
 
 enum Season { spring, summer, autumn, winter }
 
@@ -84,6 +85,7 @@ class StarMap extends StatefulWidget {
 
 class _StarMapState extends State<StarMap> {
   final socket = Get.find<SocketController>();
+  final ss = Get.find<SectorStatusController>();
 
   SectorStatus targetSectorStatus = SectorStatus.confirm;
 
@@ -141,26 +143,38 @@ class _StarMapState extends State<StarMap> {
                 alignment: Alignment.topLeft,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 4.0, left: 4.0),
-                  child: SegmentedButton(
-                    segments: [
-                      for (var status in SectorStatus.values)
-                        ButtonSegment(
-                          value: status,
-                          label: status.label,
-                          icon: status.icon,
-                        )
+                  child: Row(
+                    children: [
+                      SegmentedButton(
+                        segments: [
+                          for (var status in SectorStatus.values)
+                            ButtonSegment(
+                              value: status,
+                              label: status.label,
+                              icon: status.icon,
+                            )
+                        ],
+                        selected: {targetSectorStatus},
+                        showSelectedIcon: false,
+                        onSelectionChanged: (Set<SectorStatus> newSelection) {
+                          setState(() {
+                            targetSectorStatus = newSelection.first;
+                          });
+                        },
+                        style: const ButtonStyle(
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: ss.canUndo ? () => setState(() => ss.undo()) : null,
+                        icon: Icon(Icons.undo, size: 20),
+                      ),
+                      IconButton(
+                        onPressed: ss.canRedo ? () => setState(() => ss.redo()) : null,
+                        icon: Icon(Icons.redo, size: 20),
+                      ),
                     ],
-                    selected: {targetSectorStatus},
-                    showSelectedIcon: false,
-                    onSelectionChanged: (Set<SectorStatus> newSelection) {
-                      setState(() {
-                        targetSectorStatus = newSelection.first;
-                      });
-                    },
-                    style: const ButtonStyle(
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity(horizontal: -2, vertical: -2),
-                    ),
                   ),
                 ),
               ),
@@ -238,54 +252,53 @@ class _StarMapState extends State<StarMap> {
     );
   }
 
-  LayoutBuilder buildStarMap(GameStateResp state) {
-    final sectorStatus = socket.localSectorStatus;
-    return LayoutBuilder(
-      key: ValueKey(showMeetingView),
-      builder: (context, constraints) {
-        // 获取父容器的宽度和高度
-        double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
-        // 设置最小值
-        double size = math.max(parentSize, 300);
-        return CircleSectors(
-          containerSize: size,
-          season: Season.values[seasonIndex],
-          mapType: state.mapType,
-          visibleIndexStart: state.startIndex,
-          visibleIndexEnd: state.endIndex,
-          personPoints: state.users,
-          sectorStatus: sectorStatus,
-          onSectorTap: (sectorIndex, sequenceIndex) {
-            print('扇区 $sectorIndex - 按钮 $sequenceIndex 被点击');
-            setState(() {
-              switch (targetSectorStatus) {
-                case SectorStatus.confirm:
-                  if (sectorStatus[sectorIndex][sequenceIndex] == SectorStatus.confirm) {
-                    // 重置当前扇区的状态
-                    sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.doubt);
-                  } else {
-                    // 重置当前扇区的状态
-                    sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.deny);
+  Widget buildStarMap(GameStateResp state) {
+    // final sectorStatus = socket.localSectorStatus;
+    return Obx(() {
+      final sectorStatus = ss.sectorStatus.value;
+      return LayoutBuilder(
+        key: ValueKey(showMeetingView),
+        builder: (context, constraints) {
+          // 获取父容器的宽度和高度
+          double parentSize = math.min(constraints.maxWidth, constraints.maxHeight);
+          // 设置最小值
+          double size = math.max(parentSize, 300);
+          return CircleSectors(
+            containerSize: size,
+            season: Season.values[seasonIndex],
+            mapType: state.mapType,
+            visibleIndexStart: state.startIndex,
+            visibleIndexEnd: state.endIndex,
+            personPoints: state.users,
+            sectorStatus: sectorStatus,
+            onSectorTap: (sectorIndex, sequenceIndex) {
+              print('扇区 $sectorIndex - 按钮 $sequenceIndex 被点击');
+              setState(() {
+                switch (targetSectorStatus) {
+                  case SectorStatus.confirm:
+                    sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.excluded);
                     sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.confirm;
-                  }
-                  break;
-                case SectorStatus.doubt:
-                  sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.doubt;
-                  break;
-                case SectorStatus.deny:
-                  sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.deny;
-                  break;
-              }
-            });
-          },
-          onCenterTap: () {
-            setState(() {
-              seasonIndex = (seasonIndex + 1) % 4;
-            });
-          },
-        );
-      },
-    );
+                    ss.updateStatus();
+                    // if (sectorStatus[sectorIndex][sequenceIndex] != SectorStatus.confirm) {
+                    //   // 重置当前扇区的状态
+                    // }
+                    break;
+                  case SectorStatus.excluded:
+                    sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.excluded;
+                    ss.updateStatus();
+                    break;
+                }
+              });
+            },
+            onCenterTap: () {
+              setState(() {
+                seasonIndex = (seasonIndex + 1) % 4;
+              });
+            },
+          );
+        },
+      );
+    });
   }
 
   LayoutBuilder buildMeetingMap(GameStateResp state, List<SecretToken> secretTokens, List<Token> tokens) {
