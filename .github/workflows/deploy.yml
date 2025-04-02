@@ -22,6 +22,9 @@ jobs:
           flutter build web --release --dart-define="APP_VERSION=$version_number" --dart-define="APP_BUILD_NUMBER=$build_number"
       # - run: flutter build web --release --base-href /planetx_client/
 
+      # add SPA support for gh-pages
+      - run: touch ./build/web/.nojekyll
+
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
