@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/controller/socket.dart';
 import 'package:planetx_client/model/room.dart';
+import 'package:planetx_client/utils/rules.dart';
 import 'package:planetx_client/utils/utils.dart';
 
 class MessageBar extends StatefulWidget {
@@ -144,55 +145,19 @@ class _RoomInfosState extends State<RoomInfos> {
       final buttons = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          leaveButton(gameState, context),
+          SizedBox(height: 4),
+          if (gameState.status.isNotStarted) prepareButton(currentUserState, gameState),
+          SizedBox(height: 4),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
             ),
             onPressed: () {
-              if (gameState.status.isNotStarted || gameState.status.isEnd) {
-                socket.room(RoomUserOperation.leave(gameState.id));
-              } else {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text("room_button_leave".tr),
-                      content: Text("room_button_leave_confirm".tr),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: Text("cancel".tr, style: TextStyle(color: Colors.blue)),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            Get.offAllNamed('/');
-                          },
-                          child: Text("confirm".tr, style: TextStyle(color: Colors.red)),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              }
+              showRulesDialog(context, gameState.mapType);
             },
-            child: Text("room_button_leave".tr),
+            child: Text("room_button_show_rules".tr),
           ),
-          SizedBox(height: 4),
-          if (gameState.status.isNotStarted)
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
-              ),
-              onPressed: () {
-                if (currentUserState.ready) {
-                  socket.room(RoomUserOperation.unprepare(gameState.id));
-                } else {
-                  socket.room(RoomUserOperation.prepare(gameState.id));
-                }
-              },
-              child: Text(currentUserState.ready ? "room_button_unprepare".tr : "room_button_prepare".tr),
-            ),
         ],
       );
 
@@ -215,5 +180,58 @@ class _RoomInfosState extends State<RoomInfos> {
         ),
       );
     });
+  }
+
+  Widget prepareButton(UserState currentUserState, GameStateResp gameState) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+      ),
+      onPressed: () {
+        if (currentUserState.ready) {
+          socket.room(RoomUserOperation.unprepare(gameState.id));
+        } else {
+          socket.room(RoomUserOperation.prepare(gameState.id));
+        }
+      },
+      child: Text(currentUserState.ready ? "room_button_unprepare".tr : "room_button_prepare".tr),
+    );
+  }
+
+  Widget leaveButton(GameStateResp gameState, BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+      ),
+      onPressed: () {
+        if (gameState.status.isNotStarted || gameState.status.isEnd) {
+          socket.room(RoomUserOperation.leave(gameState.id));
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text("room_button_leave".tr),
+                content: Text("room_button_leave_confirm".tr),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text("cancel".tr, style: TextStyle(color: Colors.blue)),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Get.offAllNamed('/');
+                    },
+                    child: Text("confirm".tr, style: TextStyle(color: Colors.red)),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      },
+      child: Text("room_button_leave".tr),
+    );
   }
 }

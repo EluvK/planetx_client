@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:planetx_client/model/room.dart';
 
 part 'op.g.dart';
 
@@ -66,6 +67,31 @@ enum SectorType {
         return 'sector_type_space'.tr;
       case SectorType.X:
         return 'sector_type_x'.tr;
+    }
+  }
+
+  String ruleLimit(MapType type) {
+    switch (this) {
+      case SectorType.Comet:
+        return 'rules_comet'.tr;
+      case SectorType.Asteroid:
+        return 'rules_asteroid'.tr;
+      case SectorType.DwarfPlanet:
+        if (type == MapType.standard) {
+          return 'rules_dwarf_planet_standard'.tr;
+        } else {
+          return 'rules_dwarf_planet_expert'.tr;
+        }
+      case SectorType.Nebula:
+        return 'rules_nebula'.tr;
+      case SectorType.Space:
+        if (type == MapType.standard) {
+          return 'rules_space_standard'.tr;
+        } else {
+          return 'rules_space_expert'.tr;
+        }
+      case SectorType.X:
+        return 'rules_x'.tr;
     }
   }
 }

@@ -24,7 +24,7 @@ enum OpEnum {
   DoPublish,
 }
 
-extension on OpEnum {
+extension OpEnumExtension on OpEnum {
   String get name {
     switch (this) {
       case OpEnum.Survey:
@@ -39,6 +39,23 @@ extension on OpEnum {
         return 'op_name_ready_publish'.tr;
       case OpEnum.DoPublish:
         return 'op_name_do_publish'.tr;
+    }
+  }
+
+  String get ruleLimit {
+    switch (this) {
+      case OpEnum.Survey:
+        return 'op_rule_survey'.tr;
+      case OpEnum.Target:
+        return 'op_rule_target'.tr;
+      case OpEnum.Research:
+        return 'op_rule_research'.tr;
+      case OpEnum.Locate:
+        return 'op_rule_locate_x'.tr;
+      case OpEnum.ReadyPublish:
+        return 'op_rule_ready_publish'.tr;
+      case OpEnum.DoPublish:
+        return 'op_rule_do_publish'.tr;
     }
   }
 }
@@ -166,6 +183,11 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
+        SectorPicker(
+          value: type,
+          onChanged: (value) => setState(() => type = value),
+          includeX: false,
+        ),
         NumberPicker(
           value: from,
           onChanged: (value) => setState(() => from = value),
@@ -184,11 +206,6 @@ class _SurveyOpWidgetState extends State<SurveyOpWidget> {
           max: max,
           title: 'to',
           onlyPrime: type == SectorType.Comet,
-        ),
-        SectorPicker(
-          value: type,
-          onChanged: (value) => setState(() => type = value),
-          includeX: false,
         ),
         _opCost(4 - (_range(from, to, max) - 1) ~/ 3),
         ElevatedButton(
@@ -378,7 +395,7 @@ int _range(int from, int to, int max) {
   if (from < to) {
     return to - from + 1;
   } else {
-    return max - from + to;
+    return max - from + to + 1;
   }
 }
 
