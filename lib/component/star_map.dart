@@ -3,41 +3,11 @@ import 'dart:math' as math;
 
 import 'package:get/get.dart';
 import 'package:planetx_client/controller/sector_status.dart';
+import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/controller/socket.dart';
 import 'package:planetx_client/model/op.dart';
 import 'package:planetx_client/model/room.dart';
 import 'package:planetx_client/utils/utils.dart';
-
-enum Season { spring, summer, autumn, winter }
-
-extension SeasonExtension on Season {
-  double get degree {
-    switch (this) {
-      case Season.spring:
-        return 180;
-      case Season.summer:
-        return 270;
-      case Season.autumn:
-        return 0;
-      case Season.winter:
-        return 90;
-    }
-  }
-
-  // @override
-  String get name {
-    switch (this) {
-      case Season.spring:
-        return 'starmap_season_spring'.tr;
-      case Season.summer:
-        return 'starmap_season_summer'.tr;
-      case Season.autumn:
-        return 'starmap_season_autumn'.tr;
-      case Season.winter:
-        return 'starmap_season_winter'.tr;
-    }
-  }
-}
 
 class StarMap extends StatefulWidget {
   const StarMap({super.key});
@@ -49,10 +19,10 @@ class StarMap extends StatefulWidget {
 class _StarMapState extends State<StarMap> {
   final socket = Get.find<SocketController>();
   final ss = Get.find<SectorStatusController>();
+  final setting = Get.find<SettingController>();
 
   SectorStatus targetSectorStatus = SectorStatus.confirm;
 
-  int seasonIndex = 0;
   bool showMeetingView = false;
 
   @override
@@ -230,7 +200,7 @@ class _StarMapState extends State<StarMap> {
           double size = math.max(parentSize, 300);
           return CircleSectors(
             containerSize: size,
-            season: Season.values[seasonIndex],
+            season: setting.season,
             state: state,
             sectorStatus: sectorStatus,
             onSectorTap: (sectorIndex, sequenceIndex) {
@@ -255,7 +225,7 @@ class _StarMapState extends State<StarMap> {
             },
             onCenterTap: () {
               setState(() {
-                seasonIndex = (seasonIndex + 1) % 4;
+                setting.spinSeason();
               });
             },
           );
@@ -274,13 +244,13 @@ class _StarMapState extends State<StarMap> {
         double size = math.max(parentSize, 300);
         return CircleMeetings(
           containerSize: size,
-          season: Season.values[seasonIndex],
+          season: setting.season,
           state: state,
           secretTokens: secretTokens,
           tokens: tokens,
           onCenterTap: () {
             setState(() {
-              seasonIndex = (seasonIndex + 1) % 4;
+              setting.spinSeason();
             });
           },
         );
@@ -662,7 +632,7 @@ List<Widget> circleBasic(
         border: Border.all(color: Colors.white),
       ),
       child: Center(
-        child: Text(season.name, style: TextStyle(color: Colors.white, fontSize: 14)),
+        child: Text(season.fmt, style: TextStyle(color: Colors.white, fontSize: 14)),
       ),
     ),
   );
@@ -732,6 +702,7 @@ List<Widget> circleBasic(
         width: personPointSize.toDouble(),
         height: personPointSize.toDouble(),
         decoration: BoxDecoration(color: userIndexedColors[personIndex], shape: BoxShape.circle),
+        child: Icon(Icons.person_rounded, color: Colors.white, size: 14),
       ),
     );
   });

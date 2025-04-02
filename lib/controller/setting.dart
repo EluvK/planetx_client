@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:planetx_client/model/user.dart';
+import 'package:planetx_client/utils/utils.dart';
 import 'package:uuid/uuid.dart';
 
 class SettingController extends GetxController {
@@ -11,6 +12,7 @@ class SettingController extends GetxController {
   RxString userId = ''.obs;
 
   RxString serverAddress = 'https://api.planetx-online.top'.obs;
+  final preferSeason = Season.spring.obs;
 
   final locale = const Locale('en').obs;
 
@@ -41,6 +43,13 @@ class SettingController extends GetxController {
     }
 
     locale.value = Locale(box.read('locale') ?? 'zh');
+
+    if (box.read('season') == null) {
+      preferSeason.value = Season.spring;
+      box.write('season', preferSeason.value.name);
+    } else {
+      preferSeason.value = Season.values.byName(box.read('season'));
+    }
 
     super.onInit();
     _initialized = true;
@@ -78,6 +87,17 @@ class SettingController extends GetxController {
     box.write('locale', locale.languageCode);
     Get.updateLocale(locale);
   }
+
+  Season get season => preferSeason.value;
+  void setSeason(Season season) {
+    preferSeason.value = season;
+    box.write('season', season.name);
+  }
+
+  void spinSeason(){
+    preferSeason.value = Season.values[(preferSeason.value.index + 1) % Season.values.length];
+    box.write('season', preferSeason.value.name);
+  }
 }
 
 class SettingPage extends StatelessWidget {
@@ -114,6 +134,8 @@ class __SettingState extends State<_Setting> {
           child: Column(
             children: [
               languageButton(),
+              const SizedBox(height: 8),
+              preferSeason(),
             ],
           ),
         ),
@@ -141,6 +163,28 @@ class __SettingState extends State<_Setting> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [Text('language'.tr), btn],
+    );
+  }
+
+  Widget preferSeason() {
+    var btn = DropdownButton<Season>(
+      value: settingController.season,
+      onChanged: (Season? newValue) {
+        setState(() {
+          settingController.setSeason(newValue!);
+        });
+      },
+      items: Season.values.map((season) {
+        return DropdownMenuItem(
+          value: season,
+          child: Text(season.fmt),
+        );
+      }).toList(),
+    );
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [Text('preferSeason'.tr), btn],
     );
   }
 }

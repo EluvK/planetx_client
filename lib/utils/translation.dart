@@ -33,6 +33,10 @@ class _TranslationHelper {
       "en_US": "Language",
       "zh_CN": "语言(Language)",
     },
+    "preferSeason": {
+      "en_US": "Prefer Season",
+      "zh_CN": "首选季节",
+    },
     "room_number_hint": {
       "en_US": "Room Number",
       "zh_CN": "房间号",

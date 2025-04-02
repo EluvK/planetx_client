@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 // ignore: constant_identifier_names
 const String VERSION = String.fromEnvironment('APP_VERSION', defaultValue: 'debug');
@@ -28,4 +29,34 @@ bool isPrime(int n) {
     return true;
   }
   return false;
+}
+
+enum Season { spring, summer, autumn, winter }
+
+extension SeasonExtension on Season {
+  double get degree {
+    switch (this) {
+      case Season.spring:
+        return 180;
+      case Season.summer:
+        return 270;
+      case Season.autumn:
+        return 0;
+      case Season.winter:
+        return 90;
+    }
+  }
+
+  String get fmt {
+    switch (this) {
+      case Season.spring:
+        return 'starmap_season_spring'.tr;
+      case Season.summer:
+        return 'starmap_season_summer'.tr;
+      case Season.autumn:
+        return 'starmap_season_autumn'.tr;
+      case Season.winter:
+        return 'starmap_season_winter'.tr;
+    }
+  }
 }
