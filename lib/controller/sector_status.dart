@@ -18,7 +18,7 @@ extension SectorStatusExtension on SectorStatus {
       case SectorStatus.confirm:
         return Text('starmap_button_confirm'.tr, style: TextStyle(color: Colors.green));
       case SectorStatus.excluded:
-        return Text('starmap_button_deny'.tr, style: TextStyle(color: Colors.red));
+        return Text('starmap_button_switch'.tr, style: TextStyle(color: Colors.blue));
     }
   }
 
@@ -27,7 +27,7 @@ extension SectorStatusExtension on SectorStatus {
       case SectorStatus.confirm:
         return Icon(Icons.check, color: Colors.green);
       case SectorStatus.excluded:
-        return Icon(Icons.close, color: Colors.red);
+        return Icon(Icons.swap_horizontal_circle_outlined, color: Colors.blue);
     }
   }
 }
@@ -105,4 +105,6 @@ class SectorStatusController extends GetxController {
 
   bool get canUndo => _currentIndex > 0;
   bool get canRedo => _currentIndex < _history.length - 1;
+  int get historyCount => _history.length - 1;
+  int get currentIndex => _currentIndex;
 }

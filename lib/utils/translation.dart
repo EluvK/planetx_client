@@ -226,13 +226,9 @@ class _TranslationHelper {
       "en_US": "Confirm",
       "zh_CN": "确认",
     },
-    "starmap_button_doubt": {
-      "en_US": "Doubt",
-      "zh_CN": "怀疑",
-    },
-    "starmap_button_deny": {
-      "en_US": "Exclude",
-      "zh_CN": "排除",
+    "starmap_button_switch": {
+      "en_US": "Switch",
+      "zh_CN": "切换",
     },
     "starmap_season_spring": {
       "en_US": "Spring",

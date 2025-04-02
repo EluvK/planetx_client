@@ -17,7 +17,7 @@ class GamePage extends StatelessWidget {
           shrinkWrap: true,
           children: [
             Padding(
-              padding: const EdgeInsets.only(bottom:4.0),
+              padding: const EdgeInsets.only(bottom: 4.0),
               child: MessageBar(),
             ),
             RoomInfos(),
@@ -28,9 +28,9 @@ class GamePage extends StatelessWidget {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(flex: 45, child: const StarMap()),
+                    Expanded(flex: 40, child: const StarMap()),
                     Flexible(
-                      flex: 55,
+                      flex: 60,
                       child: Column(
                         children: [
                           OpLog(),

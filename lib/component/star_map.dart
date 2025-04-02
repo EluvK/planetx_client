@@ -8,43 +8,6 @@ import 'package:planetx_client/model/op.dart';
 import 'package:planetx_client/model/room.dart';
 import 'package:planetx_client/utils/utils.dart';
 
-// enum SectorStatus { confirm, doubt, deny }
-
-// extension SectorStatusExtension on SectorStatus {
-//   (Border, Color, BlendMode) get imageColor {
-//     switch (this) {
-//       case SectorStatus.confirm:
-//         return (Border.all(color: Colors.green), Colors.transparent, BlendMode.srcOver);
-//       case SectorStatus.doubt:
-//         return (Border.all(color: Colors.grey), Colors.grey.withAlpha(200), BlendMode.dstOut);
-//       case SectorStatus.deny:
-//         return (Border.all(color: Colors.transparent), Colors.black.withAlpha(10), BlendMode.srcIn);
-//     }
-//   }
-
-//   Text get label {
-//     switch (this) {
-//       case SectorStatus.confirm:
-//         return Text('starmap_button_confirm'.tr, style: TextStyle(color: Colors.green));
-//       case SectorStatus.doubt:
-//         return Text('starmap_button_doubt'.tr, style: TextStyle(color: Colors.grey));
-//       case SectorStatus.deny:
-//         return Text('starmap_button_deny'.tr, style: TextStyle(color: Colors.red));
-//     }
-//   }
-
-//   Widget get icon {
-//     switch (this) {
-//       case SectorStatus.confirm:
-//         return Icon(Icons.check, color: Colors.green);
-//       case SectorStatus.doubt:
-//         return Icon(Icons.help, color: Colors.grey);
-//       case SectorStatus.deny:
-//         return Icon(Icons.close, color: Colors.red);
-//     }
-//   }
-// }
-
 enum Season { spring, summer, autumn, winter }
 
 extension SeasonExtension on Season {
@@ -134,7 +97,7 @@ class _StarMapState extends State<StarMap> {
         decoration: BoxDecoration(border: Border.all(color: Colors.grey, width: 0.1)),
         child: Stack(
           children: [
-            Column(children: [SizedBox(height: 30), animatedMap]),
+            Column(children: [SizedBox(height: 34), animatedMap]),
             // 操作按钮
             if (showMeetingView) Align(alignment: Alignment.topCenter, child: selfTokenCounter(tokens)),
             if (showMeetingView) Align(alignment: Alignment.topLeft, child: othersSecretTokenCounter(stokens)),
@@ -151,7 +114,7 @@ class _StarMapState extends State<StarMap> {
                             ButtonSegment(
                               value: status,
                               label: status.label,
-                              icon: status.icon,
+                              icon: SizedBox(width: 12, child: status.icon),
                             )
                         ],
                         selected: {targetSectorStatus},
@@ -166,14 +129,20 @@ class _StarMapState extends State<StarMap> {
                           visualDensity: VisualDensity(horizontal: -2, vertical: -2),
                         ),
                       ),
-                      IconButton(
-                        onPressed: ss.canUndo ? () => setState(() => ss.undo()) : null,
-                        icon: Icon(Icons.undo, size: 20),
+                      SizedBox(
+                        width: 24,
+                        child: IconButton(
+                          onPressed: ss.canUndo ? () => setState(() => ss.undo()) : null,
+                          icon: Icon(Icons.undo, size: 20),
+                        ),
                       ),
-                      IconButton(
-                        onPressed: ss.canRedo ? () => setState(() => ss.redo()) : null,
-                        icon: Icon(Icons.redo, size: 20),
+                      SizedBox(
+                        child: IconButton(
+                          onPressed: ss.canRedo ? () => setState(() => ss.redo()) : null,
+                          icon: Icon(Icons.redo, size: 20),
+                        ),
                       ),
+                      Text("${ss.currentIndex} / ${ss.historyCount}", style: TextStyle(fontSize: 12)),
                     ],
                   ),
                 ),
@@ -181,11 +150,7 @@ class _StarMapState extends State<StarMap> {
             Align(
               alignment: Alignment.topRight,
               child: IconButton(
-                onPressed: () {
-                  setState(() {
-                    showMeetingView = !showMeetingView;
-                  });
-                },
+                onPressed: () => setState(() => showMeetingView = !showMeetingView),
                 icon: Icon(showMeetingView ? Icons.switch_left_rounded : Icons.switch_right_rounded, size: 30),
               ),
             ),
@@ -266,10 +231,7 @@ class _StarMapState extends State<StarMap> {
           return CircleSectors(
             containerSize: size,
             season: Season.values[seasonIndex],
-            mapType: state.mapType,
-            visibleIndexStart: state.startIndex,
-            visibleIndexEnd: state.endIndex,
-            personPoints: state.users,
+            state: state,
             sectorStatus: sectorStatus,
             onSectorTap: (sectorIndex, sequenceIndex) {
               print('扇区 $sectorIndex - 按钮 $sequenceIndex 被点击');
@@ -279,12 +241,13 @@ class _StarMapState extends State<StarMap> {
                     sectorStatus[sectorIndex].fillRange(0, 6, SectorStatus.excluded);
                     sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.confirm;
                     ss.updateStatus();
-                    // if (sectorStatus[sectorIndex][sequenceIndex] != SectorStatus.confirm) {
-                    //   // 重置当前扇区的状态
-                    // }
                     break;
-                  case SectorStatus.excluded:
-                    sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.excluded;
+                  case SectorStatus.excluded: // switch status
+                    if (sectorStatus[sectorIndex][sequenceIndex] == SectorStatus.confirm) {
+                      sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.excluded;
+                    } else {
+                      sectorStatus[sectorIndex][sequenceIndex] = SectorStatus.confirm;
+                    }
                     ss.updateStatus();
                     break;
                 }
@@ -312,7 +275,7 @@ class _StarMapState extends State<StarMap> {
         return CircleMeetings(
           containerSize: size,
           season: Season.values[seasonIndex],
-          mapType: state.mapType,
+          state: state,
           secretTokens: secretTokens,
           tokens: tokens,
           onCenterTap: () {
@@ -331,7 +294,7 @@ class CircleMeetings extends StatelessWidget {
     super.key,
     required this.containerSize,
     required this.season,
-    required this.mapType,
+    required this.state,
     required this.secretTokens,
     required this.tokens,
     required this.onCenterTap,
@@ -339,7 +302,8 @@ class CircleMeetings extends StatelessWidget {
 
   final double containerSize;
   final Season season;
-  final MapType mapType;
+  final GameStateResp state;
+
   final List<SecretToken> secretTokens;
   final List<Token> tokens;
   final void Function() onCenterTap;
@@ -348,14 +312,13 @@ class CircleMeetings extends StatelessWidget {
   Widget build(BuildContext context) {
     double radius = (containerSize - 30) / 2; // 圆半径
     const double baseRadius = 40; // 基础半径
+    MapType mapType = state.mapType;
     int sectorCount = mapType.sectorCount;
     double eachSectorDegree = 360 / sectorCount;
     double startDegree = season.degree;
 
     const int meetingReviewTimePerSector = 4; // 每个扇区的会议揭露时间
-    const int meetingPointSize = 18; // 会议点大小
 
-    List<int> meetingPoints = mapType.meetingPoints;
     double dynamicTokenSize = containerSize / 24; // 动态Token大小
     List<Icon> meetingTokenBackgroundIcons = [
       Icon(Icons.autorenew_rounded, size: dynamicTokenSize),
@@ -376,16 +339,6 @@ class CircleMeetings extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // 绘制扇区边界线和最外层圆形边框
-            CustomPaint(
-              size: Size(containerSize, containerSize),
-              painter: SectorBorderPainter(
-                sectorCount: sectorCount,
-                radius: radius,
-                startDegree: startDegree,
-              ),
-            ),
-
             // 添加同心圆形边框
             ...List.generate(meetingReviewTimePerSector, (buttonIndex) {
               double circleRadius =
@@ -404,7 +357,6 @@ class CircleMeetings extends StatelessWidget {
               double centerDegree = eachSectorDegree * sectorIndex + startDegree + eachSectorDegree / 2;
               // 转换为极坐标角度（右侧为0，逆时针）
               double radians = (centerDegree) * math.pi / 180;
-              // print('sectorIndex: $sectorIndex, centerDegree: $centerDegree, radians: $radians');
               // 计算旋转角度（使按钮朝向圆心）
               double rotation = -(radians + math.pi);
 
@@ -434,74 +386,11 @@ class CircleMeetings extends StatelessWidget {
                       ),
                     );
                   }),
-
-                  // 在最外层显示序号
-                  Positioned(
-                    left: containerSize / 2 + (radius + 10) * math.cos(radians) - 5, // 调整位置
-                    top: containerSize / 2 + (radius + 10) * math.sin(radians) - 10, // 调整位置
-                    child: Transform.rotate(
-                      angle: -rotation,
-                      child: Text(
-                        '${sectorIndex + 1}',
-                        style: TextStyle(color: Colors.black, fontSize: 14),
-                      ),
-                    ),
-                  ),
-                  // 在最里层显示序号
-                  Positioned(
-                    left: containerSize / 2 + (baseRadius + 2) * math.cos(radians) - 5, // 调整位置
-                    top: containerSize / 2 + (baseRadius + 2) * math.sin(radians) - 10, // 调整位置
-                    child: Transform.rotate(
-                      angle: -rotation,
-                      child: Text(
-                        '${sectorIndex + 1}',
-                        style: TextStyle(color: Colors.black, fontSize: 14),
-                      ),
-                    ),
-                  ),
                 ],
               );
             }),
 
-            // 中心按钮
-            GestureDetector(
-              onTap: () => onCenterTap(),
-              child: Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white),
-                ),
-                child: Center(
-                  child: Text(
-                    season.name,
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-              ),
-            ),
-
-            // 生成会议点
-            ...meetingPoints.map((point) {
-              double sectorIndex = point.toDouble();
-              double centerDegree = eachSectorDegree * sectorIndex + startDegree - 0.1 * (eachSectorDegree / 4);
-              double radians = (centerDegree) * math.pi / 180;
-              double x = radius * math.cos(radians);
-              double y = radius * math.sin(radians);
-
-              return Positioned(
-                left: containerSize / 2 + x - meetingPointSize / 2, // 调整位置
-                top: containerSize / 2 + y - meetingPointSize / 2, // 调整位置
-                child: Container(
-                  width: meetingPointSize.toDouble(),
-                  height: meetingPointSize.toDouble(),
-                  decoration: BoxDecoration(color: Colors.lightGreen, shape: BoxShape.circle),
-                  child: Icon(Icons.bookmark, color: Colors.white, size: 12),
-                ),
-              );
-            }),
+            ...circleBasic(containerSize, onCenterTap, season, state),
 
             // 生成 SecretToken 点
             ...meetingTokens.map((token) {
@@ -571,43 +460,29 @@ class CircleSectors extends StatelessWidget {
     super.key,
     required this.containerSize,
     required this.season,
-    required this.mapType,
-    required this.visibleIndexStart,
-    required this.visibleIndexEnd,
+    required this.state,
     required this.sectorStatus,
-    required this.personPoints,
     required this.onSectorTap,
     required this.onCenterTap,
   });
   final double containerSize;
   final Season season;
-  final MapType mapType;
-  final int visibleIndexStart;
-  final int visibleIndexEnd;
-  final List<UserState> personPoints;
+  final GameStateResp state;
   final List<List<SectorStatus>> sectorStatus;
   final void Function(int, int) onSectorTap;
   final void Function() onCenterTap;
 
   @override
   Widget build(BuildContext context) {
-    // const double size = 1200; // 容器大小
     double radius = (containerSize - 30) / 2; // 圆半径
     double buttonSize = containerSize / 19; // 按钮大小
     const double baseRadius = 40; // 基础半径
+    MapType mapType = state.mapType;
     int sectorCount = mapType.sectorCount;
-    // const int sectorCount = 12; // 等分数
     const int buttonsPerSector = 6; // 每个扇区的按钮数
-
-    const int meetingPointSize = 18; // 会议点大小
-    const int xCluePointSize = 16; // X线索点大小
-    const int personPointSize = 20; // 人员点大小
 
     double eachSectorDegree = 360 / sectorCount;
     double startDegree = season.degree;
-
-    List<int> meetingPoints = mapType.meetingPoints;
-    List<int> xCluePoints = mapType.xCluePoints;
 
     return Center(
       child: SizedBox(
@@ -616,18 +491,6 @@ class CircleSectors extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // 绘制扇区边界线和最外层圆形边框
-            CustomPaint(
-              size: Size(containerSize, containerSize),
-              painter: SectorBorderPainter(
-                sectorCount: sectorCount,
-                radius: radius,
-                startDegree: startDegree,
-                startIndex: visibleIndexStart,
-                endIndex: visibleIndexEnd,
-              ),
-            ),
-
             // 添加同心圆形边框
             ...List.generate(buttonsPerSector, (buttonIndex) {
               double circleRadius =
@@ -647,7 +510,6 @@ class CircleSectors extends StatelessWidget {
               double centerDegree = eachSectorDegree * sectorIndex + startDegree + eachSectorDegree / 2;
               // 转换为极坐标角度（右侧为0，逆时针）
               double radians = (centerDegree) * math.pi / 180;
-              // print('sectorIndex: $sectorIndex, centerDegree: $centerDegree, radians: $radians');
               // 计算旋转角度（使按钮朝向圆心）
               double rotation = -(radians + math.pi);
 
@@ -683,176 +545,15 @@ class CircleSectors extends StatelessWidget {
                       ),
                     );
                   }),
-
-                  // 在最外层显示序号
-                  Positioned(
-                    left: containerSize / 2 + (radius + 10) * math.cos(radians) - 5, // 调整位置
-                    top: containerSize / 2 + (radius + 10) * math.sin(radians) - 10, // 调整位置
-                    child: Transform.rotate(
-                      angle: -rotation,
-                      child: Text(
-                        '${sectorIndex + 1}',
-                        // style: TextStyle(color: Colors.black, fontSize: 14),
-                        style: visibleSector(sectorIndex, visibleIndexStart, visibleIndexEnd)
-                            ? TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)
-                            : TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14,
-                              ),
-                      ),
-                    ),
-                  ),
-                  // 在最里层显示序号
-                  Positioned(
-                    left: containerSize / 2 + (baseRadius + 2) * math.cos(radians) - 5, // 调整位置
-                    top: containerSize / 2 + (baseRadius + 2) * math.sin(radians) - 10, // 调整位置
-                    child: Transform.rotate(
-                      angle: -rotation,
-                      child: Text(
-                        '${sectorIndex + 1}',
-                        style: visibleSector(sectorIndex, visibleIndexStart, visibleIndexEnd)
-                            ? TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)
-                            : TextStyle(color: Colors.grey, fontSize: 14),
-                      ),
-                    ),
-                  ),
                 ],
               );
             }),
 
-            // 中心按钮
-            GestureDetector(
-              onTap: () => onCenterTap(),
-              child: Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white),
-                ),
-                child: Center(
-                  child: Text(
-                    season.name,
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-              ),
-            ),
-
-            // // 生成非可见星区阴影
-            // ...List.generate(sectorCount, (sectorIndex) {
-            //   if (visibleSector(sectorIndex, visibleIndexStart, visibleIndexEnd)) {
-            //     // sectorIndex < visibleIndexStart && sectorIndex > visibleIndexEnd) {
-            //     // 计算扇区中心角度（从顶部开始顺时针）
-            //     double centerDegree = eachSectorDegree * sectorIndex + startDegree + eachSectorDegree / 2;
-            //     // 转换为极坐标角度（右侧为0，逆时针）
-            //     double radians = (centerDegree) * math.pi / 180;
-            //     // 计算旋转角度（使按钮朝向圆心）
-            //     double rotation = -(radians + math.pi);
-            //     // 计算阴影的半径位置
-            //     double shadowRadius = radius + 10;
-            //     // 计算阴影的笛卡尔坐标
-            //     double x = shadowRadius * math.cos(radians);
-            //     double y = shadowRadius * math.sin(radians);
-
-            //     return Positioned(
-            //       left: containerSize / 2 + x - buttonSize / 2,
-            //       top: containerSize / 2 + y - buttonSize / 2,
-            //       child: Container(
-            //         width: buttonSize,
-            //         height: buttonSize,
-            //         decoration: BoxDecoration(color: Colors.red.withOpacity(0.5), shape: BoxShape.circle),
-            //       ),
-            //     );
-            //   } else {
-            //     return SizedBox.shrink();
-            //   }
-            // }),
-
-            // 生成会议点
-            ...meetingPoints.map((point) {
-              double sectorIndex = point.toDouble();
-              double centerDegree = eachSectorDegree * sectorIndex + startDegree - 0.1 * (eachSectorDegree / 4);
-              double radians = (centerDegree) * math.pi / 180;
-              double x = radius * math.cos(radians);
-              double y = radius * math.sin(radians);
-
-              return Positioned(
-                left: containerSize / 2 + x - meetingPointSize / 2, // 调整位置
-                top: containerSize / 2 + y - meetingPointSize / 2, // 调整位置
-                child: Container(
-                  width: meetingPointSize.toDouble(),
-                  height: meetingPointSize.toDouble(),
-                  decoration: BoxDecoration(color: Colors.lightGreen, shape: BoxShape.circle),
-                  child: Icon(Icons.bookmark, color: Colors.white, size: 12),
-                ),
-              );
-            }),
-
-            // 生成X线索点
-            ...xCluePoints.map((point) {
-              double sectorIndex = point.toDouble();
-              double centerDegree = eachSectorDegree * sectorIndex + startDegree - 0.1 * (eachSectorDegree / 4);
-              double radians = (centerDegree) * math.pi / 180;
-              double x = radius * math.cos(radians);
-              double y = radius * math.sin(radians);
-
-              return Positioned(
-                left: containerSize / 2 + x - xCluePointSize / 2, // 调整位置
-                top: containerSize / 2 + y - xCluePointSize / 2, // 调整位置
-                child: Container(
-                  width: xCluePointSize.toDouble(),
-                  height: xCluePointSize.toDouble(),
-                  decoration: BoxDecoration(color: Colors.blueGrey, shape: BoxShape.circle),
-                  child: Icon(Icons.close, color: Colors.white, size: 12),
-                ),
-              );
-            }),
-
-            // 生成人员点
-            ...personPoints.indexed.map((indexState) {
-              int personIndex = indexState.$1;
-              double sectorIndex = indexState.$2.location.index.toDouble();
-              double sequenceIndex = indexState.$2.location.childIndex.toDouble();
-
-              // 计算小点的角度（扇区起始角度 + 序列偏移）
-              // 计算扇区起点角度（从顶部开始顺时针）
-              double centerDegree = (startDegree + 2) + // 两边预留2度的空隙
-                  eachSectorDegree * (sectorIndex - 1) +
-                  (sequenceIndex - 0.5) * ((eachSectorDegree - 4) / 4);
-              // 转换为极坐标角度（右侧为0，逆时针）
-              double radians = (centerDegree) * math.pi / 180;
-
-              // 计算小点的笛卡尔坐标
-              double x = radius * math.cos(radians);
-              double y = radius * math.sin(radians);
-
-              return Positioned(
-                left: containerSize / 2 + x - personPointSize / 2, // 调整位置
-                top: containerSize / 2 + y - personPointSize / 2, // 调整位置
-                child: Container(
-                  width: personPointSize.toDouble(),
-                  height: personPointSize.toDouble(),
-                  decoration: BoxDecoration(
-                    color: userIndexedColors[personIndex],
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              );
-            }),
+            ...circleBasic(containerSize, onCenterTap, season, state),
           ],
         ),
       ),
     );
-  }
-
-  bool visibleSector(int sectorIndex, int visibleIndexStart, int visibleIndexEnd) {
-    if (visibleIndexStart > visibleIndexEnd) {
-      return sectorIndex + 1 >= visibleIndexStart || sectorIndex + 1 <= visibleIndexEnd;
-    } else {
-      return sectorIndex + 1 >= visibleIndexStart && sectorIndex + 1 <= visibleIndexEnd;
-    }
   }
 
   Container xplanetIcon(double buttonSize, double rotation, SectorType type, SectorStatus status) {
@@ -875,6 +576,181 @@ class CircleSectors extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+List<Widget> circleBasic(
+  double containerSize,
+  void Function() onCenterTap,
+  Season season,
+  GameStateResp state,
+) {
+  double radius = (containerSize - 30) / 2; // 圆半径
+  MapType mapType = state.mapType;
+  int sectorCount = mapType.sectorCount;
+  double eachSectorDegree = 360 / sectorCount;
+  double startDegree = season.degree;
+
+  List<UserState> personPoints = state.users;
+  List<int> meetingPoints = mapType.meetingPoints;
+  List<int> xCluePoints = mapType.xCluePoints;
+
+  const int meetingPointSize = 18; // 会议点大小
+  const int xCluePointSize = 16; // X线索点大小
+  const int personPointSize = 20; // 人员点大小
+
+  // 绘制扇区边界线和最外层圆形边框
+  var drawSectorsBorder = CustomPaint(
+    size: Size(containerSize, containerSize),
+    painter: SectorBorderPainter(
+      sectorCount: sectorCount,
+      radius: radius,
+      startDegree: startDegree,
+      startIndex: state.startIndex,
+      endIndex: state.endIndex,
+    ),
+  );
+
+  // 绘制内外数字
+  const double baseRadius = 40; // 基础半径
+  var drawNumbers = List.generate(sectorCount, (sectorIndex) {
+    // 计算扇区中心角度（从顶部开始顺时针）
+    double centerDegree = eachSectorDegree * sectorIndex + startDegree + eachSectorDegree / 2;
+    // 转换为极坐标角度（右侧为0，逆时针）
+    double radians = (centerDegree) * math.pi / 180;
+    // 计算旋转角度（使按钮朝向圆心）
+    double rotation = radians + math.pi;
+
+    return Stack(
+      children: [
+        // 在最外层显示序号
+        Positioned(
+          left: containerSize / 2 + (radius + 10) * math.cos(radians) - 5, // 调整位置
+          top: containerSize / 2 + (radius + 10) * math.sin(radians) - 10, // 调整位置
+          child: Transform.rotate(
+            angle: rotation,
+            child: Text('${sectorIndex + 1}', style: TextStyle(color: Colors.black, fontSize: 14)),
+          ),
+        ),
+        // 在最里层显示序号
+        Positioned(
+          left: containerSize / 2 + (baseRadius + 2) * math.cos(radians) - 5, // 调整位置
+          top: containerSize / 2 + (baseRadius + 2) * math.sin(radians) - 10, // 调整位置
+          child: Transform.rotate(
+            angle: rotation,
+            child: Text(
+              '${sectorIndex + 1}',
+              style: visibleSector(sectorIndex, state.startIndex, state.endIndex)
+                  ? TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)
+                  : TextStyle(color: Colors.grey, fontSize: 14),
+            ),
+          ),
+        ),
+      ],
+    );
+  });
+
+  // 中心按钮
+  var drawCenterSwitch = GestureDetector(
+    onTap: () => onCenterTap(),
+    child: Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: Colors.blueGrey,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white),
+      ),
+      child: Center(
+        child: Text(season.name, style: TextStyle(color: Colors.white, fontSize: 14)),
+      ),
+    ),
+  );
+
+  // 生成会议点
+  var drawMeetingPoints = meetingPoints.map((point) {
+    double sectorIndex = point.toDouble();
+    double centerDegree = eachSectorDegree * sectorIndex + startDegree - 0.1 * (eachSectorDegree / 4);
+    double radians = (centerDegree) * math.pi / 180;
+    double x = radius * math.cos(radians);
+    double y = radius * math.sin(radians);
+
+    return Positioned(
+      left: containerSize / 2 + x - meetingPointSize / 2, // 调整位置
+      top: containerSize / 2 + y - meetingPointSize / 2, // 调整位置
+      child: Container(
+        width: meetingPointSize.toDouble(),
+        height: meetingPointSize.toDouble(),
+        decoration: BoxDecoration(color: Colors.lightGreen, shape: BoxShape.circle),
+        child: Icon(Icons.bookmark, color: Colors.white, size: 12),
+      ),
+    );
+  });
+
+  // 生成X线索点
+  var drawXcluePoints = xCluePoints.map((point) {
+    double sectorIndex = point.toDouble();
+    double centerDegree = eachSectorDegree * sectorIndex + startDegree - 0.1 * (eachSectorDegree / 4);
+    double radians = (centerDegree) * math.pi / 180;
+    double x = radius * math.cos(radians);
+    double y = radius * math.sin(radians);
+
+    return Positioned(
+      left: containerSize / 2 + x - xCluePointSize / 2, // 调整位置
+      top: containerSize / 2 + y - xCluePointSize / 2, // 调整位置
+      child: Container(
+        width: xCluePointSize.toDouble(),
+        height: xCluePointSize.toDouble(),
+        decoration: BoxDecoration(color: Colors.blueGrey, shape: BoxShape.circle),
+        child: Icon(Icons.close, color: Colors.white, size: 12),
+      ),
+    );
+  });
+
+  // 生成人员点
+  var drawPersonPoints = personPoints.indexed.map((indexState) {
+    int personIndex = indexState.$1;
+    double sectorIndex = indexState.$2.location.index.toDouble();
+    double sequenceIndex = indexState.$2.location.childIndex.toDouble();
+
+    // 计算小点的角度（扇区起始角度 + 序列偏移）
+    // 计算扇区起点角度（从顶部开始顺时针）
+    double centerDegree = (startDegree + 2) + // 两边预留2度的空隙
+        eachSectorDegree * (sectorIndex - 1) +
+        (sequenceIndex - 0.5) * ((eachSectorDegree - 4) / 4);
+    // 转换为极坐标角度（右侧为0，逆时针）
+    double radians = (centerDegree) * math.pi / 180;
+
+    // 计算小点的笛卡尔坐标
+    double x = radius * math.cos(radians);
+    double y = radius * math.sin(radians);
+
+    return Positioned(
+      left: containerSize / 2 + x - personPointSize / 2, // 调整位置
+      top: containerSize / 2 + y - personPointSize / 2, // 调整位置
+      child: Container(
+        width: personPointSize.toDouble(),
+        height: personPointSize.toDouble(),
+        decoration: BoxDecoration(color: userIndexedColors[personIndex], shape: BoxShape.circle),
+      ),
+    );
+  });
+
+  return [
+    drawSectorsBorder,
+    ...drawNumbers,
+    drawCenterSwitch,
+    ...drawMeetingPoints,
+    ...drawXcluePoints,
+    ...drawPersonPoints,
+  ];
+}
+
+bool visibleSector(int sectorIndex, int visibleIndexStart, int visibleIndexEnd) {
+  if (visibleIndexStart > visibleIndexEnd) {
+    return sectorIndex + 1 >= visibleIndexStart || sectorIndex + 1 <= visibleIndexEnd;
+  } else {
+    return sectorIndex + 1 >= visibleIndexStart && sectorIndex + 1 <= visibleIndexEnd;
   }
 }
 
