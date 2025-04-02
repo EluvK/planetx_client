@@ -474,6 +474,8 @@ class CircleSectors extends StatelessWidget {
               );
             }),
 
+            ...circleBasic(containerSize, onCenterTap, season, state),
+
             // 生成扇区和按钮
             ...List.generate(sectorCount, (sectorIndex) {
               // 计算扇区中心角度（从顶部开始顺时针）
@@ -518,8 +520,6 @@ class CircleSectors extends StatelessWidget {
                 ],
               );
             }),
-
-            ...circleBasic(containerSize, onCenterTap, season, state),
           ],
         ),
       ),
