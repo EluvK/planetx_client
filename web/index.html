@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -18,21 +19,95 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
-
+  <meta name="description" content="Planet X">
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="planetx_client">
+  <meta name="apple-mobile-web-app-title" content="Planet X">
+  <meta name="referrer" content="no-referrer">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>Planet X</title>
   <link rel="manifest" href="manifest.json">
 </head>
+
 <body>
+  <div id="loading">
+    <style>
+      body {
+        background-color: #1a1a1a;
+
+        @media (-webkit-max-device-pixel-ratio: 1) {
+          * {
+            image-rendering: pixelated;
+          }
+        }
+
+        inset: 0;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff;
+      }
+
+      #loading {
+        background-color: #ffffff;
+        align-items: center;
+        display: flex;
+        position: absolute;
+        z-index: 100 !important;
+        height: 100%;
+        width: 100%;
+        justify-content: center;
+      }
+
+      #loading .logo {
+        animation: 1s ease-in-out 0s infinite alternate breathe;
+        opacity: .66;
+        transition: opacity .4s;
+        width: 60px;
+        height: 60px;
+        color: #f39237aa;
+        /* border: 1px solid #f39237aa; */
+      }
+
+      #loading.main_done .logo {
+        opacity: 1;
+      }
+
+      #loading.init_done {
+        animation: .66s ease-in-out 0s 1 forwards zooooom;
+        /* opacity: .66; */
+      }
+
+      @keyframes breathe {
+        from {
+          transform: scale(1)
+        }
+
+        to {
+          transform: scale(0.9)
+        }
+      }
+
+      @keyframes zooooom {
+        from {
+          transform: scale(1);
+          opacity: .66;
+        }
+
+        to {
+          transform: scale(10);
+          opacity: 0;
+        }
+      }
+    </style>
+    <img class="logo" src="icons/Icon-192.png" alt="Loading..." />
+  </div>
   <script src="flutter_bootstrap.js" async></script>
 </body>
+
 </html>
