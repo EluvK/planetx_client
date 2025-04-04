@@ -159,8 +159,8 @@ class _TranslationHelper {
       "zh_CN": "1个，不和 X 行星相邻",
     },
     "rules_dwarf_planet_expert": {
-      "en_US": "4, in a band of 6, not adjacent to planet X",
-      "zh_CN": "4个，在一个连续的6格区间内，且首尾是矮行星。不和 X 行星相邻",
+      "zh_CN": "4个，在一个连续的6格区间内，且首尾是矮行星。不和 X 行星相邻。用 ● 表示的话有如下6种可能 \n ●●●○○● | ●●○●○● | ●●○○●● | ●○●●○● | ●○●○●● | ●○○●●●",
+      "en_US": "4, in a band of 6, not adjacent to planet X. The first and last are dwarf planets. \n ●●●○○● | ●●○●○● | ●●○○●● | ●○●●○● | ●○●○●● | ●○○●●●",
     },
     "rules_nebula": {
       "en_US": "2, adjacent to a truly space",
@@ -171,8 +171,8 @@ class _TranslationHelper {
       "zh_CN": "1个，不和矮行星相邻，勘测起来像是空域",
     },
     "rules_space_standard": {
-      "en_US": "2, adjacent to a truly nebula",
-      "zh_CN": "2个，和真正的气体云相邻",
+      "en_US": "2, remember, planet X appears space",
+      "zh_CN": "2个，记住，X 行星看起来也像空域",
     },
     "rules_space_expert": {
       "en_US": "5, remember, planet X appears space",
@@ -373,6 +373,34 @@ Correctly locate Planet X later: +(2 * distance from the first locator, 10/8/6/4
       "en_US": "Switch",
       "zh_CN": "切换",
     },
+    "starmap_button_undo": {
+      "en_US": "Undo",
+      "zh_CN": "撤销",
+    },
+    "starmap_button_redo": {
+      "en_US": "Redo",
+      "zh_CN": "重做",
+    },
+    "starmap_button_history_desc": {
+      "en_US": "History",
+      "zh_CN": "操作历史",
+    },
+    "starmap_button_flip": {
+      "en_US": "Flip",
+      "zh_CN": "翻转",
+    },
+    "starmap_point_conference_hint": {
+      "en_US": "Conference",
+      "zh_CN": "会议",
+    },
+    "starmap_point_x_hint": {
+      "en_US": "X Clue",
+      "zh_CN": "X线索",
+    },
+    "starmap_point_center_hint": {
+      "en_US": "Rotate",
+      "zh_CN": "旋转",
+    },
     "starmap_season_spring": {
       "en_US": "Spring",
       "zh_CN": "春分",
@@ -476,7 +504,7 @@ Correctly locate Planet X later: +(2 * distance from the first locator, 10/8/6/4
         keys.putIfAbsent(lang, () => {})[key] = translation;
       });
     });
-    print(keys);
+    // print(keys);
     return keys;
   }
 }

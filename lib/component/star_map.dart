@@ -67,7 +67,7 @@ class _StarMapState extends State<StarMap> {
         decoration: BoxDecoration(border: Border.all(color: Colors.grey, width: 0.1)),
         child: Stack(
           children: [
-            Column(children: [SizedBox(height: 34), animatedMap]),
+            Column(children: [SizedBox(height: 40), animatedMap]),
             // 操作按钮
             if (showMeetingView) Align(alignment: Alignment.topCenter, child: selfTokenCounter(tokens)),
             if (showMeetingView) Align(alignment: Alignment.topLeft, child: othersSecretTokenCounter(stokens)),
@@ -104,15 +104,19 @@ class _StarMapState extends State<StarMap> {
                         child: IconButton(
                           onPressed: ss.canUndo ? () => setState(() => ss.undo()) : null,
                           icon: Icon(Icons.undo, size: 20),
+                          tooltip: "starmap_button_undo".tr,
                         ),
                       ),
                       SizedBox(
                         child: IconButton(
                           onPressed: ss.canRedo ? () => setState(() => ss.redo()) : null,
                           icon: Icon(Icons.redo, size: 20),
+                          tooltip: "starmap_button_redo".tr,
                         ),
                       ),
-                      Text("${ss.currentIndex} / ${ss.historyCount}", style: TextStyle(fontSize: 12)),
+                      Tooltip(
+                          message: "starmap_button_history_desc".tr,
+                          child: Text("${ss.currentIndex} / ${ss.historyCount}", style: TextStyle(fontSize: 12))),
                     ],
                   ),
                 ),
@@ -122,6 +126,7 @@ class _StarMapState extends State<StarMap> {
               child: IconButton(
                 onPressed: () => setState(() => showMeetingView = !showMeetingView),
                 icon: Icon(showMeetingView ? Icons.switch_left_rounded : Icons.switch_right_rounded, size: 30),
+                tooltip: "starmap_button_flip".tr,
               ),
             ),
           ],
@@ -565,9 +570,9 @@ List<Widget> circleBasic(
   List<int> meetingPoints = mapType.meetingPoints;
   List<int> xCluePoints = mapType.xCluePoints;
 
-  const int meetingPointSize = 18; // 会议点大小
-  const int xCluePointSize = 16; // X线索点大小
-  const int personPointSize = 20; // 人员点大小
+  int meetingPointSize = math.max((containerSize / 32).toInt(), 18); // 会议点大小
+  int xCluePointSize = math.max((containerSize / 34).toInt(), 16); // X线索点大小
+  int personPointSize = math.max((containerSize / 30).toInt(), 20); // 人员点大小
 
   // 绘制扇区边界线和最外层圆形边框
   var drawSectorsBorder = CustomPaint(
@@ -623,16 +628,19 @@ List<Widget> circleBasic(
   // 中心按钮
   var drawCenterSwitch = GestureDetector(
     onTap: () => onCenterTap(),
-    child: Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        color: Colors.blueGrey,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white),
-      ),
-      child: Center(
-        child: Text(season.fmt, style: TextStyle(color: Colors.white, fontSize: 14)),
+    child: Tooltip(
+      message: "starmap_point_center_hint".tr,
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.blueGrey,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white),
+        ),
+        child: Center(
+          child: Text(season.fmt, style: TextStyle(color: Colors.white, fontSize: 14)),
+        ),
       ),
     ),
   );
@@ -648,11 +656,14 @@ List<Widget> circleBasic(
     return Positioned(
       left: containerSize / 2 + x - meetingPointSize / 2, // 调整位置
       top: containerSize / 2 + y - meetingPointSize / 2, // 调整位置
-      child: Container(
-        width: meetingPointSize.toDouble(),
-        height: meetingPointSize.toDouble(),
-        decoration: BoxDecoration(color: Colors.lightGreen, shape: BoxShape.circle),
-        child: Icon(Icons.bookmark, color: Colors.white, size: 12),
+      child: Tooltip(
+        message: "starmap_point_conference_hint".tr,
+        child: Container(
+          width: meetingPointSize.toDouble(),
+          height: meetingPointSize.toDouble(),
+          decoration: BoxDecoration(color: Colors.lightGreen, shape: BoxShape.circle),
+          child: Icon(Icons.bookmark, color: Colors.white, size: meetingPointSize / 1.5),
+        ),
       ),
     );
   });
@@ -668,11 +679,14 @@ List<Widget> circleBasic(
     return Positioned(
       left: containerSize / 2 + x - xCluePointSize / 2, // 调整位置
       top: containerSize / 2 + y - xCluePointSize / 2, // 调整位置
-      child: Container(
-        width: xCluePointSize.toDouble(),
-        height: xCluePointSize.toDouble(),
-        decoration: BoxDecoration(color: Colors.blueGrey, shape: BoxShape.circle),
-        child: Icon(Icons.close, color: Colors.white, size: 12),
+      child: Tooltip(
+        message: "starmap_point_x_hint".tr,
+        child: Container(
+          width: xCluePointSize.toDouble(),
+          height: xCluePointSize.toDouble(),
+          decoration: BoxDecoration(color: Colors.blueGrey, shape: BoxShape.circle),
+          child: Icon(Icons.close, color: Colors.white, size: xCluePointSize / 1.5),
+        ),
       ),
     );
   });
@@ -682,6 +696,7 @@ List<Widget> circleBasic(
     int personIndex = indexState.$1;
     double sectorIndex = indexState.$2.location.index.toDouble();
     double sequenceIndex = indexState.$2.location.childIndex.toDouble();
+    String name = indexState.$2.name;
 
     // 计算小点的角度（扇区起始角度 + 序列偏移）
     // 计算扇区起点角度（从顶部开始顺时针）
@@ -698,11 +713,14 @@ List<Widget> circleBasic(
     return Positioned(
       left: containerSize / 2 + x - personPointSize / 2, // 调整位置
       top: containerSize / 2 + y - personPointSize / 2, // 调整位置
-      child: Container(
-        width: personPointSize.toDouble(),
-        height: personPointSize.toDouble(),
-        decoration: BoxDecoration(color: userIndexedColors[personIndex], shape: BoxShape.circle),
-        child: Icon(Icons.person_rounded, color: Colors.white, size: 14),
+      child: Tooltip(
+        message: name,
+        child: Container(
+          width: personPointSize.toDouble(),
+          height: personPointSize.toDouble(),
+          decoration: BoxDecoration(color: userIndexedColors[personIndex], shape: BoxShape.circle),
+          child: Icon(Icons.person_rounded, color: Colors.white, size: personPointSize / 1.5),
+        ),
       ),
     );
   });
@@ -767,8 +785,8 @@ class SectorBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint()
-      ..color = Colors.grey
-      ..strokeWidth = 1
+      ..color = Colors.black
+      ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
     final center = Offset(size.width / 2, size.height / 2);
@@ -783,8 +801,8 @@ class SectorBorderPainter extends CustomPainter {
           center,
           Offset(center.dx + radius * math.cos(angle), center.dy + radius * math.sin(angle)),
           Paint()
-            ..color = paintBlod ? Colors.black : Colors.grey
-            ..strokeWidth = paintBlod ? 1.5 : 1
+            ..color = paintBlod ? Colors.black : Colors.blueGrey
+            ..strokeWidth = paintBlod ? 2 : 1
             ..style = PaintingStyle.stroke);
     }
 

@@ -10,6 +10,8 @@ void showRulesDialog(BuildContext context, MapType type) {
       builder: (context) {
         return AlertDialog(
           title: Text("rule_title".tr),
+          titlePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14),
           content: SizedBox(
             width: double.maxFinite,
             child: SingleChildScrollView(
@@ -43,16 +45,17 @@ TableCell cell(Widget child) {
 
 Widget _ruleSectorTypeRule(MapType type) {
   return Table(
+    // border: TableBorder.all(color: Colors.black),
     columnWidths: {
       0: const FlexColumnWidth(1),
       1: const FlexColumnWidth(2),
-      2: const FlexColumnWidth(4),
+      2: const FlexColumnWidth(9),
     },
     children: SectorType.values.map((e) {
       return TableRow(
         children: [
           cell(Image.asset(e.iconName, width: 24.0, height: 24.0)),
-          cell(Text(e.toString())),
+          cell(Align(child: Text(e.toString()))),
           cell(Text(e.ruleLimit(type))),
         ],
       );
@@ -62,6 +65,7 @@ Widget _ruleSectorTypeRule(MapType type) {
 
 Widget _opTypeRule() {
   return Table(
+    // border: TableBorder.all(color: Colors.black),
     columnWidths: {
       0: const FlexColumnWidth(1),
       1: const FlexColumnWidth(3),
@@ -69,7 +73,7 @@ Widget _opTypeRule() {
     children: OpEnum.values.map((e) {
       return TableRow(
         children: [
-          cell(Text(e.name)),
+          cell(Align(child: Text(e.name))),
           cell(Text(e.ruleLimit)),
         ],
       );

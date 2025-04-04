@@ -7,7 +7,7 @@ extension SectorStatusExtension on SectorStatus {
   (Border, Color, BlendMode) get imageColor {
     switch (this) {
       case SectorStatus.confirm:
-        return (Border.all(color: Colors.green), Colors.transparent, BlendMode.srcOver);
+        return (Border.all(color: Colors.grey), Colors.transparent, BlendMode.srcOver);
       case SectorStatus.excluded:
         return (Border.all(color: Colors.transparent), Colors.black.withAlpha(10), BlendMode.srcIn);
     }
