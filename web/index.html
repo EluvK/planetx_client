@@ -28,7 +28,7 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="icon" type="image/png" href="favicon.ico" />
 
   <title>Planet X</title>
   <link rel="manifest" href="manifest.json">
@@ -68,10 +68,12 @@
         animation: 1s ease-in-out 0s infinite alternate breathe;
         opacity: .66;
         transition: opacity .4s;
-        width: 60px;
-        height: 60px;
+        /* width: 200px;
+        height: 200px; */
+        /* height: 70%; */
         color: #f39237aa;
         /* border: 1px solid #f39237aa; */
+        border-radius: 25%;
       }
 
       #loading.main_done .logo {
@@ -85,11 +87,11 @@
 
       @keyframes breathe {
         from {
-          transform: scale(1)
+          transform: scale(0.75)
         }
 
         to {
-          transform: scale(0.9)
+          transform: scale(0.65)
         }
       }
 
@@ -100,12 +102,12 @@
         }
 
         to {
-          transform: scale(10);
+          transform: scale(5);
           opacity: 0;
         }
       }
     </style>
-    <img class="logo" src="icons/Icon-192.png" alt="Loading..." />
+    <img class="logo" src="icons/Icon-512.png" alt="Loading..." />
   </div>
   <script src="flutter_bootstrap.js" async></script>
 </body>
