@@ -9,8 +9,17 @@ if (!window._flutter) {
 _flutter.buildConfig = {"engineRevision":"18b71d647a292a980abb405ac7d16fe1f0b20434","builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"}]};
 
 
+const loading = document.querySelector('#loading');
 _flutter.loader.load({
-  serviceWorkerSettings: {
-    serviceWorkerVersion: "4232366554"
+  onEntrypointLoaded: async function (engineInitializer) {
+    loading.classList.add('main_done');
+    const appRunner = await engineInitializer.initializeEngine();
+
+    loading.classList.add('init_done');
+    await appRunner.runApp();
+
+    window.setTimeout(function () {
+      loading.remove();
+    }, 200);
   }
 });
