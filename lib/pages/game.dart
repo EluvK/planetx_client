@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:planetx_client/component/clue_log.dart';
+import 'package:planetx_client/component/game_result.dart';
 import 'package:planetx_client/component/message_bar.dart';
 import 'package:planetx_client/component/op_bar.dart';
 import 'package:planetx_client/component/op_log.dart';
@@ -18,10 +19,17 @@ class GamePage extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 4.0),
+              child: RoomInfos(),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
               child: MessageBar(),
             ),
-            RoomInfos(),
-            OpBar(),
+            GameResult(),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: OpBar(),
+            ),
             LayoutBuilder(builder: (context, constraints) {
               // print("width: ${constraints.maxWidth}, height: ${constraints.maxHeight}");
               if (constraints.maxWidth > 1000) {

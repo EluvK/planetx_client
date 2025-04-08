@@ -159,8 +159,10 @@ class _TranslationHelper {
       "zh_CN": "1个，不和 X 行星相邻",
     },
     "rules_dwarf_planet_expert": {
-      "zh_CN": "4个，在一个连续的6格区间内，且首尾是矮行星。不和 X 行星相邻。用 ● 表示的话有如下6种可能 \n ●●●○○● | ●●○●○● | ●●○○●● | ●○●●○● | ●○●○●● | ●○○●●●",
-      "en_US": "4, in a band of 6, not adjacent to planet X. The first and last are dwarf planets. \n ●●●○○● | ●●○●○● | ●●○○●● | ●○●●○● | ●○●○●● | ●○○●●●",
+      "zh_CN":
+          "4个，在一个连续的6格区间内，且首尾是矮行星。不和 X 行星相邻。用 ● 表示的话有如下6种可能 \n ●●●○○● | ●●○●○● | ●●○○●● | ●○●●○● | ●○●○●● | ●○○●●●",
+      "en_US":
+          "4, in a band of 6, not adjacent to planet X. The first and last are dwarf planets. \n ●●●○○● | ●●○●○● | ●●○○●● | ●○●●○● | ●○●○●● | ●○○●●●",
     },
     "rules_nebula": {
       "en_US": "2, adjacent to a truly space",
@@ -490,6 +492,47 @@ Correctly locate Planet X later: +(2 * distance from the first locator, 10/8/6/4
     "picker_title_clue": {
       "en_US": "Select Item",
       "zh_CN": "选择研究",
+    },
+    // game result
+    "result_user_name": {
+      "en_US": "Player",
+      "zh_CN": "玩家",
+    },
+    "result_first": {
+      "en_US": "First(1)",
+      "zh_CN": "首发(1)",
+    },
+    "result_asteroid": {
+      "en_US": "Asteroid(2)",
+      "zh_CN": "小行星(2)",
+    },
+    "result_comet": {
+      "en_US": "Comet(3)",
+      "zh_CN": "彗星(3)",
+    },
+    "result_dwarf_planet_standard": {
+      "en_US": "Dwarf Planet(4)",
+      "zh_CN": "矮行星(4)",
+    },
+    "result_dwarf_planet_expert": {
+      "en_US": "Dwarf Planet(2)",
+      "zh_CN": "矮行星(2)",
+    },
+    "result_nebula": {
+      "en_US": "Nebula(4)",
+      "zh_CN": "气体云(4)",
+    },
+    "result_x": {
+      "en_US": "X",
+      "zh_CN": "X",
+    },
+    "result_sum": {
+      "en_US": "Total",
+      "zh_CN": "总分",
+    },
+    "result_step": {
+      "en_US": "Step",
+      "zh_CN": "步数",
     },
   };
   static Map<String, Map<String, String>> loadTranslations() {

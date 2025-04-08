@@ -107,6 +107,7 @@ class GameStateResp {
   final int endIndex;
   final int mapSeed;
   final MapType mapType;
+  final List<UserResultSummary>? gameResult;
 
   GameStateResp(
     this.id,
@@ -118,6 +119,7 @@ class GameStateResp {
     this.endIndex,
     this.mapSeed,
     this.mapType,
+    this.gameResult,
   );
 
   factory GameStateResp.placeholder() => GameStateResp(
@@ -130,6 +132,7 @@ class GameStateResp {
         0,
         0,
         MapType.standard,
+        null,
       );
 
   factory GameStateResp.fromJson(Map<String, dynamic> json) => _$GameStateRespFromJson(json);
@@ -215,6 +218,37 @@ class UserState {
 
   factory UserState.fromJson(Map<String, dynamic> json) => _$UserStateFromJson(json);
   Map<String, dynamic> toJson() => _$UserStateToJson(this);
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class UserResultSummary {
+  final String id;
+  final String name;
+  final int sum;
+  final int first;
+  final int comet;
+  final int asteroid;
+  final int dwarfPlanet;
+  final int nebula;
+  final int x;
+  final int step;
+  
+  UserResultSummary(
+    this.id,
+    this.name,
+    this.sum,
+    this.first,
+    this.comet,
+    this.asteroid,
+    this.dwarfPlanet,
+    this.nebula,
+    this.x,
+    this.step,
+  );
+
+  factory UserResultSummary.fromJson(Map<String, dynamic> json) => _$UserResultSummaryFromJson(json);
+  Map<String, dynamic> toJson() => _$UserResultSummaryToJson(this);
+
 }
 
 @JsonEnum(fieldRename: FieldRename.snake)

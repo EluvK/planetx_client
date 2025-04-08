@@ -33,6 +33,9 @@ GameStateResp _$GameStateRespFromJson(Map<String, dynamic> json) => GameStateRes
       (json['end_index'] as num).toInt(),
       (json['map_seed'] as num).toInt(),
       $enumDecode(_$MapTypeEnumMap, json['map_type']),
+      (json['game_result'] as List<dynamic>?)
+          ?.map((e) => UserResultSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$GameStateRespToJson(GameStateResp instance) => <String, dynamic>{
@@ -45,6 +48,7 @@ Map<String, dynamic> _$GameStateRespToJson(GameStateResp instance) => <String, d
       'end_index': instance.endIndex,
       'map_seed': instance.mapSeed,
       'map_type': _$MapTypeEnumMap[instance.mapType]!,
+      'game_result': instance.gameResult,
     };
 
 const _$GameStageEnumMap = {
@@ -76,6 +80,32 @@ Map<String, dynamic> _$UserStateToJson(UserState instance) => <String, dynamic>{
       'can_locate': instance.canLocate,
       'moves': instance.moves,
       'used_token': instance.usedToken,
+    };
+
+UserResultSummary _$UserResultSummaryFromJson(Map<String, dynamic> json) => UserResultSummary(
+      json['id'] as String,
+      json['name'] as String,
+      (json['sum'] as num).toInt(),
+      (json['first'] as num).toInt(),
+      (json['comet'] as num).toInt(),
+      (json['asteroid'] as num).toInt(),
+      (json['dwarf_planet'] as num).toInt(),
+      (json['nebula'] as num).toInt(),
+      (json['x'] as num).toInt(),
+      (json['step'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$UserResultSummaryToJson(UserResultSummary instance) => <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'sum': instance.sum,
+      'first': instance.first,
+      'comet': instance.comet,
+      'asteroid': instance.asteroid,
+      'dwarf_planet': instance.dwarfPlanet,
+      'nebula': instance.nebula,
+      'x': instance.x,
+      'step': instance.step,
     };
 
 SecretToken _$SecretTokenFromJson(Map<String, dynamic> json) => SecretToken(
