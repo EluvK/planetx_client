@@ -42,7 +42,7 @@ class SettingController extends GetxController {
       serverAddress.value = box.read('serverAddress');
     }
 
-    locale.value = Locale(box.read('locale') ?? 'zh');
+    locale.value = Locale(box.read('locale') ?? Get.deviceLocale?.languageCode ?? 'en');
 
     if (box.read('season') == null) {
       preferSeason.value = Season.spring;
@@ -94,7 +94,7 @@ class SettingController extends GetxController {
     box.write('season', season.name);
   }
 
-  void spinSeason(){
+  void spinSeason() {
     preferSeason.value = Season.values[(preferSeason.value.index + 1) % Season.values.length];
     box.write('season', preferSeason.value.name);
   }

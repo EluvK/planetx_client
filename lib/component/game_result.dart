@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/controller/socket.dart';
+import 'package:planetx_client/model/op.dart';
 import 'package:planetx_client/model/room.dart';
 
 TableCell cell(Widget child) {
@@ -38,12 +39,29 @@ class _GameResultState extends State<GameResult> {
           children: [
             cell(Text("result_user_name".tr)),
             cell(Text("result_first".tr)),
-            cell(Text("result_asteroid".tr)),
-            cell(Text("result_comet".tr)),
-            if (mapType == MapType.standard) cell(Text("result_dwarf_planet_standard".tr)),
-            if (mapType == MapType.expert) cell(Text("result_dwarf_planet_expert".tr)),
-            cell(Text("result_nebula".tr)),
-            cell(Text("result_x")),
+            cell(Wrap(
+              children: [
+                Image.asset(SectorType.Asteroid.iconName, width: 20, height: 20),
+                Text("result_asteroid".tr),
+              ],
+            )),
+            cell(Wrap(children: [
+              Image.asset(SectorType.Comet.iconName, width: 20, height: 20),
+              Text("result_comet".tr),
+            ])),
+            cell(Wrap(children: [
+              Image.asset(SectorType.DwarfPlanet.iconName, width: 20, height: 20),
+              if (mapType == MapType.standard) Text("result_dwarf_planet_standard".tr),
+              if (mapType == MapType.expert) Text("result_dwarf_planet_expert".tr),
+            ])),
+            cell(Wrap(children: [
+              Image.asset(SectorType.Nebula.iconName, width: 20, height: 20),
+              Text("result_nebula".tr),
+            ])),
+            cell(Wrap(children: [
+              Image.asset(SectorType.X.iconName, width: 20, height: 20),
+              Text("result_x".tr),
+            ])),
             cell(Text("result_sum".tr)),
             cell(Text("result_step".tr)),
           ],
