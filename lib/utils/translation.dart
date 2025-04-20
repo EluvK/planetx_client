@@ -69,6 +69,10 @@ class _TranslationHelper {
       "en_US": "Operation Errors",
       "zh_CN": "操作错误",
     },
+    "server_resp_title_recommend_error": {
+      "en_US": "Recommend Error",
+      "zh_CN": "推荐错误",
+    },
     "room_error_room_not_found": {
       "en_US": "Room Not Found",
       "zh_CN": "房间不存在",
@@ -136,6 +140,18 @@ class _TranslationHelper {
     "op_error_end_game_can_not_locate": {
       "en_US": "End Game Can Not Locate",
       "zh_CN": "无法进行定位操作",
+    },
+    "recommend_error_user_not_found_in_room": {
+      "en_US": "User Not Found In Room",
+      "zh_CN": "用户不在房间内",
+    },
+    "recommend_error_game_not_found": {
+      "en_US": "Game Not Found",
+      "zh_CN": "游戏不存在",
+    },
+    "recommend_error_not_enough_data": {
+      "en_US": "Not Enough Data",
+      "zh_CN": "数据不足",
     },
     // rules:
     "rule_title": {

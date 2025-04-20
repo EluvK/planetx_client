@@ -27,6 +27,9 @@ class ServerResp {
     if (data is RespOpError) {
       return (data as RespOpError).toJson();
     }
+    if (data is RespRecommendError) {
+      return (data as RespRecommendError).toJson();
+    }
     throw Exception("Unknown data type: ${data.runtimeType}");
   }
 
@@ -42,6 +45,9 @@ class ServerResp {
     }
     if (json['op_errors'] != null) {
       return ServerResp(data: _$RespOpErrorFromJson(json));
+    }
+    if (json['recommend_error'] != null) {
+      return ServerResp(data: _$RespRecommendErrorFromJson(json));
     }
     throw Exception("Unknown data type: ${json.runtimeType}");
   }
@@ -59,6 +65,9 @@ class ServerResp {
     if (data is RespOpError) {
       return "server_resp_title_op_errors".tr;
     }
+    if (data is RespRecommendError) {
+      return "server_resp_title_recommend_error".tr;
+    }
     return "server_resp_title_unknown".tr;
   }
 
@@ -74,6 +83,9 @@ class ServerResp {
     }
     if (data is RespOpError) {
       return (data as RespOpError).opErrors.fmt;
+    }
+    if (data is RespRecommendError) {
+      return (data as RespRecommendError).recommendError.fmt;
     }
     return "unknown".tr;
   }
@@ -111,6 +123,14 @@ class RespOpError {
   Map<String, dynamic> toJson() => _$RespOpErrorToJson(this);
 }
 
+@JsonSerializable(fieldRename: FieldRename.snake)
+class RespRecommendError {
+  RecommendError recommendError;
+  RespRecommendError(this.recommendError);
+
+  Map<String, dynamic> toJson() => _$RespRecommendErrorToJson(this);
+}
+
 @JsonEnum(fieldRename: FieldRename.snake)
 enum RoomErrors {
   RoomNotFound,
@@ -137,6 +157,14 @@ enum OpErrors {
   ResearchContiuously,
 
   EndGameCanNotLocate,
+}
+
+@JsonEnum(fieldRename: FieldRename.snake)
+enum RecommendError {
+  UserNotFoundInRoom,
+  GameNotFound,
+
+  NotEnoughData,
 }
 
 extension RoomErrorsEnumMap on RoomErrors {
@@ -183,6 +211,19 @@ extension OpErrorsEnumMap on OpErrors {
         return "op_error_research_continuously".tr;
       case OpErrors.EndGameCanNotLocate:
         return "op_error_end_game_can_not_locate".tr;
+    }
+  }
+}
+
+extension RecommendErrorEnumMap on RecommendError {
+  String get fmt {
+    switch (this) {
+      case RecommendError.UserNotFoundInRoom:
+        return "recommend_error_user_not_found_in_room".tr;
+      case RecommendError.GameNotFound:
+        return "recommend_error_game_not_found".tr;
+      case RecommendError.NotEnoughData:
+        return "recommend_error_not_enough_data".tr;
     }
   }
 }

@@ -5,6 +5,7 @@ import 'package:planetx_client/component/star_map.dart';
 import 'package:planetx_client/controller/sector_status.dart';
 import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/model/op.dart';
+import 'package:planetx_client/model/recommend.dart';
 import 'package:planetx_client/model/room.dart';
 import 'package:planetx_client/model/server_resp.dart';
 
@@ -148,6 +149,19 @@ class SocketController extends GetxController {
       }
     });
 
+    socket!.on("recommend_result", (data) {
+      print("recommend_result: $data");
+      // Get.snackbar("推荐结果", data.toString(), snackPosition: SnackPosition.BOTTOM);
+      final recommendResult = RecommendOperationResult.fromJson(data);
+      if (recommendResult.result is CountResult) {
+        final countResult = recommendResult.result as CountResult;
+        Get.snackbar("推荐结果", "推荐数量: ${countResult.count}", snackPosition: SnackPosition.BOTTOM);
+      } else if (recommendResult.result is CanLocateResult) {
+        final canLocateResult = recommendResult.result as CanLocateResult;
+        Get.snackbar("推荐结果", "是否可以定位: ${canLocateResult.canLocate}", snackPosition: SnackPosition.BOTTOM);
+      }
+    });
+
     socket!.on("token", (data) {
       print("token: $data");
       // Get.snackbar("token", data.toString(), snackPosition: SnackPosition.BOTTOM);
@@ -222,6 +236,18 @@ class SocketController extends GetxController {
       if (socket != null && socket!.connected) break;
     }
     socket!.emit('sync', {});
+  }
+
+  void recommend(RecommendOperation recommend) async {
+    if (socket == null) {
+      reconnect();
+    }
+
+    for (var i = 0; i < 10; i++) {
+      await Future.delayed(Duration(milliseconds: 300));
+      if (socket != null && socket!.connected) break;
+    }
+    socket!.emit('recommend', recommend);
   }
 
   // void addMessage(String message) {

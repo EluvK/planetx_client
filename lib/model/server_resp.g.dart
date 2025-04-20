@@ -60,3 +60,17 @@ const _$OpErrorsEnumMap = {
   OpErrors.ResearchContiuously: 'research_contiuously',
   OpErrors.EndGameCanNotLocate: 'end_game_can_not_locate',
 };
+
+RespRecommendError _$RespRecommendErrorFromJson(Map<String, dynamic> json) => RespRecommendError(
+      $enumDecode(_$RecommendErrorEnumMap, json['recommend_error']),
+    );
+
+Map<String, dynamic> _$RespRecommendErrorToJson(RespRecommendError instance) => <String, dynamic>{
+      'recommend_error': _$RecommendErrorEnumMap[instance.recommendError]!,
+    };
+
+const _$RecommendErrorEnumMap = {
+  RecommendError.UserNotFoundInRoom: 'user_not_found_in_room',
+  RecommendError.GameNotFound: 'game_not_found',
+  RecommendError.NotEnoughData: 'not_enough_data',
+};
