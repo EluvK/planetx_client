@@ -44,6 +44,8 @@ class SocketController extends GetxController {
   final currentClueDetails = <Clue>[].obs; // operation results for self. sensitive data
   final currentTokens = <Token>[].obs; // operation results for self. sensitive data
   final currentSecretTokens = <SecretToken>[].obs;
+  final currentRecommendCount = 0.obs;
+  final currentRecommendCanLocate = false.obs;
 
   // final messages = <String>[].obs; // Observable list to store messages
 
@@ -155,10 +157,12 @@ class SocketController extends GetxController {
       final recommendResult = RecommendOperationResult.fromJson(data);
       if (recommendResult.result is CountResult) {
         final countResult = recommendResult.result as CountResult;
-        Get.snackbar("推荐结果", "推荐数量: ${countResult.count}", snackPosition: SnackPosition.BOTTOM);
+        // Get.snackbar("推荐结果", "推荐数量: ${countResult.count}", snackPosition: SnackPosition.BOTTOM);
+        currentRecommendCount.value = countResult.count;
       } else if (recommendResult.result is CanLocateResult) {
         final canLocateResult = recommendResult.result as CanLocateResult;
-        Get.snackbar("推荐结果", "是否可以定位: ${canLocateResult.canLocate}", snackPosition: SnackPosition.BOTTOM);
+        // Get.snackbar("推荐结果", "是否可以定位: ${canLocateResult.canLocate}", snackPosition: SnackPosition.BOTTOM);
+        currentRecommendCanLocate.value = canLocateResult.canLocate;
       }
     });
 

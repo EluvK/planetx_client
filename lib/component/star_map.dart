@@ -6,6 +6,7 @@ import 'package:planetx_client/controller/sector_status.dart';
 import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/controller/socket.dart';
 import 'package:planetx_client/model/op.dart';
+import 'package:planetx_client/model/recommend.dart';
 import 'package:planetx_client/model/room.dart';
 import 'package:planetx_client/utils/utils.dart';
 
@@ -31,6 +32,9 @@ class _StarMapState extends State<StarMap> {
       GameStateResp state = socket.currentGameState.value;
       List<SecretToken> stokens = socket.currentSecretTokens;
       List<Token> tokens = socket.currentTokens;
+
+      int recommendCount = socket.currentRecommendCount.value;
+      bool canLocate = socket.currentRecommendCanLocate.value;
 
       // if (state.status.isNotStarted) {
       //   return const SizedBox.shrink();
@@ -70,10 +74,10 @@ class _StarMapState extends State<StarMap> {
             Column(children: [SizedBox(height: 40), animatedMap]),
             // 操作按钮
             if (showMeetingView) Align(alignment: Alignment.topCenter, child: selfTokenCounter(tokens)),
-            if (showMeetingView) Align(alignment: Alignment.topLeft, child: othersSecretTokenCounter(stokens)),
+            if (showMeetingView) Positioned(child: othersSecretTokenCounter(stokens)),
+            if (!showMeetingView) Positioned(bottom: 0, child: recommendBar(recommendCount, canLocate)),
             if (!showMeetingView)
-              Align(
-                alignment: Alignment.topLeft,
+              Positioned(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 4.0, left: 4.0),
                   child: Row(
@@ -192,6 +196,36 @@ class _StarMapState extends State<StarMap> {
     );
   }
 
+  Widget recommendBar(int recommendCount, bool canLocate) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: 30,
+          child: LoadingTextButton(
+            onPressed: () => socket.recommend(RecommendOperation.canLocate),
+            buttonStyle: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(0),
+            ),
+            child: Icon(canLocate ? Icons.check : Icons.question_mark, size: 16),
+          ),
+        ),
+        LoadingTextButton(
+          onPressed: () => socket.recommend(RecommendOperation.count),
+          buttonStyle: TextButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            padding: const EdgeInsets.all(0),
+          ),
+          child: Text("#$recommendCount"),
+        ),
+      ],
+    );
+  }
+
   Widget buildStarMap(GameStateResp state) {
     // final sectorStatus = socket.localSectorStatus;
     return Obx(() {
@@ -260,6 +294,37 @@ class _StarMapState extends State<StarMap> {
           },
         );
       },
+    );
+  }
+}
+
+class LoadingTextButton extends StatefulWidget {
+  const LoadingTextButton({super.key, required this.onPressed, required this.child, required this.buttonStyle});
+
+  final Function() onPressed;
+  final ButtonStyle buttonStyle;
+  final Widget child;
+
+  @override
+  State<LoadingTextButton> createState() => _LoadingTextButtonState();
+}
+
+class _LoadingTextButtonState extends State<LoadingTextButton> {
+  bool isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () async {
+        setState(() => isLoading = true);
+        await widget.onPressed();
+        await Future.delayed(const Duration(milliseconds: 500));
+        setState(() => isLoading = false);
+      },
+      style: widget.buttonStyle,
+      child: isLoading
+          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+          : widget.child,
     );
   }
 }

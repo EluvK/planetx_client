@@ -46,7 +46,7 @@ class ServerResp {
     if (json['op_errors'] != null) {
       return ServerResp(data: _$RespOpErrorFromJson(json));
     }
-    if (json['recommend_error'] != null) {
+    if (json['recommend_errors'] != null) {
       return ServerResp(data: _$RespRecommendErrorFromJson(json));
     }
     throw Exception("Unknown data type: ${json.runtimeType}");
@@ -85,7 +85,7 @@ class ServerResp {
       return (data as RespOpError).opErrors.fmt;
     }
     if (data is RespRecommendError) {
-      return (data as RespRecommendError).recommendError.fmt;
+      return (data as RespRecommendError).recommendErrors.fmt;
     }
     return "unknown".tr;
   }
@@ -125,8 +125,8 @@ class RespOpError {
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class RespRecommendError {
-  RecommendError recommendError;
-  RespRecommendError(this.recommendError);
+  RecommendError recommendErrors;
+  RespRecommendError(this.recommendErrors);
 
   Map<String, dynamic> toJson() => _$RespRecommendErrorToJson(this);
 }

@@ -62,11 +62,11 @@ const _$OpErrorsEnumMap = {
 };
 
 RespRecommendError _$RespRecommendErrorFromJson(Map<String, dynamic> json) => RespRecommendError(
-      $enumDecode(_$RecommendErrorEnumMap, json['recommend_error']),
+      $enumDecode(_$RecommendErrorEnumMap, json['recommend_errors']),
     );
 
 Map<String, dynamic> _$RespRecommendErrorToJson(RespRecommendError instance) => <String, dynamic>{
-      'recommend_error': _$RecommendErrorEnumMap[instance.recommendError]!,
+      'recommend_errors': _$RecommendErrorEnumMap[instance.recommendErrors]!,
     };
 
 const _$RecommendErrorEnumMap = {

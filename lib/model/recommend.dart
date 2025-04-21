@@ -1,12 +1,17 @@
-import 'package:json_annotation/json_annotation.dart';
-
 part 'recommend.g.dart';
 
 enum RecommendOperation {
   count,
   canLocate;
 
-  String toJson() => name;
+  String toJson() {
+    switch (this) {
+      case RecommendOperation.count:
+        return 'count';
+      case RecommendOperation.canLocate:
+        return 'can_locate';
+    }
+  }
 }
 
 class RecommendOperationResult {
