@@ -69,6 +69,7 @@ UserState _$UserStateFromJson(Map<String, dynamic> json) => UserState(
       json['can_locate'] as bool,
       (json['moves'] as List<dynamic>).map((e) => Operation.fromJson(e as Map<String, dynamic>)).toList(),
       (json['used_token'] as List<dynamic>).map((e) => SecretToken.fromJson(e as Map<String, dynamic>)).toList(),
+      json['is_bot'] as bool,
     );
 
 Map<String, dynamic> _$UserStateToJson(UserState instance) => <String, dynamic>{
@@ -80,6 +81,7 @@ Map<String, dynamic> _$UserStateToJson(UserState instance) => <String, dynamic>{
       'can_locate': instance.canLocate,
       'moves': instance.moves,
       'used_token': instance.usedToken,
+      'is_bot': instance.isBot,
     };
 
 UserResultSummary _$UserResultSummaryFromJson(Map<String, dynamic> json) => UserResultSummary(

@@ -347,6 +347,10 @@ Correctly locate Planet X later: +(2 * distance from the first locator, 10/8/6/4
       "en_US": "Confirm",
       "zh_CN": "确定",
     },
+    "room_button_switch_bot": {
+      "en_US": "AI",
+      "zh_CN": "AI",
+    },
     "room_button_prepare": {
       "en_US": "Prepare",
       "zh_CN": "准备",

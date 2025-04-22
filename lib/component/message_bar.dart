@@ -75,7 +75,7 @@ class _RoomInfosState extends State<RoomInfos> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.person, color: userIndexedColors[index]),
+        Icon(user.isBot ? Icons.tag_faces_rounded : Icons.person, color: userIndexedColors[index]),
         user.ready
             ? Icon(Icons.check_box, color: Colors.green, size: 16)
             : Icon(Icons.question_mark, color: Colors.blueGrey, size: 16),
@@ -131,13 +131,12 @@ class _RoomInfosState extends State<RoomInfos> {
 
       final userInfo = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: gameState.users
-            .asMap()
-            .map((index, user) {
-              return MapEntry(index, userWidget(user, index));
-            })
-            .values
-            .toList(),
+        children: [
+          ...gameState.users.asMap().map((index, user) {
+            return MapEntry(index, userWidget(user, index));
+          }).values,
+          if (gameState.status.isNotStarted) switchBotButton(gameState)
+        ],
       );
 
       final currentUserState = gameState.users.firstWhere((element) => element.id == currentUserId);
@@ -180,6 +179,18 @@ class _RoomInfosState extends State<RoomInfos> {
         ),
       );
     });
+  }
+
+  Widget switchBotButton(GameStateResp gameState) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+      ),
+      onPressed: () {
+        socket.room(RoomUserOperation.switchBot(gameState.id));
+      },
+      child: Text("room_button_switch_bot".tr),
+    );
   }
 
   Widget prepareButton(UserState currentUserState, GameStateResp gameState) {

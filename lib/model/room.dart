@@ -15,6 +15,7 @@ class RoomUserOperation {
   factory RoomUserOperation.leave(String id) => RoomUserOperation(RoomLeaveOperation(id));
   factory RoomUserOperation.prepare(String id) => RoomUserOperation(RoomPrepareOperation(id));
   factory RoomUserOperation.unprepare(String id) => RoomUserOperation(RoomUnprepareOperation(id));
+  factory RoomUserOperation.switchBot(String id) => RoomUserOperation(RoomSwitchBotOperation(id));
 
   factory RoomUserOperation.fromJson(dynamic json) {
     if (json is Map<String, dynamic>) {
@@ -28,6 +29,8 @@ class RoomUserOperation {
         return RoomUserOperation(RoomPrepareOperation(json['prepare']));
       } else if (json.containsKey('unprepare')) {
         return RoomUserOperation(RoomUnprepareOperation(json['unprepare']));
+      } else if (json.containsKey('switch_bot')) {
+        return RoomUserOperation(RoomSwitchBotOperation(json['switch_bot']));
       } else {
         throw Exception('unknown RoomUserOperation type');
       }
@@ -55,6 +58,8 @@ class RoomUserOperation {
         return {'prepare': (value as RoomPrepareOperation).value};
       case RoomUnprepareOperation _:
         return {'unprepare': (value as RoomUnprepareOperation).value};
+      case RoomSwitchBotOperation _:
+        return {'switch_bot': (value as RoomSwitchBotOperation).value};
       default:
         throw Exception('unknown RoomUserOperation type');
     }
@@ -94,6 +99,11 @@ class RoomPrepareOperation {
 class RoomUnprepareOperation {
   final String value;
   RoomUnprepareOperation(this.value);
+}
+
+class RoomSwitchBotOperation {
+  final String value;
+  RoomSwitchBotOperation(this.value);
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
@@ -203,6 +213,7 @@ class UserState {
   final List<Operation> moves;
   // final List<OperationResult> movesResult;
   final List<SecretToken> usedToken;
+  final bool isBot;
 
   UserState(
     this.id,
@@ -214,6 +225,7 @@ class UserState {
     this.moves,
     // this.movesResult,
     this.usedToken,
+    this.isBot,
   );
 
   factory UserState.fromJson(Map<String, dynamic> json) => _$UserStateFromJson(json);
@@ -232,7 +244,7 @@ class UserResultSummary {
   final int nebula;
   final int x;
   final int step;
-  
+
   UserResultSummary(
     this.id,
     this.name,
@@ -248,7 +260,6 @@ class UserResultSummary {
 
   factory UserResultSummary.fromJson(Map<String, dynamic> json) => _$UserResultSummaryFromJson(json);
   Map<String, dynamic> toJson() => _$UserResultSummaryToJson(this);
-
 }
 
 @JsonEnum(fieldRename: FieldRename.snake)
