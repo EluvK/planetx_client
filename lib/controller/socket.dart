@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:planetx_client/component/star_map.dart';
 import 'package:planetx_client/controller/sector_status.dart';
 import 'package:planetx_client/controller/setting.dart';
 import 'package:planetx_client/model/op.dart';
