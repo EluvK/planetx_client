@@ -9,6 +9,11 @@ import 'package:planetx_client/model/room.dart';
 import 'package:planetx_client/utils/rules.dart';
 import 'package:planetx_client/utils/utils.dart';
 
+// Define reusable styles
+const buttonPadding = EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0);
+const rowTextStyle = TextStyle(fontSize: 14);
+const iconSize = 16.0;
+
 class MessageBar extends StatefulWidget {
   const MessageBar({super.key});
 
@@ -31,15 +36,6 @@ class _MessageBarState extends State<MessageBar> {
         ),
         // height: 30,
         child: Center(child: Text(hint ?? '', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
-        // ListView(
-        //   shrinkWrap: true,
-        //   children: socket.messages
-        //       .map((message) => Padding(
-        //             padding: const EdgeInsets.symmetric(vertical: 4.0),
-        //             child: Text(message),
-        //           ))
-        //       .toList(),
-        // ),
       );
     });
   }
@@ -56,15 +52,29 @@ class _RoomInfosState extends State<RoomInfos> {
   final socket = Get.find<SocketController>();
   final setting = Get.find<SettingController>();
 
-  Widget rowTextIconWidget(String text, Function()? onPressed, IconData icon) {
+  Widget rowTextIconWidget(
+      String text, IconData icon, bool started, Function() functionBeforeStart, Function()? functionAfterStart) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(text, style: const TextStyle(fontSize: 14)),
-        if (onPressed != null)
+        Text(text, style: rowTextStyle),
+        if (!started)
           SizedBox(
-            height: 16,
-            child: IconButton(padding: EdgeInsets.zero, onPressed: onPressed, icon: Icon(icon, size: 16)),
+            height: iconSize,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: functionBeforeStart,
+              icon: Icon(icon, size: iconSize),
+            ),
+          ),
+        if (started && functionAfterStart != null)
+          SizedBox(
+            height: iconSize,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: functionAfterStart,
+              icon: Icon(icon, size: iconSize),
+            ),
           ),
       ],
     );
@@ -75,10 +85,15 @@ class _RoomInfosState extends State<RoomInfos> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(user.isBot ? Icons.tag_faces_rounded : Icons.person, color: userIndexedColors[index]),
-        user.ready
-            ? Icon(Icons.check_box, color: Colors.green, size: 16)
-            : Icon(Icons.question_mark, color: Colors.blueGrey, size: 16),
+        Icon(
+          user.isBot ? Icons.tag_faces_rounded : Icons.person,
+          color: userIndexedColors[index],
+        ),
+        Icon(
+          user.ready ? Icons.check_box : Icons.question_mark,
+          color: user.ready ? Colors.green : Colors.blueGrey,
+          size: iconSize,
+        ),
         Text(user.name),
       ],
     );
@@ -97,34 +112,30 @@ class _RoomInfosState extends State<RoomInfos> {
         children: [
           rowTextIconWidget(
             "room_info_room".trParams({"room": gameState.id}),
-            gameState.status.isNotStarted
-                ? () {
-                    Clipboard.setData(ClipboardData(text: gameState.id));
-                  }
-                : () {
-                    socket.sync();
-                  },
             gameState.status.isNotStarted ? Icons.copy : Icons.sync,
+            gameState.status.isNotStarted,
+            () => Clipboard.setData(ClipboardData(text: gameState.id)),
+            () => socket.sync(),
           ),
           rowTextIconWidget(
             "room_info_seed".trParams({"seed": gameState.mapSeed.toString()}),
-            gameState.status.isNotStarted
-                ? () {
-                    var rng = Random();
-                    socket.room(RoomUserOperation.edit(gameState.id, rng.nextInt(0xffffffff), gameState.mapType));
-                  }
-                : null,
             Icons.refresh,
+            gameState.status.isNotStarted,
+            () {
+              var rng = Random();
+              socket.room(RoomUserOperation.edit(gameState.id, rng.nextInt(0xffffffff), gameState.mapType));
+            },
+            null,
           ),
           rowTextIconWidget(
             "room_info_mode".trParams({"mode": gameState.mapType.name}),
-            gameState.status.isNotStarted
-                ? () {
-                    final mapType = gameState.mapType == MapType.expert ? MapType.standard : MapType.expert;
-                    socket.room(RoomUserOperation.edit(gameState.id, gameState.mapSeed, mapType));
-                  }
-                : null,
             Icons.swap_horiz,
+            gameState.status.isNotStarted,
+            () {
+              final mapType = gameState.mapType == MapType.expert ? MapType.standard : MapType.expert;
+              socket.room(RoomUserOperation.edit(gameState.id, gameState.mapSeed, mapType));
+            },
+            null,
           ),
         ],
       );
@@ -135,28 +146,21 @@ class _RoomInfosState extends State<RoomInfos> {
           ...gameState.users.asMap().map((index, user) {
             return MapEntry(index, userWidget(user, index));
           }).values,
-          if (gameState.status.isNotStarted) switchBotButton(gameState)
         ],
       );
 
       final currentUserState = gameState.users.firstWhere((element) => element.id == currentUserId);
 
-      final buttons = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      final buttons = Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           leaveButton(gameState, context),
-          SizedBox(height: 4),
+          Spacer(),
           if (gameState.status.isNotStarted) prepareButton(currentUserState, gameState),
-          SizedBox(height: 4),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
-            ),
-            onPressed: () {
-              showRulesDialog(context, gameState.mapType);
-            },
-            child: Text("room_button_show_rules".tr),
-          ),
+          SizedBox(width: 4),
+          if (gameState.status.isNotStarted) switchBotButton(gameState),
+          Spacer(),
+          gameRuleButton(gameState),
         ],
       );
 
@@ -183,9 +187,7 @@ class _RoomInfosState extends State<RoomInfos> {
 
   Widget switchBotButton(GameStateResp gameState) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
-      ),
+      style: ElevatedButton.styleFrom(padding: buttonPadding),
       onPressed: () {
         socket.room(RoomUserOperation.switchBot(gameState.id));
       },
@@ -195,9 +197,7 @@ class _RoomInfosState extends State<RoomInfos> {
 
   Widget prepareButton(UserState currentUserState, GameStateResp gameState) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
-      ),
+      style: ElevatedButton.styleFrom(padding: buttonPadding),
       onPressed: () {
         if (currentUserState.ready) {
           socket.room(RoomUserOperation.unprepare(gameState.id));
@@ -211,9 +211,7 @@ class _RoomInfosState extends State<RoomInfos> {
 
   Widget leaveButton(GameStateResp gameState, BuildContext context) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
-      ),
+      style: ElevatedButton.styleFrom(padding: buttonPadding),
       onPressed: () {
         if (gameState.status.isNotStarted || gameState.status.isEnd) {
           socket.room(RoomUserOperation.leave(gameState.id));
@@ -231,6 +229,7 @@ class _RoomInfosState extends State<RoomInfos> {
                   ),
                   TextButton(
                     onPressed: () {
+                      socket.room(RoomUserOperation.leave(gameState.id));
                       Navigator.of(context).pop();
                       Get.offAllNamed('/');
                     },
@@ -243,6 +242,16 @@ class _RoomInfosState extends State<RoomInfos> {
         }
       },
       child: Text("room_button_leave".tr),
+    );
+  }
+
+  Widget gameRuleButton(GameStateResp gameState) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(padding: buttonPadding),
+      onPressed: () {
+        showRulesDialog(context, gameState.mapType);
+      },
+      child: Text("room_button_show_rules".tr),
     );
   }
 }

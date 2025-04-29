@@ -75,7 +75,7 @@ class _StarMapState extends State<StarMap> {
             // 操作按钮
             if (showMeetingView) Align(alignment: Alignment.topCenter, child: selfTokenCounter(tokens)),
             if (showMeetingView) Positioned(child: othersSecretTokenCounter(stokens)),
-            if (!showMeetingView) Positioned(bottom: 0, child: recommendBar(recommendCount, canLocate)),
+            Positioned(bottom: 0, child: recommendBar(recommendCount, canLocate)),
             if (!showMeetingView)
               Positioned(
                 child: Padding(
@@ -467,6 +467,7 @@ class CircleMeetings extends StatelessWidget {
 
   Widget secretTokenWidget(double dynamicTokenSize, SecretToken token) {
     if (token.type == null) {
+      // Tooltip message: "token.type?.name", // todo use token here?
       return Container(
         width: dynamicTokenSize.toDouble(),
         height: dynamicTokenSize.toDouble(),
