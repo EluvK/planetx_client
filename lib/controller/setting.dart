@@ -11,7 +11,7 @@ class SettingController extends GetxController {
   RxString userName = ''.obs;
   RxString userId = ''.obs;
 
-  RxString serverAddress = 'https://api.planetx-online.top'.obs;
+  RxString serverAddress = 'https://api-planetx.508071.xyz'.obs;
   final preferSeason = Season.spring.obs;
 
   final locale = const Locale('en').obs;
@@ -36,7 +36,7 @@ class SettingController extends GetxController {
     }
 
     if (box.read('serverAddress') == null) {
-      serverAddress.value = 'https://api.planetx-online.top';
+      serverAddress.value = 'https://api-planetx.508071.xyz';
       box.write('serverAddress', serverAddress.value);
     } else {
       serverAddress.value = box.read('serverAddress');
